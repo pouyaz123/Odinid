@@ -1,0 +1,23 @@
+.navi {
+	height:20px;
+	direction: ltr
+}
+.navi a {
+	width:8px;
+	height:8px;
+	margin:3px;
+	background:url(navigator.png) 0 0 no-repeat;
+	display:block;
+	font-size:1px;
+	display: inline-block;
+}
+
+/* mouseover state */
+.navi a:hover {
+	background-position:0 -8px;      
+}
+
+/* active state (current page state) */
+.navi a.active {
+	background-position:0 -16px;     
+}

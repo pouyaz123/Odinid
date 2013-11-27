@@ -1,0 +1,29 @@
+
+.scrollable {
+	position:relative;
+	overflow:hidden;
+/*	width: 950px;
+	height:336px;*/
+}
+
+.scrollable .items {
+	/* this cannot be too large */
+	width:20000em;
+	position:absolute;
+	clear:both;
+/*	left: -950px*/
+}
+
+.items div.item {
+	float:left;
+/*	width:950px;
+	height:336px;*/
+}
+.items div.item div.img	{
+/*	width:950px;*/
+	overflow:hidden
+}
+.scrollable .active {
+	position:relative;
+	cursor:default;
+}

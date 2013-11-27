@@ -1,0 +1,198 @@
+html, body{height: 100%;}
+body{margin: 0px; padding: 0px; cursor: default}
+
+a, a:visited{display: inline-block; text-decoration: none;}
+a img, a:visited img{border: 0px}
+select, select option, textarea{font-family: tahoma; font-size: 11px}
+table{border-collapse: collapse; border: 0px}
+table td{padding: 0px}
+ol, ul{margin: 0px; padding-right: 20px}
+p{margin: 0px;}
+.ltr ul{padding-left: 20px}
+
+.ltr{direction:ltr; text-align:left;}
+.rtl{direction:rtl; text-align:right;}
+.RightAlign{text-align: right}
+
+.FullH{height: 100%;}
+.FullW{width: 100%;}
+.SyncTDDivHeight{/*in Tools.js*/}
+.absContainer{position: relative}
+.CenterMargins {margin-left: auto; margin-right: auto;}
+.CenterAlign{text-align: center}
+.TopAlign, .TopAlign td{vertical-align: top}
+.MidAlign, td.MidAlign, .MidAlign td{vertical-align: middle}
+.rtl .OppositeFloat{float: left !important}
+.ltr .OppositeFloat{float: right !important}
+.rtl .OppositeAlign{text-align: left}
+.ltr .OppositeAlign{text-align: right}
+.rtl .OppositeDir{direction: ltr}
+.ltr .OppositeDir{direction: rtl}
+.Block{display: block !important}
+
+/*--------- Form Fields and Btns ---------*/
+.FieldSet{position: relative; border:1px solid #ccd; padding: 5px; margin-top: 12px; 
+		  z-index: 1; position: relative;
+		  behavior:url(/_css/PIE.htc);
+		  border-radius:4px;
+		  -webkit-border-radius: 4px;
+		  -khtml-border-radius: 4px;
+		  -moz-border-radius: 4px;
+}
+.FieldSet .Caption{background: #fff; display: inline-block; position: absolute; top: -12px; padding: 0px 10px; text-align: center; color: #88b}
+.rtl .FieldSet .Caption{right: 25px}
+.ltr .FieldSet .Caption{left: 25px}
+.FieldSet .Caption .ChkRdo input{margin: 0px}
+
+.Btn, .Btn:visited{display: inline-block; margin: 3px 5px; border:0px}
+.Btn, .Btn:visited, .Btn:hover{text-decoration: none; position: relative}
+.Btn, .Btn input, .Btn div, .Btn span{height: 20px; line-height: 20px; vertical-align: top; text-align: center;}
+.Btn input{cursor: pointer; border: 0px; background: none; padding: 0px 5px; min-width: 40px; margin: 0px}
+.rtl .Btn input{padding-bottom:10px}
+.Btn span{padding: 0px 5px; display: inline-block}
+.Btn div{position: absolute; top: 0px; display: inline-block; width: 5px; left: -5px}
+
+.ImgBtn {margin: 3px 5px}
+.LnkBtn{border: 1px solid #A6C9E2; padding: 1px; margin: 2px; color: #68a;
+		min-width: 16px; min-height: 16px; line-height: 16px; vertical-align: middle;
+		z-index: 1; position: relative;
+		behavior:url(/_css/PIE.htc);
+		border-radius: 4px;
+		-khtml-border-radius: 4px;
+		-webkit-border-radius: 4px;
+		-moz-border-radius: 4px;}
+.LnkBtn:hover{border-color: #f00; text-decoration: none !important}
+.LnkBtn img{vertical-align: middle}
+
+.Img16, .Img24, .Img32{display: inline-block}
+.Img16{width:16px; height:16px}
+.Img24{width: 24px; height: 24px}
+.Img32{width: 32px; height: 32px}
+.FileIcon{background: #aaa; margin: 3px 0px}
+
+.Info{background:url('/_img/icons/info16.png') no-repeat; display: inline-block; width: 16px; height: 16px; }
+.ChkRdo .Info, .Field .Info{position: absolute; top: -8px; z-index: 1}
+.Caption .ChkRdo{margin: 0px}
+.Caption .ChkRdo input{margin-right: 0px !important}
+.ltr .Field .Info, .ltr .ChkRdo .Info{left: -8px}
+.rtl .Field .Info, .rtl .ChkRdo .Info{right: -8px}
+
+.Field{display: inline-block; min-height: 24px; line-height: 24px; vertical-align: middle; min-width: 300px;
+	   background: #fff; padding: 0px 4px; border: 1px solid #ccd;
+	   position: relative; /*z-index: 1; MyDDL problem*/
+	   /*behavior:url(/_css/PIE.htc);*/
+	   border-radius: 4px;
+	   -webkit-border-radius: 4px;
+	   -khtml-border-radius: 4px;
+	   -moz-border-radius: 4px;}
+
+.rtl .Field input.ltr
+, .rtl .Field select.ltr
+, .rtl .Field div.MyDDL
+, .rtl .Field textarea.ltr{float: left}
+.ltr .Field input.rtl
+, .ltr .Field select.rtl
+, .ltr .Field div.MyDDL
+, .ltr .Field textarea.rtl{float: right}
+.Field, .ChkRdo{margin: 5px;}
+
+.Field label{white-space: nowrap; min-width: 100px;}
+.rtl .Field label{text-align: left; padding-left: 3px; float: right}
+.ltr .Field label{text-align: right; padding-right: 3px; float: left}
+.Field label, .ChkRdo label{cursor: pointer; display: inline-block; vertical-align: middle}
+.Field label:hover, .ChkRdo label:hover{color: #f00}
+.ChkRdo label{white-space: normal !important; display: inline}
+
+.ChkRdo{display: inline-block; vertical-align: middle}
+.ChkRdo input{vertical-align: middle; margin: 0px 3px}
+.rtl .ChkRdo input{margin-right: 10px}
+.ltr .ChkRdo input{margin-left: 10px}
+
+.Field div.MyDDL{width:190px}
+
+.Txt{line-height: 22px; vertical-align: middle}
+.Txt input{height: 22px; vertical-align: middle; padding: 0px}
+.Txt textarea{height: 100px}
+.Txt input, .Field textarea{width: 190px; border: 0px; background: none}
+/*captcha*/
+.Captcha input{width: 80px !important; border: 1px solid #999; text-align: left; direction: ltr}
+.Captcha img{width: 100px; height: 40px; vertical-align: middle}
+.Txt.Captcha label{vertical-align: middle; line-height: 18px; text-align: center !important; white-space: normal; width: 70px; min-width: 70px; float: none}
+.Captcha a {background: url('/_img/icons/reload12.gif') no-repeat center center; display: inline-block; bottom: 0px; height: 20px; position: absolute; width: 20px;}
+.rtl .Captcha a {left: 0px}
+.ltr .Captcha a {right: 0px}
+.Captcha a img{width: 12px; height: 12px}
+/*MCE*/
+.Txt.mceBox{padding: 5px}
+.Txt .mceEditor{direction: ltr; text-align: left}
+.Txt label, .Txt textarea, .Txt .mceEditor{vertical-align: top; display: inline-block}
+
+/*disabled*/
+.disabled, input.disabled, .disabled input, .disabled div, .disabled span{background: #ddd !important; color:#888 !important; border-color: #ddd !important; cursor:default}
+.DisableCover{display: none; position: absolute; top:0px; left: 0px; width: 100%; height: 100%; background: #eee; opacity: 0.25; filter:alpha(opacity=25); z-index: 1}
+.disabled .DisableCover{display: block}
+.disabled label, .disabled label:hover{cursor: default !important; color: #999 !important}
+.File input{height: auto !important; border: 0px none #fff}
+
+
+/*TODO2: Totally Prepare Error Pages*/
+/*--------- Msgs ---------*/
+.AltRow{background: #eef}
+
+.SuccessMsg, .ErrMsg, .WarningMsg{padding: 4px;
+								  border-radius:4px;
+								  -webkit-border-radius: 4px;
+								  -khtml-border-radius: 4px;
+								  -moz-border-radius: 4px;
+}
+.SuccessMsg{background: #cf5; color: #058; }
+.ErrMsg{background: #d00; color: #ff5; }
+.WarningMsg{background: #fd0; color: #058; }
+
+.MsgPage{background: #223; font-family: tahoma; font-size: 12px;}
+.MsgPage a, .MsgPage a:visited{color: #fc0;}
+.MsgPage a:hover{color: #fff; text-decoration: underline;}
+.MsgPage .MsgPageBox{ background: #fff; color: #223; margin: auto; width: 400px;text-align: center; padding: 5px;
+					  z-index: 1; position: relative;
+					  behavior:url(/_css/PIE.htc);
+					  border-radius:8px;
+					  -webkit-border-radius: 8px;
+					  -khtml-border-radius: 8px;
+					  -moz-border-radius: 8px;
+}
+.MsgPage .MsgPageBox a{color: #f00}
+.MsgPage .MsgPageBox a:hover{color: #000}
+.MsgPage .MsgPageBox img{display: block; margin: auto}
+.MsgPage .Footer{height: 75px; background: none; color: #fff}
+
+
+/*--------- Lists ---------*/
+.AltRow{background: #eef}
+/*ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-rtl*/
+/*--------- jQuery UI ---------*/
+.ui-widget, .ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget button{font-family: tahoma !important; font-size:11px !important }
+.ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default{font-weight: normal !important}
+.ui-jqgrid tr.jqgrow td{white-space: normal !important}
+.ui-jqgrid tr.jqgrow td.SubLIsInDG{overflow: visible !important}
+td.SubLIsInDG li{float: none !important}
+td.SubLIsInDG .KASPBluLnks a.Btn, td.SubLIsInDG .KASPBluLnks a.Btn span{display: block}
+.ui-resizable-handle{z-index: 3 !important}
+.ui-icon-triangle-1-s { background-position: -68px -16px !important; }
+.ui-icon-triangle-1-n { background-position: -3px -16px !important; }
+.ltr .s-ico{right: 8px}
+.ui-grid-ico-sort{width:10px !important}
+.ui-icon-saveall{background: url('/_img/icons/save16.png') no-repeat center center !important}
+.ui-button-icon-only .ui-button-text, .ui-button-icons-only .ui-button-text{padding: 0.2em !important}
+
+ul.ui-autocomplete{padding: 2px; z-index: 101}
+.ui-autocomplete-loading {background: white url('/_img/general/loading16.gif') no-repeat !important; background-color: #ffb !important}
+.ltr .ui-autocomplete-loading {background-position: right center !important}
+.rtl .ui-autocomplete-loading{background-position: left center !important}
+.ltr.ui-autocomplete-loading {background-position: right center !important}
+.rtl.ui-autocomplete-loading {background-position: left center !important}
+ul.ui-autocomplete.ltr li a span{direction: ltr; display: inline-block}
+.ui-autocomplete .__uiausep{color:#aaa;font-style:italic;text-align:center}
+
+.PathContainer{margin-bottom: 5px}
+.PathContainer, .PathContainer div, .PathContainer a{display: inline-block; min-height: 16px; line-height: 16px; vertical-align: middle}
+.PathContainer .Separator{font-size: 8px; padding: 0px 8px}

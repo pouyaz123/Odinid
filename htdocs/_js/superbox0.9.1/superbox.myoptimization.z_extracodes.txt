@@ -1,0 +1,33 @@
+//	var $anchors=$("a[href*='jpg']:has(img), a[href*='jpeg']:has(img), a[href*='png']:has(img), a[href*='gif']:has(img), a[href*='bmp']:has(img)").filter('[rel*="superbox[image]"]')
+//	$anchors.live('click', function(){
+//		var $this=$(this)
+//		, FrameName='superboxoptimization_'+this.id
+//		, $SuperInnerBox=$('#superbox-innerbox'), $iframe=$('<iframe style="display:none" name="'+FrameName+'" src="'+$this.attr('href')+'"></iframe>')
+//		PostBack.LoadingCover($SuperInnerBox, 1, function(){
+//			$iframe.load(function(){
+////				if(this.IsReloadAction){
+//					$('img', $SuperInnerBox).attr('src', $this.attr('href')).attr('title', null)
+//					setTimeout(function(){
+//						PostBack.LoadingCover($SuperInnerBox, 0)
+//						$iframe.remove()
+//						delete $iframe
+//					}, 300)
+////				}
+//			})
+//			$(document.body).append($iframe)
+//			setTimeout(function(){
+//				$iframe[0].IsReloadAction=true
+//				$iframe[0].contentWindow.location.reload();
+//			}, 500)
+//		})
+//	})
+
+//image box resizer of min
+//q.width(A.width()+($innerbox.css("paddingLeft").slice(0,-2)-0)+($innerbox.css("paddingRight").slice(0,-2)-0));
+//$innerbox.height(A.height());if(B&&B[0]!=""){q.width(B[0]+"px")}if(B&&B[1]!=""&&B[1]>A.height()){$innerbox.height(B[1]+"px")
+//}
+
+
+some scroll optimize
+super.min line 31
+d();/*$('body').css('overflow',bovr?bovr:'auto');with(window){scrollTo(0,10);scrollTo(0,0)};*/l.fadeOut(300,function(){s.show()});m=false}

@@ -1,0 +1,56 @@
+//----------------------construct hash url ajax loader
+//		_this.arrOnHashChange['PostBackConstruct']=function(hash, URL){
+//			//http://...#ParamName=ParamValue##TargetID#ASYNCHASH#
+//			hash=hash.ltrim('#')
+//			if(hash.Contains('#ASYNCHASH#')){
+//				hash=hash.replace('#ASYNCHASH#', '').split('->', 2)
+//				if(hash.length==2){
+//					var $Target=$(hash[1])
+//					if($Target && $Target.length>0){
+//						var PIdx, HashParams=hash[0].split('&'), Params={}
+//						for(PIdx in HashParams){
+//							HashParams[PIdx]=HashParams[PIdx].split('=')
+//							Params[HashParams[PIdx][0]]=HashParams[PIdx][1]
+//						}
+//						URL=URL.split('#', 2)[0]
+//						Post($Target, $Target, URL, Params, "REPLACE")
+//					}
+//				}
+//			}
+//			//Just for first load
+//			_this.arrOnHashChange['PostBackConstruct']=null
+//			delete _this.arrOnHashChange['PostBackConstruct']
+//		}
+
+
+//----------------------hash event handler construct
+//		HashHandlerConstruct()
+//	function HashHandlerConstruct(){
+//		$(function(){
+//			window.setTimeout(function(){
+//				window.setInterval(function(){
+//					if(window.location.hash!=StoredHash){
+//						StoredHash=window.location.hash
+//						var Handler
+//						for(Handler in _this.arrOnHashChange){
+//							_this.arrOnHashChange[Handler](window.location.hash, window.location.href)
+//						}
+//					}
+//				}, 100)
+//			}, 100)
+//		})
+//	}
+
+//----------------------img btn hover old construct
+//		$('[rel*="ImgBtnHSrc"]:not([HoverImgAdded])').attr('HoverImgAdded', 1).hover(
+
+
+
+//----------------------old ajax success script runner
+//		var arrEmbededScr=result.split('<scr'+'ipt>').slice(1)
+//		, EmbededScr='', Idx
+//		for (Idx in arrEmbededScr) {
+//			EmbededScr+=arrEmbededScr[Idx].split('</'+'script'+'>')[0]+';'
+//		}
+
+//			if(EmbededScr) eval(EmbededScr)

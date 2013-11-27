@@ -1,0 +1,33 @@
+.MyDDL{position:relative; min-width: 100px; display: inline-block; vertical-align: middle}
+.MyDDL a, .MyDDL a:visited{text-decoration: none; color: #5C799C}
+.MyDDL a:hover{color:#000;}
+
+.MyDDL table, .MyDDL li{height: 22px; line-height: 22px; vertical-align: middle}
+.MyDDL table{width: 100%}
+.MyDDL input{line-height: 22px; height:22px; width: 100%; padding: 0px; border: 0px}
+.MyDDL .DropLink{width:100%; border: 1px solid #fff}
+.MyDDL .DropLink input{text-indent: 3px}
+.MyDDL .DropButton{width:14px}
+.MyDDL .DropLink .DropArrow{display: inline-block; height:22px; width:14px; background: url('img/arrows.png') no-repeat 0px 0px; cursor: pointer}
+.MyDDL .DropLink:hover .DropArrow{background-position: 0px -22px}
+.MyDDL .DropLink:active .DropArrow{background-position: 0px -44px}
+
+div.MyDDL ul{display: none; position:absolute; min-width:100%; width: auto; top:100%; padding: 0px; margin: 0px; list-style: none; background: #fff; border: 1px solid #9cb9dc; z-index: 2}
+.MyDDL ul ul{top:75%;}
+.rtl .MyDDL ul ul{right: 75px}
+.ltr .MyDDL ul ul{left: 75px}
+.MyDDL li{position: relative;}
+.MyDDL .SubArrow{position: absolute; height: 20px; width: 16px; top:0px; border: 1px solid #9CB9DC;}
+.rtl .MyDDL .SubArrow{background:#fff url('img/arrow_rtl.gif') no-repeat center center; left: 0px}
+.ltr .MyDDL .SubArrow{background:#fff url('img/arrow_ltr.gif') no-repeat center center; right: 0px}
+.MyDDL li a, .MyDDL li a:visited{overflow: hidden; white-space: nowrap; display: inline-block; min-width: 100%; width: 100%; height: 100%; text-indent: 3px; background: #fff}
+.MyDDL li a.Current, .MyDDL li a:hover, .MyDDL li a:active, .MyDDL li.hover>a{background: url('img/bg.png') repeat-x }
+.MyDDL li a:hover, .MyDDL li.hover>a{background-position: 0px 0px; overflow: visible; width: auto; z-index: 1; position: absolute}
+.ltr .MyDDL li a:hover, .ltr .MyDDL li.hover>a{padding-right: 2px; border-right: 1px solid #9cb9dc}
+.rtl .MyDDL li a:hover, .rtl .MyDDL li.hover>a{padding-left: 2px; border-left: 1px solid #9cb9dc}
+.MyDDL li a:active{background-position: 0px -22px !important}
+.MyDDL li a.Current{background-position: 0px -44px}
+.MyDDL.ltrDDL .DropLink input, .MyDDL.ltrDDL ul li a{direction: ltr; text-align: left}
+
+.LongDDL ul{width: auto; max-height: 200px; overflow-y: auto; overflow-x: hidden; min-width: 100%}
+.MyDDL.LongDDL li a{position: static !important; padding: 0px !important; border: 0px !important}

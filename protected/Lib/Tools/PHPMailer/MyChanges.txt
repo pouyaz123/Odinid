@@ -1,0 +1,3 @@
+class.smtp.php
+	2 * "stream_set_timeout(" are commented
+	lines : 199 & 967

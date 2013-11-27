@@ -1,0 +1,30 @@
+
+/* this makes it possible to add next button beside scrollable */
+.scrollable {
+}
+
+/* prev, next, prevPage and nextPage buttons */
+a.browse {
+	display:inline-block;
+	position:absolute;
+	z-index:1;
+	width:21px;
+	height:33px;
+	cursor:pointer;
+	font-size:1px;
+	opacity:0.5; filter:alpha(opacity=50);
+	top:0px;
+}
+
+/* right */
+a.browse.right {background:url('right.png') no-repeat; right:0px;}
+
+/* left */
+a.browse.left	{background:url('left.png') no-repeat; left:0px;}
+
+
+/* disabled navigational button */
+a.browse.disabled {
+	visibility:hidden !important;		
+} 	
+

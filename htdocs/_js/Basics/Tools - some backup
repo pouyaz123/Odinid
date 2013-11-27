@@ -1,0 +1,8 @@
+htmlDecode : function(value){
+	if(value && (value=='&nbsp;' || value=='&#160;' || (value.length===1 && value.charCodeAt(0)===160))) { return "";}
+	return !value ? value : String(value).replace(/&gt;/g, ">").replace(/&lt;/g, "<").replace(/&quot;/g, '"').replace(/&amp;/g, "&");		
+}
+//from jQGrid
+
+
+$this.html($this.html().replace(/&gt;/gm, '>').replace(/&lt;/gm, '<').replace(/\\\//gm, '/'))
