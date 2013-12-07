@@ -39,8 +39,8 @@ class User extends \Base\FormModel {
 				'compareAttribute' => 'txtEmail',
 				'on' => 'Register'),
 			array('txtEmail', 'IsUnique',
-				'UniqueSQL' => 'SELECT COUNT(*) FROM `_user_info_ext` WHERE `Email`=:val LIMIT 1',
-				'UniqueErrMsg' => '{attribute} "{value}" has been used previously.',
+				'SQL' => 'SELECT COUNT(*) FROM `_user_info_ext` WHERE `Email`=:val LIMIT 1',
+				'Msg' => '{attribute} "{value}" has been used previously.',
 				'on' => 'Register'),
 			#
 			array('txtUsername', 'match', 'pattern' => C\Regexp::Username,
@@ -49,8 +49,8 @@ class User extends \Base\FormModel {
 				'min' => C\Regexp::Username_MinLen, 'max' => C\Regexp::Username_MaxLen,
 				'on' => 'Register'),
 			array('txtUsername', 'IsUnique',
-				'UniqueSQL' => 'SELECT COUNT(*) FROM `_users` WHERE `Username`=:val LIMIT 1',
-				'UniqueErrMsg' => '{attribute} "{value}" has been used previously.',
+				'SQL' => 'SELECT COUNT(*) FROM `_users` WHERE `Username`=:val LIMIT 1',
+				'Msg' => '{attribute} "{value}" has been used previously.',
 				'on' => 'Register'),
 			#
 			array('txtPassword', 'length',
@@ -84,6 +84,15 @@ class User extends \Base\FormModel {
 //						VALUES(:un, :pw, '" . C\User::Status_Pending . "', '" . gmdate('Y-m-d H:i:s') . "')")
 //					->execute(array(':un' => $this->txtUsername, ':pw' => md5($this->txtPassword)));
 //			$db->createCommand("INSERT INTO `_user_recoveries`()")
+//		try{
+//			$connection->createCommand($sql1)->execute();
+//			$connection->createCommand($sql2)->execute();
+//			//.... other SQL executions
+//			$transaction->commit();
+//		}
+//		catch(Exception $e) // an exception is raised if a query fails{
+//			$transaction->rollback();
+//		}
 		}
 	}
 

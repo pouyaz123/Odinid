@@ -19,7 +19,7 @@
 	<tr>
 		<td style="width: 150px; min-width: 150px">
 			<div id="divSidebar" rel="<?= \html::AjaxLinks('#divContent:insert') ?>">
-				<? /* \CHtml::link(\Lng::Admin('User', 'Logout'), \Admin\Consts\Routes::Logout, array('rel' => \html::AjaxExcept)); */ ?>
+				<? /* \CHtml::link(\Lng::Admin('tr_Common', 'Logout'), \Admin\Consts\Routes::Logout, array('rel' => \html::AjaxExcept)); */ ?>
 				<?= CHtml::encode(Yii::app()->name); ?>
 				<?php
 				$this->widget('CTreeView', array(
@@ -30,6 +30,7 @@
 					'persist' => 'location',
 					'unique' => true,
 					'animated' => 'fast',
+					'id' => 'widMenu',
 				));
 				?>
 			</div>

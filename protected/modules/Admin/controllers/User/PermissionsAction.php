@@ -13,7 +13,6 @@ class PermissionsAction extends \CAction {
 	public function run() {
 		$ctrl = $this->controller;
 		/* @var $ctrl \Admin\controllers\UserController */
-		$ctrl->pageTitle = \Lng::AdminPageTitle('Modules', 'User permissions');
 
 //		$dg = $this->DataGrid($ctrl);
 

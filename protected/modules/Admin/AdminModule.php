@@ -16,8 +16,11 @@ class AdminModule extends \CWebModule {
 			'Admin.components.*',
 		));
 
+		#languages
+		\Lng::InitializeTranslation(\Conf::$AdminModuleLangs);
+
 		#main title
-		\Yii::app()->name = \Lng::Site('Common', 'Odinid Admin');
+		\Yii::app()->name = \Lng::Admin('tr_Common', 'Admin Main Title');
 	}
 
 	public function beforeControllerAction($controller, $action) {

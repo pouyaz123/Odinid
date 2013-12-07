@@ -13,7 +13,7 @@ class PanelController extends \Admin\Components\BaseController {
 		return array(
 			'captcha' => array(
 				'class' => 'CCaptchaAction',
-				'testLimit' => 1,
+				'testLimit' => 2,
 				'minLength' => 3,
 				'maxLength' => 4,
 			)
@@ -33,9 +33,9 @@ class PanelController extends \Admin\Components\BaseController {
 		if (\Admin\models\AdminLogin::IsLoggedIn())
 			T\HTTP::Redirect_Immediately(
 					$this->createUrl(\Conf::AdminHomeRoute)
-					, \Lng::Admin('User', "Welcome, Admin panel is loading ..."));
+					, \Lng::Admin('tr_Common', "Logged in successfully"));
 
-		$this->pageTitle = \Lng::AdminPageTitle('User', 'Login');
+		$this->pageTitle = \Lng::AdminPageTitle('tr_Common', 'Login');
 
 		$LoginForm = new \Admin\models\AdminLogin('Login');
 		if ($LoginPost = \GPCS::POST('Login')) {
@@ -43,7 +43,7 @@ class PanelController extends \Admin\Components\BaseController {
 			if ($LoginForm->Login()) {
 				T\HTTP::Redirect_Immediately(
 						$this->createUrl(\Conf::AdminHomeRoute)
-						, \Lng::Admin('User', "Welcome, Admin panel is loading ..."));
+						, \Lng::Admin('tr_Common', "Logged in successfully"));
 			}
 		}
 		$this->layout = 'outerpages';
@@ -56,10 +56,16 @@ class PanelController extends \Admin\Components\BaseController {
 	}
 
 	public function actionCartable() {
-		$this->pageTitle = \Lng::AdminPageTitle('User', 'Cartable');
+		$this->pageTitle = \Lng::AdminPageTitle('tr_Common', 'Cartable');
 		$this->SetInternalEnv();
 		\html::PushStateScript();
-		\Output::Render($this, 'cartable');
+		$LastLoginTimeStamp = \Admin\models\AdminLogin::GetAdminSessionDR('LastLoginTimeStamp');
+		if ($LastLoginTimeStamp)
+			$LastLoginTimeStamp = gmdate('r', $LastLoginTimeStamp);
+		\Output::Render($this, 'cartable', array(
+			'LastLoginTime' => $LastLoginTimeStamp,
+			'LastLoginIP' => \Admin\models\AdminLogin::GetAdminSessionDR('LastLoginIP'),
+		));
 	}
 
 }

@@ -16,6 +16,8 @@ class AdminLogin extends \Base\FormModel {
 		return $this->scenario;
 	}
 
+	protected $XSSPurification = false;
+
 	const SessionName = 'adms';
 	const CookieName = 'admc';
 	const RememberHours = 8760; //365days
@@ -33,10 +35,6 @@ class AdminLogin extends \Base\FormModel {
 			array('txtUsername, txtPassword, txtCaptcha', 'required',
 				'on' => 'Login'),
 			#
-//			array('txtPassword', 'length',
-//				'min' => C\Regexp::Password_MinLength,
-//				'on' => 'Login'),
-			#
 			array('chkRemember', 'boolean',
 				'on' => 'Login'),
 			array('txtCaptcha', 'captcha',
@@ -49,10 +47,10 @@ class AdminLogin extends \Base\FormModel {
 	 */
 	public function attributeLabels() {
 		return array(
-			'txtUsername' => \Lng::Admin('User', 'Username'),
-			'txtPassword' => \Lng::Admin('User', 'Password'),
-			'chkRememberMe' => \Lng::Admin('User', 'Remember me'),
-			'txtCaptcha' => \Lng::Admin('User', 'Verification code'),
+			'txtUsername' => \Lng::Admin('tr_Common', 'Username'),
+			'txtPassword' => \Lng::Admin('tr_Common', 'Password'),
+			'chkRememberMe' => \Lng::Admin('tr_Common', 'Remember me'),
+			'txtCaptcha' => \Lng::Admin('tr_Common', 'Captcha code'),
 		);
 	}
 
@@ -80,7 +78,7 @@ class AdminLogin extends \Base\FormModel {
 				self::MakeItLoggedIn($drUser, $this->chkRemember, $LoginIP, $LoginTime);
 				return true;
 			} else {
-				$this->addError('', \Lng::Admin('User', 'Invalid username or password'));
+				$this->addError('', \Lng::Admin('tr_Common', 'Invalid username or password'));
 				return false;
 			}
 		}
@@ -145,6 +143,11 @@ class AdminLogin extends \Base\FormModel {
 		}
 		self::Logout(); //to clear every thing
 		return FALSE;
+	}
+
+	public static function GetAdminSessionDR($Field = NULL) {
+		$dr = \GPCS::SESSION(self::SessionName);
+		return $Field ? $dr[$Field] : $dr;
 	}
 
 	public static function Logout() {

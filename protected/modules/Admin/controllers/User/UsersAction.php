@@ -13,7 +13,7 @@ class UsersAction extends \CAction {
 	public function run() {
 		$ctrl = $this->controller;
 		/* @var $ctrl \Admin\controllers\UserController */
-		$ctrl->pageTitle = \Lng::AdminPageTitle('Modules', 'User list');
+		$ctrl->pageTitle = \Lng::AdminPageTitle('tr_Common', 'User list');
 
 //		$dg = $this->DataGrid($ctrl);
 

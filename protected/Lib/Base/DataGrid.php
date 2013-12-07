@@ -28,7 +28,13 @@ class DataGrid extends Container {
 	public $HasFilterBar = false;
 	public $HasSearch = false;
 	public $HasMultiSearch = false;
-	private $Resources = array(
+	public static $arrGrpahicalButtonsResource = array(
+		'Edit' => '<img src="/_img/icons/edit_inline16.png"/>'
+		, 'Delete' => '<img src="/_img/icons/bin16.png"/>'
+		, 'Cancel' => '<img src="/_img/icons/cancel16.png"/>'
+		, 'Save' => '<img src="/_img/icons/save16.png"/>'
+	);
+	private $_Resources = array(
 		'Action' => 'Actions'
 		#
 		, 'Edit' => 'Inline edit'
@@ -78,7 +84,7 @@ class DataGrid extends Container {
 	public function SetTranslation($strTranslationModule, $strTranslationCat) {
 		$this->_TranslationModule = $strTranslationModule;
 		$this->_TranslationCat = $strTranslationCat;
-		\Lng::tarray($this->Resources, $strTranslationModule, $strTranslationCat);
+		\Lng::tarray($this->_Resources, $strTranslationModule, $strTranslationCat);
 		return $this;
 	}
 
@@ -86,7 +92,7 @@ class DataGrid extends Container {
 	 * @return \Base\DataGrid 
 	 */
 	public function Resources($arrToMerge, $strTranslationModule = NULL, $strTranslationCat = NULL) {
-		$this->Resources = array_merge($this->Resources, $arrToMerge);
+		$this->_Resources = array_merge($this->_Resources, $arrToMerge);
 		if ($strTranslationModule && $strTranslationCat)
 			$this->SetTranslation($strTranslationModule, $strTranslationCat);
 		return $this;
@@ -98,6 +104,30 @@ class DataGrid extends Container {
 
 	public static function LoadFiles($Theme = \Conf::jQTheme) {
 		\html::DataGrid_Load($Theme);
+	}
+
+	/**
+	 * creates and returns the string of dropdown list(select) elements to use in the grid column
+	 * ->type('select')
+	 * ->searchoptions(array('value' => $ddl))
+	 * ->editoptions(array('value' => $ddl));
+	 * @param array $arrDataTable
+	 * @param str|null $ValueField	if set to null the index will be used as value
+	 * @param str|null $LabelField	if set to null the value will be used as label
+	 * @param str|false|null $FirstEmptyOption	if set to a value rather than false or set as null we will have an empty option at first
+	 * @return str elements string
+	 */
+	public static function CreateDDLElements($arrDataTable, $ValueField = NULL, $LabelField = NULL, $FirstEmptyOption = false) {
+		$strDDL = array();
+		if ($FirstEmptyOption !== false)
+			$strDDL[] = ':' . ($FirstEmptyOption ? $FirstEmptyOption : '---');
+		if ($arrDataTable)
+			foreach ($arrDataTable as $idx => $dr) {
+				$val = (isset($ValueField) ? $dr[$ValueField] : $idx);
+				$label = (isset($LabelField) ? $dr[$LabelField] : $val);
+				$strDDL[] = "{$val}:{$label}";
+			}
+		return implode(';', $strDDL);
 	}
 
 	/**
@@ -164,7 +194,7 @@ class DataGrid extends Container {
 						, 'subgridid' => "Grd_SubGrdID"
 						, 'npage' => null
 						, 'totalrows' => "Grd_TotalRows"
-						, 'nd' => "Grd_nd"
+						, 'nd' => "Grd_nd" //the time passed to the request (for IE browsers not to cache the request) (default value nd)
 					)
 					#COLUMNS
 					, 'colNames' => array()
@@ -197,7 +227,7 @@ class DataGrid extends Container {
 	#----------------- COLUMNS -----------------#
 
 	/**
-	 * @param DataGridColumn $multi_jQGridColumn<br/>
+	 * @param DataGridColumn $multi_jQGridColumn can be either arrays or DataGridColumn objects<br/>
 	 * array(<br/>
 	 * 	'title'=>'title'<br/>
 	 * 	, 'name'=>'colName'<br/>
@@ -310,7 +340,7 @@ class DataGrid extends Container {
 	}
 
 	function GetActionColButtons($RowIndex, $strBtnClassName = null, $JustEditButton = false, $JustDeleteButton = false, $EditModeExtraCodes = '') {
-		$Resources = &$this->Resources;
+		$Resources = &$this->_Resources;
 		return "
 <span id=\"edit_row_$RowIndex\">
 	" . (!$JustDeleteButton ? "<a id='DGEDITROW_{$this->ID}_$RowIndex' class=\"$strBtnClassName\" title=\"{$Resources['EditTitle']}\" href=\"javascript:void(0);\" onclick=\"DGEDITROW('{$this->ID}', '$RowIndex', this)\" >{$Resources['Edit']}</a>" : "") . "
@@ -331,7 +361,7 @@ class DataGrid extends Container {
 	function SetActionColumn($arrActionColOptions = array(), $strBtnClassName = null) {
 		if (!$arrActionColOptions || !is_array($arrActionColOptions))
 			$arrActionColOptions = array();
-		$Resources = &$this->Resources;
+		$Resources = &$this->_Resources;
 		$this->SetColumns(
 				\html::DataGridColumn()
 						->index($Resources['ActionColIndexName'])
@@ -382,7 +412,7 @@ function(){
 	 * @return \Base\DataGrid 
 	 */
 	function UnsetActionColumn() {
-		$this->UnsetColumn($this->Resources['ActionColIndexName']);
+		$this->UnsetColumn($this->_Resources['ActionColIndexName']);
 		$this->Options->_unset('gridComplete');
 		return $this;
 	}
@@ -408,6 +438,8 @@ function(id){
 		return $this;
 	}
 
+	private $_NavOptions = array('add' => false, 'edit' => false, 'del' => false, 'search' => false, 'multisearch' => false, 'saveall' => true);
+
 	/**
 	 * @param arr $arrOptions
 	 * <br/>array('add' => false, 'edit' => false, 'del' => false, 'search' => false, 'multisearch' => false, 'saveall'=>true)
@@ -416,8 +448,8 @@ function(id){
 	function SetNavigator($arrOptions = array()) {
 		if (!is_array($arrOptions))
 			$arrOptions = array();
-		$arrOptions = array_merge(
-				array('add' => false, 'edit' => false, 'del' => false, 'search' => false, 'multisearch' => false, 'saveall' => true)
+		$this->_NavOptions = $arrOptions = array_merge(
+				$this->_NavOptions
 				, $arrOptions);
 		$this->HasSearch = $arrOptions['search'];
 		$this->HasMultiSearch = $arrOptions['multisearch'];
@@ -432,7 +464,7 @@ function(id){
 				. (!empty($arrOptions['saveall']) ? ".navButtonAdd('#{$this->_PagerID}',
 					{ caption:'', buttonicon:'ui-icon-saveall', onClickButton:function(){
 						$('#{$this->ID} [rel=\"GridInlistSaveBtn\"]:visible').click()
-					}, position: 'first', title:'" . $this->Resources['SaveAll'] . "', cursor: 'pointer'})" : "");
+					}, position: 'first', title:'" . $this->_Resources['SaveAll'] . "', cursor: 'pointer'})" : "");
 		return $this;
 	}
 
@@ -537,7 +569,7 @@ function(id){
 //					$dgp->NPage = \GPCS::POST($HTTPParamNames['npage']);
 //					$dgp->TotalRows = \GPCS::POST($HTTPParamNames['totalrows']);
 					#--------- others
-					$dgp->nd = \GPCS::POST($PNames['nd']);
+					$dgp->nd = \GPCS::POST($PNames['nd']); //the time passed to the request (for IE browsers not to cache the request) (default value nd)
 
 					switch (\GPCS::POST($PNames['oper'])) {
 						case $PNames['addoper']:
@@ -590,7 +622,7 @@ function(id){
 								if (empty($Filter['groupOp']) || empty($Filter['rules']))
 									$dgp->HasFilter = false;
 								if ($dgp->HasFilter) {
-									$dgp->FilterSQLCondition = array();
+									$dgp->SQLWhereClause = array();
 									//Loop Rules
 									foreach ($Filter['rules'] as $Rule) {
 										if (!isset($Rule['data']) || empty($Rule['op']) || $Rule['data'] === '')
@@ -648,15 +680,15 @@ function(id){
 										);
 										$arrConditionList = array_intersect_key($arrConditionList, array_flip($dg->Options->searchoptions['sopt']));
 										if (isset($arrConditionList[$Rule['op']]))
-											$dgp->FilterSQLCondition[] = $arrConditionList[$Rule['op']];
+											$dgp->SQLWhereClause[] = $arrConditionList[$Rule['op']];
 										if (!$dg->HasMultiSearch)
 											break;
 									}
 									$Filter['groupOp'] = strtolower($Filter['groupOp']) === 'and' ? ' AND ' : ' OR ';
-									if (count($dgp->FilterSQLCondition))
-										$dgp->FilterSQLCondition = implode($Filter['groupOp'], $dgp->FilterSQLCondition);
+									if (count($dgp->SQLWhereClause))
+										$dgp->SQLWhereClause = implode($Filter['groupOp'], $dgp->SQLWhereClause);
 									else
-										$dgp->FilterSQLCondition = ' 1=1 ';
+										$dgp->SQLWhereClause = ' 1=1 ';
 								}
 								#
 								#

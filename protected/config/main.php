@@ -45,6 +45,7 @@ return array(
 			\Err::Initialize();
 		#tondarweb output system
 		\Output::Initialize();
+		//site/admin lang initiation is inside module classes
 	},
 	// application components
 	'components' => array(
@@ -67,7 +68,7 @@ return array(
 			'autoStart' => false
 		),
 		'db' => array(
-			'connectionString' => 'mysql:host=localhost;dbname=cgnetwork',
+			'connectionString' => 'mysql:host=localhost;dbname=odinid_db',
 			'emulatePrepare' => true,
 			'username' => 'FreeUN',
 			'password' => 'FreePWS',
@@ -78,7 +79,7 @@ return array(
 			// use 'site/error' action to display errors
 			'errorAction' => 'site/_errors/Error',
 		),
-//		'log' => array(
+//		'log' => array(	//take care of the log in the preload here above
 //			'class' => 'CLogRouter',
 //			'routes' => array(
 			//Logging file in runtime directory

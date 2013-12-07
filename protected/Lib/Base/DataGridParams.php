@@ -13,12 +13,20 @@ class DataGridParams {
 	 * @var DataGrid relative datagrid to this datagrid params
 	 */
 	public $DataGrid = NULL;
+
+	/**
+	 * @var string sort SQL part. default 1 ASC
+	 */
 	public $Sort = ' 1 ASC ';
 	public $SortColumn = '1';
 	public $SortOrder = 'ASC ';
 	#
 	public $HasFilter = false;
-	public $FilterSQLCondition = ' 1=1 ';
+
+	/**
+	 * @var string this is the SQL where clause. default 1=1
+	 */
+	public $SQLWhereClause = ' 1=1 ';
 	#
 	public $AllRowsCount = NULL;
 	public $RowsPerPage = NULL;
@@ -29,6 +37,9 @@ class DataGridParams {
 //	public $SubGridID = NULL;
 //	public $NPage = NULL;
 //	public $TotalRows = NULL;
+	/**
+	 * @var int/str the time passed to the request by jQGrid (for IE browsers not to cache the request) (default value nd)
+	 */
 	public $nd = NULL;
 
 	/**
@@ -41,6 +52,8 @@ class DataGridParams {
 		$RPP = &$this->RowsPerPage;
 		$TP = &$this->TotalPages;
 		$this->AllRowsCount = $AllRowsCount = intval($AllRowsCount);
+		if (!$RPP)
+			return $AllRowsCount;
 		$TP = ceil($AllRowsCount / $RPP);
 		if ($PN > $TP)
 			$PN = $TP;

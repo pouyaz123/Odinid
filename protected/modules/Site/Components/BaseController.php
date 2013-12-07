@@ -28,12 +28,4 @@ class BaseController extends \CController {
 	 */
 	public $breadcrumbs = array(); //breadcrumbs is used in main layout to build path links
 
-	static function AjaxValidation($AjaxKW, \Base\FormModel $Model, $DontValidateCaptcha = false, $AjaxKWPostName = 'ajax') {
-		if (\GPCS::POST($AjaxKWPostName) == $AjaxKW) {
-			$Model->DontValidateCaptcha = $DontValidateCaptcha;
-			echo \CActiveForm::validate($Model);
-			\Yii::app()->end();
-		}
-	}
-
 }

@@ -21,9 +21,9 @@
 		<script type="text/javascript">
 			PageURL = window.location.href;
 			Resources = {
-				PostBack_AJAX_Err: "<?= \Lng::Admin('Common', 'An error occurred with server communication!') ?>"
-						, PostBack_AJAX_ErrRetry: "<?= \Lng::Admin('Common', 'An error occurred with server communication. Will you retry?') ?>"
-						, Confirmation: "<?= \Lng::Admin('Common', 'Are you sure?') ?>"
+				PostBack_AJAX_Err: "<?= \Lng::Admin('tr_Common', 'An error occurred with server communication!') ?>"
+						, PostBack_AJAX_ErrRetry: "<?= \Lng::Admin('tr_Common', 'An error occurred with server communication. Will you retry?') ?>"
+						, Confirmation: "<?= \Lng::Admin('tr_Common', 'Are you sure?') ?>"
 			}
 		</script>
 		<?= \html::CSS_LinkTag('Generally') ?>
@@ -41,7 +41,7 @@
 	<body class="Titler">
 		<noscript><div style="background:#fff; color:#f00; text-align: center; padding: 10px">!!! To have a correct browsing JAVASCRIPT should be enabled !!!</div></noscript>
 
-		<table cellpadding="0" cellspacing="0" class="BodyTable FullH TopAlign FullW <?= \Lng::Admin('Common', 'res_Direction') ?>" width="100%">
+		<table cellpadding="0" cellspacing="0" class="BodyTable FullH TopAlign FullW <?= \Lng::Admin('tr_Common', 'LTR_RTL') ?>" width="100%">
 
 			<tr>
 				<td>

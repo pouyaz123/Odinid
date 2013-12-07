@@ -11,6 +11,38 @@
  */
 class Lng {
 
+	private static $_SiteLoaded = false;
+	private static $_AdminLoaded = false;
+	private static $Err_ConflictUsage = 'Conflict in usage of both of Site and Admin translation resources';
+
+	static function t($strTranslationModule = null, $category, $message, $params = array(), $source = null, $language = null) {
+		if ($category) {
+			return \Yii::t(
+							$strTranslationModule ?
+									"\\$strTranslationModule\\{$strTranslationModule}Module.$category" :
+									$category
+							, $message, $params, $source, $language);
+		}
+	}
+
+	static function PageTitle($ModuleName, $category, $message, $params = array(), $source = null, $language = null) {
+		return \Yii::app()->name . ' | ' . self::t($ModuleName, $category, $message, $params, $source, $language);
+	}
+
+	static function AdminPageTitle($category, $message, $params = array(), $source = null, $language = null) {
+		self::$_AdminLoaded = true;
+		if (self::$_SiteLoaded)
+			\Err::ErrMsg_Method(__METHOD__, self::$Err_ConflictUsage, func_get_args());
+		return self::PageTitle('Admin', $category, $message, $params, $source, $language);
+	}
+
+	static function SitePageTitle($category, $message, $params = array(), $source = null, $language = null) {
+		self::$_SiteLoaded = true;
+		if (self::$_AdminLoaded)
+			\Err::ErrMsg_Method(__METHOD__, self::$Err_ConflictUsage, func_get_args());
+		return self::PageTitle('Site', $category, $message, $params, $source, $language);
+	}
+
 	/**
 	 * Translates a message to the specified language.
 	 * This method supports choice format (see {@link CChoiceFormat}),
@@ -36,7 +68,10 @@ class Lng {
 	 * @see CMessageSource
 	 */
 	static function Site($category, $message, $params = array(), $source = null, $language = null) {
-		return \Yii::t("\Site\SiteModule.$category", $message, $params = array(), $source = null, $language = null);
+		self::$_SiteLoaded = true;
+		if (self::$_AdminLoaded)
+			\Err::ErrMsg_Method(__METHOD__, self::$Err_ConflictUsage, func_get_args());
+		return self::t('Site', $category, $message, $params, $source, $language);
 	}
 
 	/**
@@ -64,31 +99,37 @@ class Lng {
 	 * @see CMessageSource
 	 */
 	static function Admin($category, $message, $params = array(), $source = null, $language = null) {
-		return \Yii::t("\Admin\AdminModule.$category", $message, $params = array(), $source = null, $language = null);
+		self::$_AdminLoaded = true;
+		if (self::$_SiteLoaded)
+			\Err::ErrMsg_Method(__METHOD__, self::$Err_ConflictUsage, func_get_args());
+		return self::t('Admin', $category, $message, $params, $source, $language);
 	}
 
-	static function PageTitle($ModuleName, $category, $message, $params = array(), $source = null, $language = null) {
-		return \Yii::app()->name . ' | ' . \Yii::t("\\$ModuleName\\{$ModuleName}Module.$category", $message, $params = array(), $source = null, $language = null);
+	static function tarray(&$array, $strTranslationModule = NULL, $category = NULL, $params = array(), $source = null, $language = null) {
+		if ($category)
+			foreach ($array as $key => $msg)
+				$array[$key] = self::t($strTranslationModule, $category, $msg, $params, $source, $language);
 	}
 
-	static function AdminPageTitle($category, $message, $params = array(), $source = null, $language = null) {
-		return self::PageTitle('Admin', $category, $message, $params, $source, $language);
+	static function InitializeTranslation($Langs) {
+//		$lang = trim(\GPCS::GET('lang'), '/');	//trim was because of when i tried in the routes to handle the with and without lang modes only by one route regexp pattern
+		$lang = \GPCS::GET('lang');
+		if ($lang && in_array($lang, $Langs))
+			\Yii::app()->language = $lang;
+		else //en -> en translate : to change a msg in one file and affect everywhere
+			\Yii::app()->language = $Langs[0];
 	}
 
-	static function SitePageTitle($category, $message, $params = array(), $source = null, $language = null) {
-		return self::PageTitle('Site', $category, $message, $params, $source, $language);
-	}
+	private static $_AppDir = NULL;
 
-	static function tarray(&$array, $strTranslationModule = NULL, $strTranslationCat = NULL) {
-		if ($strTranslationCat) {
-			foreach ($array as $key => $val) {
-				$array[$key] == \Yii::t(
-								$strTranslationModule ?
-										"\\$strTranslationModule\\{$strTranslationModule}Module.$strTranslationCat" :
-										$strTranslationCat
-								, $val);
-			}
-		}
+	/**
+	 * returns the array of the common lang file located under /protected/messages_common
+	 * @param string $LangAndCategory such as en/User which will be /protected/messages_common/en/User.php
+	 */
+	static function GetCommonLangResourceArray($LangAndCategory) {
+		if (!self::$_AppDir)
+			self::$_AppDir = \Conf::AppDir();
+		return require_once self::$_AppDir . "/messages/$LangAndCategory.php";
 	}
 
 }

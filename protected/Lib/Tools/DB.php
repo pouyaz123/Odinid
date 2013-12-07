@@ -86,7 +86,8 @@ class DB {
 		if (!$arrParams)
 			$arrParams = array();
 		$objCDbCommand = \Yii::app()->db->createCommand($strQuery);
-		return $objCDbCommand->query($arrParams);
+		$objCDbDataReader = $objCDbCommand->query($arrParams);
+		return $objCDbDataReader->count() ? $objCDbDataReader : NULL;
 	}
 
 	/**
@@ -94,38 +95,38 @@ class DB {
 	 * Using the PDO ::Query method we are returning and working with the reference of the data object
 	 * @param string $strQuery
 	 * @param array $arrParams
-	 * @return array | empty array
+	 * @return array | NULL
 	 */
 	public static function GetTable($strQuery, $arrParams = NULL, &$objCDbDataReader = NULL, &$objCDbCommand = NULL) {
 		$objCDbDataReader = self::Query($strQuery, $arrParams, $objCDbCommand);
-		return $objCDbDataReader->readAll();
+		return $objCDbDataReader ? $objCDbDataReader->readAll() : $objCDbDataReader;
 	}
 
 	/**
 	 * @param string $strQuery
 	 * @param array $arrParams
-	 * @return array | false
+	 * @return array | NULL
 	 */
 	public static function GetRow($strQuery, $arrParams = NULL, &$objCDbDataReader = NULL, &$objCDbCommand = NULL) {
 		$objCDbDataReader = self::Query($strQuery, $arrParams, $objCDbCommand);
-		return $objCDbDataReader->read();
+		return $objCDbDataReader ? $objCDbDataReader->read() : $objCDbDataReader;
 	}
 
 	/**
 	 * @param string $strQuery
 	 * @param array $arrParams
-	 * @return mixed | false
+	 * @return mixed | NULL
 	 */
 	public static function GetField($strQuery, $arrParams = NULL, $columnIndex = 0, &$objCDbDataReader = NULL, &$objCDbCommand = NULL) {
 		$objCDbDataReader = self::Query($strQuery, $arrParams, $objCDbCommand);
-		return $objCDbDataReader->readColumn($columnIndex);
+		return $objCDbDataReader ? $objCDbDataReader->readColumn($columnIndex) : $objCDbDataReader;
 	}
 
 	/**
 	 * This method contains expensive SQL queries. Don't use it for long data tables. Short tables will be OK
 	 * @param type $TableName
 	 * @param type $Recovery
-	 * @return integer|string
+	 * @return integer
 	 */
 	static function GetNewID($TableName, $Recovery = true) {
 		//ID recovery
@@ -144,12 +145,25 @@ class DB {
 	 * @param type $arrDBParams
 	 * @param type $Delim
 	 * @param type $Count
-	 * @return type
+	 * @return integer|string
 	 */
 	static function GetNewID_VarCharCol($TableName, $WHEREClause = '1=1', $arrDBParams = NULL, $Delim = '_', $Count = -1) {
 		$ID = self::GetField("SELECT MAX(SUBSTRING_INDEX(ID, '$Delim', $Count)+1) AS ID FROM $TableName WHERE $WHEREClause", $arrDBParams);
-		$ID = @$ID[0]['ID'];
 		return $ID ? $ID : 1;
+	}
+
+	/**
+	 * @param array $arrDataTable
+	 * @param string $ColumnName
+	 * @return array
+	 */
+	static function GetColumnValues($arrDataTable, $ColumnName) {
+		$ColumnValues = array();
+		if ($arrDataTable)
+			foreach ($arrDataTable as $row) {
+				$ColumnValues[] = $row[$ColumnName];
+			}
+		return $ColumnValues;
 	}
 
 }

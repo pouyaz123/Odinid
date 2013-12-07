@@ -17,12 +17,7 @@ class SiteModule extends \CWebModule {
 		));
 		
 		#languages
-		$SiteModuleLangs = \Conf::$SiteModuleLangs;
-		$lang = trim(\GPCS::GET('lang'), '/');
-		if ($lang && in_array($lang, $SiteModuleLangs))
-			\Yii::app()->language = $lang;
-		else //en -> en translate : to change a msg in one file and affect everywhere
-			\Yii::app()->language = $SiteModuleLangs[0];
+		\Lng::InitializeTranslation(\Conf::$SiteModuleLangs);
 
 		#main title
 		\Yii::app()->name = \Lng::Site('Common', 'Odinid');

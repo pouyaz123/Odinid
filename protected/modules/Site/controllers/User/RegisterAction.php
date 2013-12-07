@@ -9,11 +9,21 @@ namespace Site\controllers\User;
  */
 class RegisterAction extends \CAction {
 
-//	public function run($invitationCode=null) {
-//		//invitation code
-//		new \Site\models\User\User();
-////		$this->controller->render('register');
-//	}
+	/**
+	 * @param str $code invitation code from $_GET
+	 */
+	public function run($code = null) {
+		$user = new \Site\models\User('Register');
+		if ($code)
+			$user->attributes = array('txtInvitationCode' => $code);
+		\Base\FormModel::AjaxValidation('Register', $user, true);
+		$ResgiterPost = \GPCS::POST('Register');
+		if ($ResgiterPost) {
+			$user->attributes = $ResgiterPost;
+			$user->Register();
+		}
+		$this->controller->render('register', array('Model' => $user, 'InvitationCode' => $code));
+	}
 
 }
 

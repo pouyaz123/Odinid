@@ -24,6 +24,23 @@ class Security {
 		return $Hash && $Value && self::Hash($Value, $Value2) === $Hash;
 	}
 
+	/**
+	 * @var \CHtmlPurifier 
+	 */
+	private static $_HtmlPurifier = NULL;
+
+	static function XSSPurify(&$txt
+	, $options = NULL) {
+		$options = array_merge(array('URI.AllowedSchemes' => array(
+				'http' => true,
+				'https' => true,
+				)), $options);
+		if (!self::$_HtmlPurifier)
+			self::$_HtmlPurifier = new \CHtmlPurifier();
+		self::$_HtmlPurifier->options = $options;
+		return $txt = self::$_HtmlPurifier->purify($txt);
+	}
+
 }
 
 ?>

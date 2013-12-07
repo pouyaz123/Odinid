@@ -5,7 +5,7 @@ namespace Admin\models\User;
 use \Consts as C;
 use \Tools as T;
 
-class TypeForm extends \Base\FormModel {
+class Type extends \Base\FormModel {
 
 	public function PostName() {
 		return $this->scenario;
@@ -15,10 +15,10 @@ class TypeForm extends \Base\FormModel {
 	const LogicPattern = C\Regexp::LogicName;
 	const TitleMaxLen = 50;
 
-	private $_RowID = NULL;
+	private $_RowID = -1;
 	public $txtLogicName;
 	public $txtTitle;
-	public $chkIsActive;
+	public $chkIsActive = 0;
 	public $chkIsDefault;
 
 	/**
@@ -39,6 +39,19 @@ class TypeForm extends \Base\FormModel {
 				'max' => self::TitleMaxLen,
 				'on' => 'insert, update'),
 			#
+			array('txtLogicName', 'IsUnique',
+				'SQL' => 'SELECT COUNT(*) FROM `_user_types` WHERE `LogicName`=:val AND `ID`!=:pk LIMIT 1',
+				'SQLParams' => array(':pk' => &$this->_RowID),
+				'MsgTModule' => 'Admin',
+				'MsgTCat' => 'tr_Common',
+				'on' => 'insert, update'),
+			array('txtTitle', 'IsUnique',
+				'SQL' => 'SELECT COUNT(*) FROM `_user_types` WHERE `Title`=:val AND `ID`!=:pk LIMIT 1',
+				'SQLParams' => array(':pk' => &$this->_RowID),
+				'MsgTModule' => 'Admin',
+				'MsgTCat' => 'tr_Common',
+				'on' => 'insert, update'),
+			#
 			array('chkIsActive, chkIsDefault', 'boolean',
 				'on' => 'insert, update'),
 			array('chkIsDefault', 'UniqueDefaultValidate',
@@ -51,23 +64,40 @@ class TypeForm extends \Base\FormModel {
 	 */
 	public function attributeLabels() {
 		return array(
-			'txtLogicName' => \Lng::Admin('Common', 'Logic name'),
-			'txtTitle' => \Lng::Admin('Common', 'Title'),
-			'chkIsActive' => \Lng::Admin('Common', 'Is active'),
-			'chkIsDefault' => \Lng::Admin('Common', 'Is default'),
+			'txtLogicName' => \Lng::Admin('tr_Common', 'Logic name'),
+			'txtTitle' => \Lng::Admin('tr_Common', 'Title'),
+			'chkIsActive' => \Lng::Admin('tr_Common', 'Is active'),
+			'chkIsDefault' => \Lng::Admin('tr_Common', 'Is default'),
 		);
 	}
 
+	/**
+	 * @param \Base\DataGridParams $DGP
+	 * @return array DataTable
+	 */
 	function Select(\Base\DataGridParams $DGP) {
 		$AllCount = T\DB::GetField('SELECT COUNT(*) FROM `_user_types`');
 		$Limit = $DGP->QueryLimitParams($AllCount, $ref_LimitIdx, $ref_LimitLen);
-		return T\DB::GetTable('
-			SELECT t.*, u.UserTypeID AS IsUsed
+		return T\DB::GetTable("
+			SELECT t.*, IF(u.UserTypeID<=>NULL, 0, 1) AS IsUsed
 			FROM `_user_types` AS t
+			INNER JOIN (SELECT 1) AS tmp ON {$DGP->SQLWhereClause}
 			LEFT JOIN (SELECT `UserTypeID` FROM `_users` GROUP BY `UserTypeID`) AS u
 				ON t.ID=u.UserTypeID
-			ORDER BY ' . $DGP->Sort . '
-			LIMIT ' . $Limit);
+			ORDER BY {$DGP->Sort}
+			LIMIT " . $Limit);
+	}
+
+	private static $_ActiveUserTypes = array();
+
+	/**
+	 * @param string $Fields
+	 * @return \CDbDataReader
+	 */
+	static function GetActiveUserTypes($Fields = '*') {
+		if (!isset(self::$_ActiveUserTypes[$Fields]))
+			self::$_ActiveUserTypes[$Fields] = T\DB::GetTable("SELECT $Fields FROM `_user_types` WHERE `IsActive`");
+		return self::$_ActiveUserTypes[$Fields];
 	}
 
 	function Insert(\Base\DataGridParams $DGP) {
@@ -89,8 +119,8 @@ class TypeForm extends \Base\FormModel {
 	}
 
 	function Update(\Base\DataGridParams $DGP) {
+		$this->_RowID = $DGP->RowID;
 		if ($DGP->RowID && $this->validate()) {
-			$this->_RowID = $DGP->RowID;
 			T\DB::Execute("
 				UPDATE `_user_types`
 				SET `LogicName`=:lgc, `Title`=:ttl, `IsDefault`=:dflt, `IsActive`=:act
@@ -109,17 +139,25 @@ class TypeForm extends \Base\FormModel {
 
 	function Delete(\Base\DataGridParams $DGP) {
 		if ($DGP->RowID) {
-			T\DB::Execute("DELETE FROM `_user_types` WHERE `ID`=:id", array(':id' => $DGP->RowID));
+			$IDs = explode(',', $DGP->RowID);
+			$trans = \Yii::app()->db->beginTransaction();
+			try {
+				foreach ($IDs as $ID)
+					T\DB::Execute("
+						DELETE FROM `_user_types`
+						WHERE `ID`=:id AND ID NOT IN (SELECT DISTINCT `UserTypeID` FROM `_users`)", array(':id' => $ID));
+				$trans->commit();
+			} catch (Exception $e) {
+				$trans->rollback();
+				\Err::ErrMsg(\Lng::Admin('tr_Common', 'Deletion failed'));
+			}
 		}
 	}
 
 	function UniqueDefaultValidate($attr, $params) {
 		$ID = &$this->_RowID;
-//		\Err::DebugBreakPoint('SELECT COUNT(*) FROM `_user_types` WHERE `IsDefault`'
-//						. ($ID ? " AND ID!=:id" : ""));
-		if ($this->$attr && T\DB::GetField('SELECT COUNT(*) FROM `_user_types` WHERE `IsDefault`'
-						. ($ID ? " AND ID!=:id" : ""), array(':id' => $ID)))
-			$this->addError('chkIsDefault', \Lng::Admin('User', 'Only one default user type'));
+		if ($this->$attr && T\DB::GetField('SELECT COUNT(*) FROM `_user_types` WHERE `IsDefault` AND ID!=:id', array(':id' => $ID)))
+			$this->addError('chkIsDefault', \Lng::Admin('tr_UserModule', 'Only one default user type'));
 	}
 
 }

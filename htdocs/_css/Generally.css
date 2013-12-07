@@ -169,9 +169,8 @@ p{margin: 0px;}
 /*--------- Lists ---------*/
 .AltRow{background: #eef}
 /*ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-rtl*/
-/*--------- jQuery UI ---------*/
+/*--------- jQuery UI Grid ---------*/
 .ui-widget, .ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget button{font-family: tahoma !important; font-size:11px !important }
-.ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default{font-weight: normal !important}
 .ui-jqgrid tr.jqgrow td{white-space: normal !important}
 .ui-jqgrid tr.jqgrow td.SubLIsInDG{overflow: visible !important}
 td.SubLIsInDG li{float: none !important}
@@ -179,11 +178,14 @@ td.SubLIsInDG .KASPBluLnks a.Btn, td.SubLIsInDG .KASPBluLnks a.Btn span{display:
 .ui-resizable-handle{z-index: 3 !important}
 .ui-icon-triangle-1-s { background-position: -68px -16px !important; }
 .ui-icon-triangle-1-n { background-position: -3px -16px !important; }
-.ltr .s-ico{right: 8px}
+.ltr .s-ico{right: 8px !important}
 .ui-grid-ico-sort{width:10px !important}
 .ui-icon-saveall{background: url('/_img/icons/save16.png') no-repeat center center !important}
 .ui-button-icon-only .ui-button-text, .ui-button-icons-only .ui-button-text{padding: 0.2em !important}
+.ui-pg-table.navtable{border-collapse: separate}
+.ui-jqdialog-content .FormData textarea{width: 90%}
 
+/*--------- jQuery UI Alix autocomplete ---------*/
 ul.ui-autocomplete{padding: 2px; z-index: 101}
 .ui-autocomplete-loading {background: white url('/_img/general/loading16.gif') no-repeat !important; background-color: #ffb !important}
 .ltr .ui-autocomplete-loading {background-position: right center !important}

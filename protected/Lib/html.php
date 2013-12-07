@@ -34,6 +34,40 @@ final class html {
 	}
 
 	/**
+	 * @param str $ID
+	 * @param str $Theme
+	 * @return \Base\DataGrid 
+	 */
+	public static function DataGrid_Ready1($ID, $strTranslationModule = NULL, $strTranslationCat = NULL, $Theme = \Conf::jQTheme) {
+		return \html::DataGrid($ID, $Theme)
+						->Resources(\Base\DataGrid::$arrGrpahicalButtonsResource, $strTranslationModule, $strTranslationCat)
+						->SetFilterBar(array('searchOnEnter' => false))
+						->SetNavigator(array(
+							'search' => true
+							, 'edit' => true
+							, 'del' => false
+							, 'saveall' => true
+							, 'add' => true
+						))
+						->Resizable()
+						->SetDblClickEdit()
+						->setTableClasses('MidAlign')
+						->Options(
+								\html::DataGridConfig()
+								->autowidth(true)
+								->multiselect(true)
+								->cmTemplate(array(
+									'align' => 'center'
+									, 'title' => false
+									, 'search' => true
+									, 'editable' => false
+									, 'sortable' => true
+									, 'editoptions' => array('class' => 'CenterAlign')
+								))
+		);
+	}
+
+	/**
 	 * @param arr $arrInitialArray
 	 * @return \Base\DataGridColumn 
 	 */
@@ -113,7 +147,7 @@ final class html {
 	const AjaxExcept = " AjaxExcept ";
 
 	/**
-	 * 
+	 * Change URL using HTML5 pushState js dom method(for ajax communications)
 	 * @param type $URL
 	 * @param type $Return
 	 * @param type $InlineUniqueKW

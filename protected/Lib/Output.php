@@ -47,7 +47,7 @@ class Output {
 			if ($IsAjax) {
 				if (!GPCS::REQUEST(self::AjaxKeyword_PostParamName))
 					self::$cntAjax->AddContent(function()use($objController, $ActiveFormID, $view, $data) {
-								if (property_exists($objController, 'pageTitle'))
+								if (method_exists($objController, 'getPageTitle'))
 									\html::AjaxPageTitle($objController->pageTitle);
 //							echo $objController->renderPartial($view, $data, true)
 //									. ($ActiveFormID?T\HTTP::Ajax_getCActiveFormScript($ActiveFormID):'');
@@ -64,7 +64,7 @@ class Output {
 			}
 		}
 		//IMPORTANT use ->__toString() method because the Yii thrown exceptions in components and ... does not work in to string magic call
-		echo $IsAjax ? self::$cntAjax->__toString() : (self::$cntPage->__toString() . '<!-- Software Design & Development by : http://webDesignir.com - Abbas Ali Hashemian -->');
+		echo $IsAjax ? self::$cntAjax->__toString() : (self::$cntPage->__toString() . '<!-- Developer : Abbas Ali Hashemian<tondarweb@gmail.com> - http://webDesignir.com -->');
 	}
 
 	/**

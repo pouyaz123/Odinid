@@ -1,4 +1,4 @@
-body	{background: #0a1c2c; color: #445; line-height: 18px}
+body	{color: #445; line-height: 18px}
 body, input{font-family: Tahoma; font-size: 11px;}
 
 a{color: #06c; text-decoration: none;}
@@ -6,17 +6,3 @@ a:hover{color: #f00; text-decoration: underline;}
 
 h1, h2, h3{margin:0px; font-weight: normal}
 .HTitle {font-size: 12px}
-
-.Btn, .Btn:visited, .Btn span, .Btn input, .Btn div {background: url('/_img/admin/btnGeneral.png') no-repeat;}
-.Btn, .Btn:visited{padding-right: 5px; background-position: right -40px}
-.Btn div{background-position: left -20px}
-.Btn span, .Btn input{background-position: center 0px; background-repeat: repeat-x; background-color:#006FCC}
-a.Btn, a.Btn input{color: #fff}
-.Btn:hover {background-position: right -100px}
-.Btn:hover div{background-position: left -80px}
-.Btn:hover span, .Btn:hover input{background-position: left -60px}
-.LnkBtn{background: #fff; behavior:none}
-
-.Field{min-width: 270px}
-.Field label{min-width: 75px}
-

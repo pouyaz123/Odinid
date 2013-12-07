@@ -13,7 +13,7 @@ class TypesAction extends \CAction {
 	public function run() {
 		$ctrl = $this->controller;
 		/* @var $ctrl \Admin\controllers\UserController */
-		$ctrl->pageTitle = \Lng::AdminPageTitle('Modules', 'User types');
+		$ctrl->pageTitle = \Lng::AdminPageTitle('tr_Common', 'User types');
 
 		$dg = $this->DataGrid($ctrl);
 
@@ -23,121 +23,96 @@ class TypesAction extends \CAction {
 	}
 
 	private function DataGrid(\Admin\controllers\UserController $ctrl) {
-		$TypeForm = new \Admin\models\User\TypeForm();
-		$fncPassPostParams = function()use($TypeForm) {
-					$TypeForm->attributes = array(
+		$FormModel = new \Admin\models\User\Type();
+		$fncPassPostParams = function()use($FormModel) {
+					$FormModel->attributes = array(
 						'txtLogicName' => \GPCS::POST('LogicName'),
 						'txtTitle' => \GPCS::POST('Title'),
 						'chkIsActive' => \GPCS::POST('IsActive'),
 						'chkIsDefault' => \GPCS::POST('IsDefault'),
 					);
 				};
-		$dgTypes = \html::DataGrid('dgTypes')
+		$dg = \html::DataGrid_Ready1('dgTypes', 'Admin', 'tr_Common')
 				->DataKey('ID')
-				->SetTranslation('Admin', 'Modules')
-				->Resources(array(
-					'Edit' => '<img src="/_img/icons/edit_inline16.png"/>'
-					, 'Delete' => '<img src="/_img/icons/bin16.png"/>'
-					, 'Cancel' => '<img src="/_img/icons/cancel16.png"/>'
-					, 'Save' => '<img src="/_img/icons/save16.png"/>'))
-				->SetFilterBar(array('searchOnEnter' => false))
-				->SetNavigator(array(
-					'search' => false
-					, 'edit' => true
-					, 'del' => false
-					, 'saveall' => true
-					, 'add' => true
-				))
-				->Resizable()
-				->SetDblClickEdit()
-				->setTableClasses('MidAlign')
 				->Options(
 						\html::DataGridConfig()
-						->autowidth(true)
-						->multiselect(true)
 						->caption($ctrl->pageTitle)
-						->direction(\Lng::Admin('Common', 'res_Direction'))
-						->cmTemplate(array(
-							'align' => 'center'
-							, 'title' => FALSE
-							, 'search' => true
-							, 'editable' => false
-							, 'sortable' => true
-							, 'editoptions' => array('class' => 'CenterAlign')
-						))
+						->direction(\Lng::Admin('tr_Common', 'LTR_RTL'))
 				)
 				->SetColumns(
 				\html::DataGridColumn()
 				->index('t.ID')
-				->header(\Lng::Admin('Common', 'ID'))
+				->header(\Lng::Admin('tr_Common', 'ID'))
 				->width('50px')
 				#
 				, \html::DataGridColumn()
 				->index('t.LogicName')
-				->header($TypeForm->getAttributeLabel('txtLogicName'))
+				->header($FormModel->getAttributeLabel('txtLogicName'))
+				->title(true)
 				->editable(true)
-				->editoptions(array('class' => 'ltr CenterAlign'))
-				->editrules(array('required' => TRUE, 'length' => '0,' . $TypeForm::LogicMaxLen, 'regexp' => $TypeForm::LogicPattern))
+				->editrules(array('required' => TRUE, 'length' => '0,' . $FormModel::LogicMaxLen, 'regexp' => $FormModel::LogicPattern))
 				#
 				, \html::DataGridColumn()
 				->index('t.Title')
-				->header($TypeForm->getAttributeLabel('txtTitle'))
+				->header($FormModel->getAttributeLabel('txtTitle'))
+				->title(true)
 				->editable(true)
-				->editrules(array('required' => TRUE, 'length' => '0,' . $TypeForm::TitleMaxLen))
+				->editrules(array('required' => TRUE, 'length' => '0,' . $FormModel::TitleMaxLen))
 				#
 				, \html::DataGridColumn()
 				->index('t.IsDefault')
 				->type('checkbox')
-				->header(\html::PutInATitleTag($TypeForm->getAttributeLabel('chkIsDefault')))
+				->header(\html::PutInATitleTag($FormModel->getAttributeLabel('chkIsDefault')))
 				->editable(true)
 				->width('50px')
 				#
 				, \html::DataGridColumn()
 				->index('t.IsActive')
 				->type('checkbox')
-				->header(\html::PutInATitleTag($TypeForm->getAttributeLabel('chkIsActive')))
+				->header(\html::PutInATitleTag($FormModel->getAttributeLabel('chkIsActive')))
 				->editable(true)
-//								->editoptions(array('checked' => true))	//todo1: bug when is checked in the edit mode it will turn back to checked even if it was not checked in Database
 				->width('50px')
 				#
 				, \html::DataGridColumn()
 				->index('Actions')
-				->header(\Lng::Admin('Common', 'Actions'))
+				->header(\Lng::Admin('tr_Common', 'Actions'))
 				->search(false)
 				->editable(FALSE)
 				->sortable(false)
 				->title(false)
+				->width('75px')
 		);
-		$dgTypes
-				->SelectQuery(function(\Base\DataGridParams $DGP)use($TypeForm) {
-							$TypeForm->scenario = 'select';
-							$dt = $TypeForm->Select($DGP);
-							foreach ($dt as $idx => $dr) {
-								$url = \Yii::app()->createUrl(T\HTTP::URL_InsertGetParams(\Admin\Consts\Routes::User_Permissions, "TypeID={$dr['ID']}"));
-								$dt[$idx]['Actions'] = $DGP->DataGrid->GetActionColButtons($dr['ID'], "LnkBtn", isset($dr['IsUsed']))
-										. "<a class='LnkBtn' href='$url'
-													rel='AjaxElement:#divUserPermissions' title='" . \Lng::Admin('User', 'Edit Permissions') . "'>
+		$dg
+				->SelectQuery(function(\Base\DataGridParams $DGP)use($FormModel) {
+							$FormModel->scenario = 'select';
+							$dt = $FormModel->Select($DGP);
+							if ($dt)
+								foreach ($dt as $idx => $dr) {
+									$url = \Yii::app()->createUrl(T\HTTP::URL_InsertGetParams(\Admin\Consts\Routes::User_Permissions, "TypeID={$dr['ID']}"));
+									$dt[$idx]['Actions'] = $DGP->DataGrid->GetActionColButtons($dr['ID'], "LnkBtn", $dr['IsUsed'])
+											. "<a class='LnkBtn' href='$url'
+													rel='AjaxElement:#divUserPermissions' title='" . \Lng::Admin('tr_UserModule', 'Edit Permissions') . "'>
 														<img src='/_img/admin/icons/EditPermisions.gif'/>
 													</a>"
-										. (isset($dr['IsUsed']) ? '<div class="Info" title="' . \Lng::Admin('User', "In-use user types can't be removed") . '"></div>' : '');
-							}
+											. ($dr['IsUsed'] ? '<div class="Info" title="' . \Lng::Admin('tr_UserModule', "In-use user types can't be removed") . '"></div>' : '');
+								}
 							return $dt;
 						})
-				->InsertQuery(function(\Base\DataGridParams $DGP)use($TypeForm, $fncPassPostParams) {
-							$TypeForm->scenario = 'insert';
+				->InsertQuery(function(\Base\DataGridParams $DGP)use($FormModel, $fncPassPostParams) {
+							$FormModel->scenario = 'insert';
 							$fncPassPostParams();
-							return $TypeForm->Insert($DGP);
+							return $FormModel->Insert($DGP);
 						})
-				->UpdateQuery(function(\Base\DataGridParams $DGP)use($TypeForm, $fncPassPostParams) {
-							$TypeForm->scenario = 'update';
+				->UpdateQuery(function(\Base\DataGridParams $DGP)use($FormModel, $fncPassPostParams) {
+							$FormModel->scenario = 'update';
 							$fncPassPostParams();
-							return $TypeForm->Update($DGP);
+							return $FormModel->Update($DGP);
 						})
-				->DeleteQuery(function(\Base\DataGridParams $DGP)use($TypeForm) {
-							$TypeForm->scenario = 'delete';
-							return $TypeForm->Delete($DGP);
+				->DeleteQuery(function(\Base\DataGridParams $DGP)use($FormModel) {
+							$FormModel->scenario = 'delete';
+							return $FormModel->Delete($DGP);
 						});
-		return $dgTypes;
+		return $dg;
 	}
 
 }

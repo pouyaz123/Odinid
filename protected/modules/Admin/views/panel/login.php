@@ -38,12 +38,12 @@
 			<?= $form->error($Model, 'txtCaptcha') ?>
 		</div>
 		<div class="row submit">
-			<? /*CHtml::ajaxSubmitButton(\Lng::Admin('User', 'Login'), ''
+			<? /*CHtml::ajaxSubmitButton(\Lng::Admin('tr_Common', 'Login'), ''
 					, array(
 						'replace'=>'#divLoginForm'
 					)
 				);*/ ?>
-			<?= CHtml::submitButton(\Lng::Admin('User', 'Login')
+			<?= CHtml::submitButton(\Lng::Admin('tr_Common', 'Login')
 					,array('rel'=>\html::AjaxElement('#divLoginForm'))) ?>
 		</div>
 		<?= $form->errorSummary($Model); ?>

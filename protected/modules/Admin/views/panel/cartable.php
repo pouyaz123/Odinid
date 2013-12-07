@@ -1,4 +1,6 @@
 <?php
 /* @var $this \Admin\controllers\PanelController */
 ?>
-This is the admin cartable
+<?= \Lng::Admin('tr_Common', 'Your last login Time : ' . $LastLoginTime); ?><br/>
+<?= \Lng::Admin('tr_Common', 'Your last login IP : ' . $LastLoginIP); ?><br/>
+<?= \Lng::Admin('tr_Common', 'Cartable msg'); ?><br/>
