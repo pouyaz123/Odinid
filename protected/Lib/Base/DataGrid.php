@@ -7,9 +7,13 @@ use \Consts as C;
 use \Components as Com;
 
 /**
- * Description of DataGrid
+ * DataGrid - Converted from F3 to Yii
  *
- * @author Abbas Hashemian <tondarweb@gmail.com>
+ * @author Abbas Ali Hashemian <info@namedin.com> http://namedin.com <tondarweb@gmail.com> http://webdesignir.com
+ * @package Tondarweb Portal
+ * @version 2
+ * @copyright (c) Abbas Ali Hashemian
+ * @access public
  */
 class DataGrid extends Container {
 
@@ -221,7 +225,7 @@ class DataGrid extends Container {
 					, 'scrollrows' => true
 					, 'scroll' => 0
 					, 'jqGridInlineEditRow' => '##JSFUN##function(){alert(0)}##JSFUN##'
-				));
+		));
 	}
 
 	#----------------- COLUMNS -----------------#
@@ -464,7 +468,11 @@ function(id){
 				. (!empty($arrOptions['saveall']) ? ".navButtonAdd('#{$this->_PagerID}',
 					{ caption:'', buttonicon:'ui-icon-saveall', onClickButton:function(){
 						$('#{$this->ID} [rel=\"GridInlistSaveBtn\"]:visible').click()
-					}, position: 'first', title:'" . $this->_Resources['SaveAll'] . "', cursor: 'pointer'})" : "");
+					}, position: 'first', title:'" . $this->_Resources['SaveAll'] . "', cursor: 'pointer'})" : "")
+				. ".navButtonAdd('#{$this->_PagerID}',
+					{ caption:'', buttonicon:'ui-icon-info', onClickButton:function(){
+						jAlert('info', 'Webdesignir php datagrid on top of jQGrid.<br/>Server side by : Abbas Ali Hashemian<br/>tondarweb@gmail.com - webdesignir.com', 'About datagrid' )
+					}, position: 'last', title:'About', cursor: 'pointer'})";
 		return $this;
 	}
 
@@ -558,168 +566,171 @@ function(id){
 //		array($this, $this->Queries)
 		\Output::AddIn_AjaxOutput(
 				function()use($dg, $Queries) {
-					$PNames = $dg->Options->prmNames;
+			$PNames = $dg->Options->prmNames;
 
-					$dgp = new DataGridParams();
-					$dgp->DataGrid = $dg;
+			$dgp = new DataGridParams();
+			$dgp->DataGrid = $dg;
 
-					#--------- identifying
-					$dgp->RowID = T\DB::RealEscape(\GPCS::POST($PNames['id']));
+			#--------- identifying
+			$dgp->RowID = T\DB::RealEscape(\GPCS::POST($PNames['id']));
 //					$dgp->SubGridID = \GPCS::POST($HTTPParamNames['subgridid']);
 //					$dgp->NPage = \GPCS::POST($HTTPParamNames['npage']);
 //					$dgp->TotalRows = \GPCS::POST($HTTPParamNames['totalrows']);
-					#--------- others
-					$dgp->nd = \GPCS::POST($PNames['nd']); //the time passed to the request (for IE browsers not to cache the request) (default value nd)
+			#--------- others
+			$dgp->nd = \GPCS::POST($PNames['nd']); //the time passed to the request (for IE browsers not to cache the request) (default value nd)
 
-					switch (\GPCS::POST($PNames['oper'])) {
-						case $PNames['addoper']:
-							if (!empty($Queries['INSERT'])) {
+			switch (\GPCS::POST($PNames['oper'])) {
+				case $PNames['addoper']:
+					if (!empty($Queries['INSERT'])) {
 //								$fncValidator();
-								$Queries['INSERT']['FNC']($dgp, $Queries['INSERT']['PARAMS']);
-							}
-							break;
-						case $PNames['editoper']:
-							if (!empty($Queries['UPDATE'])) {
+						$Queries['INSERT']['FNC']($dgp, $Queries['INSERT']['PARAMS']);
+					}
+					break;
+				case $PNames['editoper']:
+					if (!empty($Queries['UPDATE'])) {
 //								$fncValidator();
-								$Queries['UPDATE']['FNC']($dgp, $Queries['UPDATE']['PARAMS']);
-							}
-							break;
-						case $PNames['deloper']:
-							if (!empty($Queries['DELETE'])) {
-								$Queries['DELETE']['FNC']($dgp, $Queries['DELETE']['PARAMS']);
-							}
-							break;
-						default: //list+search
-							if ($Queries['SELECT']) {
-								#--------- sorting
-								$SortColumn = \GPCS::POST($PNames['sort']);
-								$SortOrder = strtolower(\GPCS::POST($PNames['order'])) == 'desc' ? 'DESC' : 'ASC';
-								$SortColumn = $dg->GetColumn($SortColumn);
-								if ($SortColumn && ($SortColumn->sortable() || ($SortColumn->sortable() !== false && (!empty($dg->Options->cmTemplate['sortable']) || $dg->sortable()))))
-									$SortColumn = $SortColumn->index();
-								else {
-									$SortColumn = '1';
-									$SortOrder = 'ASC';
-								}
-								$dgp->Sort = " $SortColumn $SortOrder ";
-								$dgp->SortColumn = $SortColumn;
-								$dgp->SortOrder = $SortOrder;
-								#
-								#
+						$Queries['UPDATE']['FNC']($dgp, $Queries['UPDATE']['PARAMS']);
+					}
+					break;
+				case $PNames['deloper']:
+					if (!empty($Queries['DELETE'])) {
+						$Queries['DELETE']['FNC']($dgp, $Queries['DELETE']['PARAMS']);
+					}
+					break;
+				default: //list+search
+					if ($Queries['SELECT']) {
+						#--------- sorting
+						$SortColumn = \GPCS::POST($PNames['sort']);
+						$SortOrder = strtolower(\GPCS::POST($PNames['order'])) == 'desc' ? 'DESC' : 'ASC';
+						$SortColumn = $dg->GetColumn($SortColumn);
+						if ($SortColumn && ($SortColumn->sortable() || ($SortColumn->sortable() !== false && (!empty($dg->Options->cmTemplate['sortable']) || $dg->sortable()))))
+							$SortColumn = $SortColumn->index();
+						else {
+							$SortColumn = '1';
+							$SortOrder = 'ASC';
+						}
+						$dgp->Sort = " $SortColumn $SortOrder ";
+						$dgp->SortColumn = $SortColumn;
+						$dgp->SortOrder = $SortOrder;
+						#
+						#
 								#--------- paging
-								$dgp->PageNo = intval(\GPCS::POST($PNames['page']));
-								$dgp->PageNo = $dgp->PageNo <= 0 ? 1 : $dgp->PageNo;
-								$HowManyRows = intval(\GPCS::POST($PNames['rows']));
-								if ($HowManyRows && array_search($HowManyRows, $dg->Options->rowList(), true) !== false)
-									$dg->Options->rowNum($HowManyRows);
-								$dgp->RowsPerPage = $dg->Options->rowNum();
-								#
-								#
+						$dgp->PageNo = intval(\GPCS::POST($PNames['page']));
+						$dgp->PageNo = $dgp->PageNo <= 0 ? 1 : $dgp->PageNo;
+						$HowManyRows = intval(\GPCS::POST($PNames['rows']));
+						if ($HowManyRows && array_search($HowManyRows, $dg->Options->rowList(), true) !== false)
+							$dg->Options->rowNum($HowManyRows);
+						$dgp->RowsPerPage = $dg->Options->rowNum();
+						#
+						#
 								#--------- FILTERING
-								$Filter = \GPCS::POST($PNames['filters']);
-								$Filter = $Filter ? json_decode($Filter, true, 4) : array();
-								$dgp->HasFilter = (strtolower(\GPCS::POST($PNames['search'])) == 'true') && ($dg->HasFilterBar || $dg->HasSearch);
-								if (empty($Filter['groupOp']) || empty($Filter['rules']))
+						$Filter = \GPCS::POST($PNames['filters']);
+						$Filter = $Filter ? json_decode($Filter, true, 4) : array();
+						$dgp->HasFilter = (strtolower(\GPCS::POST($PNames['search'])) == 'true') && ($dg->HasFilterBar || $dg->HasSearch);
+						if (empty($Filter['groupOp']) || empty($Filter['rules']))
+							$dgp->HasFilter = false;
+						if ($dgp->HasFilter) {
+							$dgp->SQLWhereClause = array();
+							//Loop Rules
+							foreach ($Filter['rules'] as $Rule) {
+								if (!isset($Rule['data']) || empty($Rule['op']) || $Rule['data'] === '')
+									continue;
+								$Column = $dg->GetColumn($Rule['field']);
+								$Column = $Column ? $Column->_getArray() : $Column;
+								if (!$Column ||
+										(isset($Column['search']) && $Column['search'] === false) ||
+										(empty($Column['search']) && empty($dg->Options->cmTemplate['search']))
+								) {//Validating and FASTENING Rule
 									$dgp->HasFilter = false;
-								if ($dgp->HasFilter) {
-									$dgp->SQLWhereClause = array();
-									//Loop Rules
-									foreach ($Filter['rules'] as $Rule) {
-										if (!isset($Rule['data']) || empty($Rule['op']) || $Rule['data'] === '')
-											continue;
-										$Column = $dg->GetColumn($Rule['field']);
-										$Column = $Column ? $Column->_getArray() : $Column;
-										if (!$Column ||
-												(isset($Column['search']) && $Column['search'] === false) ||
-												(empty($Column['search']) && empty($dg->Options->cmTemplate['search']))
-										) {//Validating and FASTENING Rule
-											$dgp->HasFilter = false;
-											\Err::ErrMsg_Method(__METHOD__, 'This field is not specified for filtering(search)! Hacking attempt?!', "rule:" . print_r($Rule));
-											exit;
-										}
-										$ColName = isset($Column['whereclause_leftside']) ? $Column['whereclause_leftside'] : null;
-										if (!$ColName)
-											$ColName = $Column['index'];
+									\Err::ErrMsg_Method(__METHOD__, 'This field is not specified for filtering(search)! Hacking attempt?!', "rule:" . print_r($Rule));
+									exit;
+								}
+								$ColName = isset($Column['whereclause_leftside']) ? $Column['whereclause_leftside'] : null;
+								if (!$ColName)
+									$ColName = $Column['index'];
 
-										$SkipRule = false;
-										$PreColFilter = $dg->OnPreColFilter();
-										if ($PreColFilter) {
-											foreach ($PreColFilter as $Handler) {
-												$HandlerResult = NULL;
-												if (is_callable($Handler['FNC']))
-													$HandlerResult = $Handler['FNC']($Rule, $Handler['PARAMS']);
-												if ($HandlerResult === FALSE) {
-													$SkipRule = true;
-													break;
-												}
-											}
-										}
-										if ($SkipRule)
-											continue;
-										//SQL INJECTION IS BLOCKED HERE
-										$CharsetLevel = (isset($Column['CharsetLevel'])) ? $Column['CharsetLevel'] : 2;
-										$Conversion = ($CharsetLevel !== false);
-										$Rule['data'] = T\DB::RealEscape($Rule['data']);
-										$arrConditionList = array(//:DATA is sql parameter
-											"eq" => " $ColName =		" . ($Conversion ? T\DB::CharsetLevel("'{$Rule['data']}' ", $CharsetLevel) : "'{$Rule['data']}' ")  //equal
-											, "ne" => " $ColName !=		" . ($Conversion ? T\DB::CharsetLevel("'{$Rule['data']}' ", $CharsetLevel) : "'{$Rule['data']}' ")  //not equal
-											, "lt" => " $ColName <		" . ($Conversion ? T\DB::CharsetLevel("'{$Rule['data']}' ", $CharsetLevel) : "'{$Rule['data']}' ")  //less than
-											, "le" => " $ColName <=		" . ($Conversion ? T\DB::CharsetLevel("'{$Rule['data']}' ", $CharsetLevel) : "'{$Rule['data']}' ")  //less or equal
-											, "gt" => " $ColName >		" . ($Conversion ? T\DB::CharsetLevel("'{$Rule['data']}' ", $CharsetLevel) : "'{$Rule['data']}' ")  //greater than
-											, "ge" => " $ColName >=		" . ($Conversion ? T\DB::CharsetLevel("'{$Rule['data']}' ", $CharsetLevel) : "'{$Rule['data']}' ")  //greater or equal
-											, "bw" => " $ColName LIKE		" . ($Conversion ? T\DB::CharsetLevel("'{$Rule['data']}%' ", $CharsetLevel) : "'{$Rule['data']}%' ") //begin with
-											, "bn" => " $ColName NOT LIKE	" . ($Conversion ? T\DB::CharsetLevel("'{$Rule['data']}%' ", $CharsetLevel) : "'{$Rule['data']}%' ") //not begin with
-											, "in" => " $ColName LIKE		" . ($Conversion ? T\DB::CharsetLevel("'%{$Rule['data']}%' ", $CharsetLevel) : "'%{$Rule['data']}%' ") //is in
-											, "ni" => " $ColName NOT LIKE	" . ($Conversion ? T\DB::CharsetLevel("'%{$Rule['data']}%' ", $CharsetLevel) : "'%{$Rule['data']}%' ") //is not in
-											, "ew" => " $ColName LIKE		" . ($Conversion ? T\DB::CharsetLevel("'%{$Rule['data']}' ", $CharsetLevel) : "'%{$Rule['data']}' ") //end with
-											, "en" => " $ColName NOT LIKE	" . ($Conversion ? T\DB::CharsetLevel("'%{$Rule['data']}' ", $CharsetLevel) : "'%{$Rule['data']}' ") //not end with
-											, "cn" => " $ColName LIKE		" . ($Conversion ? T\DB::CharsetLevel("'%{$Rule['data']}%' ", $CharsetLevel) : "'%{$Rule['data']}%' ") //contain
-											, "nc" => " $ColName NOT LIKE	" . ($Conversion ? T\DB::CharsetLevel("'%{$Rule['data']}%' ", $CharsetLevel) : "'%{$Rule['data']}%' ") //not contain
-											, "nu" => " ISNULL($ColName) " //is null
-											, "nn" => " NOT ISNULL($ColName) " //not null
-										);
-										$arrConditionList = array_intersect_key($arrConditionList, array_flip($dg->Options->searchoptions['sopt']));
-										if (isset($arrConditionList[$Rule['op']]))
-											$dgp->SQLWhereClause[] = $arrConditionList[$Rule['op']];
-										if (!$dg->HasMultiSearch)
+								$SkipRule = false;
+								$PreColFilter = $dg->OnPreColFilter();
+								if ($PreColFilter) {
+									foreach ($PreColFilter as $Handler) {
+										$HandlerResult = NULL;
+										if (is_callable($Handler['FNC']))
+											$HandlerResult = $Handler['FNC']($Rule, $Handler['PARAMS']);
+										if ($HandlerResult === FALSE) {
+											$SkipRule = true;
 											break;
+										}
 									}
-									$Filter['groupOp'] = strtolower($Filter['groupOp']) === 'and' ? ' AND ' : ' OR ';
-									if (count($dgp->SQLWhereClause))
-										$dgp->SQLWhereClause = implode($Filter['groupOp'], $dgp->SQLWhereClause);
-									else
-										$dgp->SQLWhereClause = ' 1=1 ';
 								}
-								#
-								#
+								if ($SkipRule)
+									continue;
+								//SQL INJECTION IS BLOCKED HERE
+								$CharsetLevel = (isset($Column['CharsetLevel'])) ? $Column['CharsetLevel'] : 2;
+								$Conversion = ($CharsetLevel !== false);
+								$Rule['data'] = T\DB::RealEscape($Rule['data']);
+								$Rule['data'] = T\DB::EscapeLikeWildCards($Rule['data']);
+								$arrConditionList = array(//:DATA is sql parameter
+									"eq" => " $ColName =		" . ($Conversion ? T\DB::CharsetLevel("'{$Rule['data']}' ", $CharsetLevel) : "'{$Rule['data']}' ")  //equal
+									, "ne" => " $ColName !=		" . ($Conversion ? T\DB::CharsetLevel("'{$Rule['data']}' ", $CharsetLevel) : "'{$Rule['data']}' ")  //not equal
+									, "lt" => " $ColName <		" . ($Conversion ? T\DB::CharsetLevel("'{$Rule['data']}' ", $CharsetLevel) : "'{$Rule['data']}' ")  //less than
+									, "le" => " $ColName <=		" . ($Conversion ? T\DB::CharsetLevel("'{$Rule['data']}' ", $CharsetLevel) : "'{$Rule['data']}' ")  //less or equal
+									, "gt" => " $ColName >		" . ($Conversion ? T\DB::CharsetLevel("'{$Rule['data']}' ", $CharsetLevel) : "'{$Rule['data']}' ")  //greater than
+									, "ge" => " $ColName >=		" . ($Conversion ? T\DB::CharsetLevel("'{$Rule['data']}' ", $CharsetLevel) : "'{$Rule['data']}' ")  //greater or equal
+									, "bw" => " $ColName LIKE		" . ($Conversion ? T\DB::CharsetLevel("'{$Rule['data']}%' ", $CharsetLevel) : "'{$Rule['data']}%' ") . " ESCAPE '" . T\DB::LikeEscapeChar . "'" //begin with
+									, "bn" => " $ColName NOT LIKE	" . ($Conversion ? T\DB::CharsetLevel("'{$Rule['data']}%' ", $CharsetLevel) : "'{$Rule['data']}%' ") . " ESCAPE '" . T\DB::LikeEscapeChar . "'" //not begin with
+									, "in" => " $ColName LIKE		" . ($Conversion ? T\DB::CharsetLevel("'%{$Rule['data']}%' ", $CharsetLevel) : "'%{$Rule['data']}%' ") . " ESCAPE '" . T\DB::LikeEscapeChar . "'" //is in
+									, "ni" => " $ColName NOT LIKE	" . ($Conversion ? T\DB::CharsetLevel("'%{$Rule['data']}%' ", $CharsetLevel) : "'%{$Rule['data']}%' ") . " ESCAPE '" . T\DB::LikeEscapeChar . "'" //is not in
+									, "ew" => " $ColName LIKE		" . ($Conversion ? T\DB::CharsetLevel("'%{$Rule['data']}' ", $CharsetLevel) : "'%{$Rule['data']}' ") . " ESCAPE '" . T\DB::LikeEscapeChar . "'" //end with
+									, "en" => " $ColName NOT LIKE	" . ($Conversion ? T\DB::CharsetLevel("'%{$Rule['data']}' ", $CharsetLevel) : "'%{$Rule['data']}' ") . " ESCAPE '" . T\DB::LikeEscapeChar . "'" //not end with
+									, "cn" => " $ColName LIKE		" . ($Conversion ? T\DB::CharsetLevel("'%{$Rule['data']}%' ", $CharsetLevel) : "'%{$Rule['data']}%' ") . " ESCAPE '" . T\DB::LikeEscapeChar . "'" //contain
+									, "nc" => " $ColName NOT LIKE	" . ($Conversion ? T\DB::CharsetLevel("'%{$Rule['data']}%' ", $CharsetLevel) : "'%{$Rule['data']}%' ") . " ESCAPE '" . T\DB::LikeEscapeChar . "'" //not contain
+									, "nu" => " ISNULL($ColName) " //is null
+									, "nn" => " NOT ISNULL($ColName) " //not null
+								);
+								$arrConditionList = array_intersect_key($arrConditionList, array_flip($dg->Options->searchoptions['sopt']));
+								if (isset($arrConditionList[$Rule['op']]))
+									$dgp->SQLWhereClause[] = $arrConditionList[$Rule['op']];
+								if (!$dg->HasMultiSearch)
+									break;
+							}
+							$Filter['groupOp'] = strtolower($Filter['groupOp']) === 'and' ? ' AND ' : ' OR ';
+							if (count($dgp->SQLWhereClause))
+								$dgp->SQLWhereClause = implode($Filter['groupOp'], $dgp->SQLWhereClause);
+							else
+								$dgp->SQLWhereClause = ' 1=1 ';
+						}
+						#
+						#
 								#-----------SELECT OPERATION
-								$dt = $Queries['SELECT']['FNC']($dgp, $Queries['SELECT']['PARAMS']);
-								if (!$dt)
-									$dt = array();
-								if (is_object($dt) && is_a($dt, '\CDbDataReader')) //yii framework
-									$dt = $dt->readAll();
-								if ($DataKeys = $dg->Options->DataKey)
-									$DataKeys = array_flip(explode(',', str_replace(' ', '', $DataKeys)));
-								foreach ($dt as $drIdx => $dr) {
-									//data key
-									$DatarowID = $drIdx;
-									if ($DataKeys) {
-										$DatarowID = array_intersect_key($dr, $DataKeys);
-										if (count($DatarowID) != count($DataKeys))
-											\Err::ErrMsg_Method(__METHOD__, 'Specified Data Keys doesn`t match on SQL Datarow (Probably Query doesn`t contain the DataKey)', array($DataKeys, $dr));
-										$DatarowID = implode('_', $DatarowID);
-									}
-									//filter and sort data row fields based on grid columns
-									$ArrangedDR = array();
-									foreach ($dg->Options->colModel() as $col) {
-										$ArrangedDR[] = isset($col['name']) && isset($dr[$col['name']]) ?
-												$dr[$col['name']] : null;
-									}
-									$dr = $ArrangedDR;
-									unset($ArrangedDR);
-									$dt[$drIdx] = array('id' => $DatarowID, 'cell' => array_values($dr));
-								}
-								T\HTTP::Header(\Consts\Header::ContentType . 'text/json');
+						$dt = $Queries['SELECT']['FNC']($dgp, $Queries['SELECT']['PARAMS']);
+						if (!$dt)
+							$dt = array();
+						if (is_object($dt) && is_a($dt, '\CDbDataReader')) //yii framework
+							$dt = $dt->readAll();
+						if ($DataKeys = $dg->Options->DataKey)
+							$DataKeys = array_flip(explode(',', str_replace(' ', '', $DataKeys)));
+						foreach ($dt as $drIdx => $dr) {
+							//data key
+							$DatarowID = $drIdx;
+							if ($DataKeys) {
+								$DatarowID = array_intersect_key($dr, $DataKeys);
+								if (count($DatarowID) != count($DataKeys))
+									\Err::ErrMsg_Method(__METHOD__, 'Specified Data Keys doesn`t match on SQL Datarow (Probably Query doesn`t contain the DataKey)', array($DataKeys, $dr));
+								$DatarowID = implode('_', $DatarowID);
+							}
+							//filter and sort data row fields based on grid columns
+							$ArrangedDR = array();
+							foreach ($dg->Options->colModel() as $col) {
+								$IsRightCol = isset($col['name']) && array_key_exists($col['name'], $dr);
+								if ($IsRightCol && isset($col['type']) && $col['type'] == 'date' && is_null($dr[$col['name']]))
+									$dr[$col['name']] = '';
+								$ArrangedDR[] = $IsRightCol ? $dr[$col['name']] : null;
+							}
+							$dr = $ArrangedDR;
+							unset($ArrangedDR);
+							$dt[$drIdx] = array('id' => $DatarowID, 'cell' => array_values($dr));
+						}
+						T\HTTP::Header(\Consts\Header::ContentType . 'text/json');
 //								echo json_encode(array(
 //											'total' => $dgp->TotalPages
 //											, 'page' => $dgp->PageNo
@@ -735,16 +746,16 @@ function(id){
 //											, 'rows' => $dt
 //										))
 //								);
-								echo T\Basics::JSON_Advanced(array(
-									'total' => $dgp->TotalPages
-									, 'page' => $dgp->PageNo
-									, 'records' => $dgp->AllRowsCount
-									, 'rows' => $dt
-								));
-							}
-							break;
+						echo T\Basics::JSON_Advanced(array(
+							'total' => $dgp->TotalPages
+							, 'page' => $dgp->PageNo
+							, 'records' => $dgp->AllRowsCount
+							, 'rows' => $dt
+						));
 					}
-				}
+					break;
+			}
+		}
 				, $this->_AjaxKW, NULL, 'DataGrid_AjaxPostBack_UniqueContentKW');
 		return $this;
 	}
@@ -837,7 +848,7 @@ function(id){
 		$this->Options->_unset('colModel')->colModel($IndexedColModel); //place $IndexedColModel
 		$this->Config(\html::DataGridConfig()
 						->cmTemplate(array('searchoptions' => array('sopt' => $this->Options->searchoptions['sopt'])
-						)));
+		)));
 
 		//Options
 		$this->Options->mtype('post');
@@ -1344,4 +1355,3 @@ class DataGridConfig extends ConfigArray {
 //	
 //}
 //}
-?>

@@ -13,7 +13,7 @@ class InvitationsAction extends \CAction {
 	public function run() {
 		$ctrl = $this->controller;
 		/* @var $ctrl \Admin\controllers\UserController */
-		$ctrl->pageTitle = \Lng::AdminPageTitle('tr_Common', 'Invitations');
+		$ctrl->pageTitle = \Lng::AdminPageTitle('tr_common', 'Invitations');
 
 		$dg = $this->DataGrid($ctrl);
 
@@ -25,18 +25,20 @@ class InvitationsAction extends \CAction {
 	private function DataGrid(\Admin\controllers\UserController $ctrl) {
 		$FormModel = new \Admin\models\User\Invitation();
 		$fncPassPostParams = function()use($FormModel) {
-					$FormModel->attributes = array(
-						'txtCode' => \GPCS::POST('Code'),
-						'ddlUserTypeID' => \GPCS::POST('UserTypeID'),
-						'txtDescription' => \GPCS::POST('Description'),
-					);
-				};
+			$FormModel->attributes = array(
+				'txtCode' => \GPCS::POST('Code'),
+				'ddlUserTypeID' => \GPCS::POST('UserTypeID'),
+				'txtUserTypeExpDate' => \GPCS::POST('UserTypeExpDate'),
+				'txtInvitationExpDate' => \GPCS::POST('InvitationExpDate'),
+				'txtDescription' => \GPCS::POST('Description'),
+			);
+		};
 		$ActiveUserTypes = \Admin\models\User\Type::GetActiveUserTypes();
 		$strDDL_Types = \Base\DataGrid::CreateDDLElements(
 						$ActiveUserTypes
 						, 'ID'
 						, 'Title');
-		$dg = \html::DataGrid_Ready1('dgInvitations', 'Admin', 'tr_Common')
+		$dg = \html::DataGrid_Ready1('dgInvitations', 'Admin', 'tr_common')
 				->DataKey('ID')
 				->SetNavigator(array(
 					'del' => true
@@ -44,13 +46,30 @@ class InvitationsAction extends \CAction {
 				->Options(
 						\html::DataGridConfig()
 						->caption($ctrl->pageTitle)
-						->direction(\Lng::Admin('tr_Common', 'LTR_RTL'))
+						->direction(\Lng::Admin('tr_common', 'LTR_RTL'))
 				)
 				->SetColumns(
 				\html::DataGridColumn()
 				->index('ID')
-				->header(\Lng::Admin('tr_Common', 'ID'))
+				->header(\Lng::Admin('tr_common', 'ID'))
 				->width('50px')
+				#
+				, \html::DataGridColumn()
+				->index('Code')
+				->header($FormModel->getAttributeLabel('txtCode'))
+				->title(true)
+				->editable(true)
+				->editrules(array('required' => TRUE, 'length' => '0,' . $FormModel::CodeMaxLen))
+				->width('100px')
+				#
+				, \html::DataGridColumn()
+				->index('InvitationExpDate')
+				->header(\html::PutInATitleTag($FormModel->getAttributeLabel('txtInvitationExpDate')))
+				->title(true)
+				->editable(true)
+				->type('date')
+				->searchoptions(array('searchOnEnter' => true))
+				->width('100px')
 				#
 				, \html::DataGridColumn()
 				->index('UserTypeID')
@@ -62,11 +81,12 @@ class InvitationsAction extends \CAction {
 				->width('75px')
 				#
 				, \html::DataGridColumn()
-				->index('Code')
-				->header($FormModel->getAttributeLabel('txtCode'))
+				->index('UserTypeExpDate')
+				->header(\html::PutInATitleTag($FormModel->getAttributeLabel('txtUserTypeExpDate')))
 				->title(true)
 				->editable(true)
-				->editrules(array('required' => TRUE, 'length' => '0,' . $FormModel::CodeMaxLen))
+				->type('date')
+				->searchoptions(array('searchOnEnter' => true))
 				->width('100px')
 				#
 				, \html::DataGridColumn()
@@ -79,7 +99,7 @@ class InvitationsAction extends \CAction {
 				#
 				, \html::DataGridColumn()
 				->index('Actions')
-				->header(\Lng::Admin('tr_Common', 'Actions'))
+				->header(\Lng::Admin('tr_common', 'Actions'))
 				->search(false)
 				->editable(FALSE)
 				->sortable(false)
@@ -88,31 +108,29 @@ class InvitationsAction extends \CAction {
 		);
 		$dg
 				->SelectQuery(function(\Base\DataGridParams $DGP)use($FormModel) {
-							$FormModel->scenario = 'select';
-							$dt = $FormModel->Select($DGP);
-							if ($dt)
-								foreach ($dt as $idx => $dr) {
-									$dt[$idx]['Actions'] = $DGP->DataGrid->GetActionColButtons($dr['ID'], "LnkBtn");
-								}
-							return $dt;
-						})
+					$FormModel->scenario = 'select';
+					$dt = $FormModel->Select($DGP);
+					if ($dt)
+						foreach ($dt as $idx => $dr) {
+							$dt[$idx]['Actions'] = $DGP->DataGrid->GetActionColButtons($dr['ID'], "LnkBtn");
+						}
+					return $dt;
+				})
 				->InsertQuery(function(\Base\DataGridParams $DGP)use($FormModel, $fncPassPostParams) {
-							$FormModel->scenario = 'insert';
-							$fncPassPostParams();
-							return $FormModel->Insert($DGP);
-						})
+					$FormModel->scenario = 'insert';
+					$fncPassPostParams();
+					return $FormModel->Insert($DGP);
+				})
 				->UpdateQuery(function(\Base\DataGridParams $DGP)use($FormModel, $fncPassPostParams) {
-							$FormModel->scenario = 'update';
-							$fncPassPostParams();
-							return $FormModel->Update($DGP);
-						})
+					$FormModel->scenario = 'update';
+					$fncPassPostParams();
+					return $FormModel->Update($DGP);
+				})
 				->DeleteQuery(function(\Base\DataGridParams $DGP)use($FormModel) {
-							$FormModel->scenario = 'delete';
-							return $FormModel->Delete($DGP);
-						});
+					$FormModel->scenario = 'delete';
+					return $FormModel->Delete($DGP);
+				});
 		return $dg;
 	}
 
 }
-
-?>

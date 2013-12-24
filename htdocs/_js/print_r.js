@@ -1,6 +1,7 @@
+/** By Abbas Ali Hashemian<tondarweb@gmail.com>*/ 
 function print_r(collection, DontShowDetails, specialMaxLevel, JustReturn) {
 	if (!collection)
-		alert('print_r(passed value is ' + (typeof collection) + ')')
+		alert('print_r(no collection has been passed in. typeof : ' + (typeof collection) + ')')
 	var $result, level = 0, maxLevel = 1, rowNum = 0, AltRowColor = '#fff'
 	if (specialMaxLevel)
 		maxLevel = specialMaxLevel

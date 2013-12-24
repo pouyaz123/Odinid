@@ -5,6 +5,7 @@ namespace Site;
 class SiteModule extends \CWebModule {
 
 	public $controllerNamespace = 'Site\controllers';
+	public $defaultController = 'default';
 	public $layout = 'main';
 
 	public function init() {

@@ -1,4 +1,4 @@
-<?
+<?php
 
 use \Tools as T;
 use \Consts as C;
@@ -40,9 +40,9 @@ class Err {
 		if (Conf::Err_SecureMode) {
 			$strMessage = "A System Error or Trace Msg Occurred!(Secure Mode is ON. check logs!)";
 			$mixedDetails = NULL;
-		} else { //TODO2: html encoding for err details
+		} else { //mytodo 2: html encoding for err details
 			$mixedDetails = "<div style='height:15px; overflow:hidden; padding: 2px; cursor:default; background:#400; color:#fee; font-family:Lucida Console' onclick='this.style.height=\"auto\"; this.style.overflow=\"auto\"'>"
-					. (is_array($mixedDetails) && count($mixedDetails) ? print_r($mixedDetails, true) : $mixedDetails)
+					. (is_array($mixedDetails) ? print_r($mixedDetails, true) : $mixedDetails)
 					. "</div>";
 		}
 
@@ -167,7 +167,7 @@ class Err {
 //	}
 
 //	static function HotLink() {
-//		F3::error(404); //TODO3: hot linking page
+//		F3::error(404); //mytodo 3: hot linking page
 //	}
 
 //	static function ForbiddenAction_Admin($ActionDesc = NULL) {
@@ -189,5 +189,3 @@ class Err {
 //	}
 
 }
-
-?>

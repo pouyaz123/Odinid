@@ -1,3 +1,4 @@
+/** By Abbas Ali Hashemian<tondarweb@gmail.com> - webdesignir.com*/ 
 var MyDDL = new function() {
 	var Conf = {
 		ShowAnimTime: 250

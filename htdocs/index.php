@@ -10,6 +10,7 @@ if ($_SERVER['REMOTE_ADDR'] === '127.0.0.1') {
 // change the following paths if necessary
 $yii = dirname(__FILE__) . '/../framework/yii.php';
 $config = dirname(__FILE__) . '/../protected/config/main.php';
+//$config=dirname(__FILE__).'/../protected/config/test.php';
 
 require_once($yii);
 Yii::createWebApplication($config)->run();

@@ -1,4 +1,4 @@
-<?
+<?php
 
 namespace Tools;
 
@@ -316,5 +316,3 @@ class Basics {
 	}
 
 }
-
-?>

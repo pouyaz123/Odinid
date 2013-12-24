@@ -7,7 +7,7 @@ use \Tools as T;
 
 class Type extends \Base\FormModel {
 
-	public function PostName() {
+	public function getPostName() {
 		return $this->scenario;
 	}
 
@@ -42,14 +42,14 @@ class Type extends \Base\FormModel {
 			array('txtLogicName', 'IsUnique',
 				'SQL' => 'SELECT COUNT(*) FROM `_user_types` WHERE `LogicName`=:val AND `ID`!=:pk LIMIT 1',
 				'SQLParams' => array(':pk' => &$this->_RowID),
-				'MsgTModule' => 'Admin',
-				'MsgTCat' => 'tr_Common',
+				'MsgTransModule' => 'Admin',
+				'MsgTransCat' => 'tr_common',
 				'on' => 'insert, update'),
 			array('txtTitle', 'IsUnique',
 				'SQL' => 'SELECT COUNT(*) FROM `_user_types` WHERE `Title`=:val AND `ID`!=:pk LIMIT 1',
 				'SQLParams' => array(':pk' => &$this->_RowID),
-				'MsgTModule' => 'Admin',
-				'MsgTCat' => 'tr_Common',
+				'MsgTransModule' => 'Admin',
+				'MsgTransCat' => 'tr_common',
 				'on' => 'insert, update'),
 			#
 			array('chkIsActive, chkIsDefault', 'boolean',
@@ -64,10 +64,10 @@ class Type extends \Base\FormModel {
 	 */
 	public function attributeLabels() {
 		return array(
-			'txtLogicName' => \Lng::Admin('tr_Common', 'Logic name'),
-			'txtTitle' => \Lng::Admin('tr_Common', 'Title'),
-			'chkIsActive' => \Lng::Admin('tr_Common', 'Is active'),
-			'chkIsDefault' => \Lng::Admin('tr_Common', 'Is default'),
+			'txtLogicName' => \Lng::Admin('tr_common', 'Logic name'),
+			'txtTitle' => \Lng::Admin('tr_common', 'Title'),
+			'chkIsActive' => \Lng::Admin('tr_common', 'Is active'),
+			'chkIsDefault' => \Lng::Admin('tr_common', 'Is default'),
 		);
 	}
 
@@ -88,33 +88,30 @@ class Type extends \Base\FormModel {
 			LIMIT " . $Limit);
 	}
 
-	private static $_ActiveUserTypes = array();
-
 	/**
 	 * @param string $Fields
 	 * @return \CDbDataReader
 	 */
 	static function GetActiveUserTypes($Fields = '*') {
-		if (!isset(self::$_ActiveUserTypes[$Fields]))
-			self::$_ActiveUserTypes[$Fields] = T\DB::GetTable("SELECT $Fields FROM `_user_types` WHERE `IsActive`");
-		return self::$_ActiveUserTypes[$Fields];
+		static $ActiveUserTypes = array();
+		if (!isset($ActiveUserTypes[$Fields]))
+			$ActiveUserTypes[$Fields] = T\DB::GetTable("SELECT $Fields FROM `_user_types` WHERE `IsActive`");
+		return $ActiveUserTypes[$Fields];
 	}
 
 	function Insert(\Base\DataGridParams $DGP) {
 		if ($this->validate()) {
-			$ID = T\DB::GetNewID('_user_types');
 			T\DB::Execute("
 				INSERT INTO `_user_types`(`ID`, `LogicName`, `Title`, `IsDefault`, `IsActive`)
-				VALUES (:id, :lgc, :ttl, :dflt, :act)"
+				VALUES ((" . T\DB::GetNewID('_user_types') . "), :lgc, :ttl, :dflt, :act)"
 					, array(
-				':id' => $ID,
 				':lgc' => $this->txtLogicName,
 				':ttl' => $this->txtTitle,
 				':dflt' => $this->chkIsDefault ? : NULL,
-				':act' => $this->chkIsActive,
+				':act' => $this->chkIsActive ? : 0,
 			));
 		} else {
-			\html::AjaxMsg_Exit(\CHtml::errorSummary($this));
+			\html::ErrMsg_Exit(\CHtml::errorSummary($this));
 		}
 	}
 
@@ -133,31 +130,27 @@ class Type extends \Base\FormModel {
 				':act' => $this->chkIsActive,
 			));
 		} else {
-			\html::AjaxMsg_Exit(\CHtml::errorSummary($this));
+			\html::ErrMsg_Exit(\CHtml::errorSummary($this));
 		}
 	}
 
 	function Delete(\Base\DataGridParams $DGP) {
 		if ($DGP->RowID) {
 			$IDs = explode(',', $DGP->RowID);
-			$trans = \Yii::app()->db->beginTransaction();
-			try {
-				foreach ($IDs as $ID)
-					T\DB::Execute("
-						DELETE FROM `_user_types`
-						WHERE `ID`=:id AND ID NOT IN (SELECT DISTINCT `UserTypeID` FROM `_users`)", array(':id' => $ID));
-				$trans->commit();
-			} catch (Exception $e) {
-				$trans->rollback();
-				\Err::ErrMsg(\Lng::Admin('tr_Common', 'Deletion failed'));
-			}
+			$Queries = array();
+			foreach ($IDs as $ID)
+				$Queries[] = array("DELETE FROM `_user_types`
+					WHERE `ID`=:id AND ID NOT IN (SELECT DISTINCT `UserTypeID` FROM `_users`)", array(':id' => $ID));
+			T\DB::Transaction($Queries, NULL, function() {
+				\html::ErrMsg_Exit(\Lng::Admin('tr_common', 'Deletion failed'));
+			});
 		}
 	}
 
 	function UniqueDefaultValidate($attr, $params) {
 		$ID = &$this->_RowID;
 		if ($this->$attr && T\DB::GetField('SELECT COUNT(*) FROM `_user_types` WHERE `IsDefault` AND ID!=:id', array(':id' => $ID)))
-			$this->addError('chkIsDefault', \Lng::Admin('tr_UserModule', 'Only one default user type'));
+			$this->addError('chkIsDefault', \Lng::Admin('tr_user', 'Only one default user type'));
 	}
 
 }

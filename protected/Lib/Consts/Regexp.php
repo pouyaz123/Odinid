@@ -6,7 +6,6 @@ namespace Consts;
  * @author Abbas Ali Hashemian <info@namedin.com> http://namedin.com <tondarweb@gmail.com> http://webdesignir.com
  * @package Tondarweb Portal
  * @version 1
- * @copyright (c) Abbas Ali Hashemian
  * @access public
  */
 final class Regexp {
@@ -15,6 +14,7 @@ final class Regexp {
 			, URL_Local = '/^http(s)\?:\/\/\w+(\.\w+)*[^\s]?$/';
 #	
 	const Username = '/^[A-Za-z][\w\.]*$/';
+	const Username_InvalidCases = '/^(_css|_js|_img|assets|index\.php)$/';
 	const Email = '/^\w+([\.\-]\w+)*@\w+([\.\-]\w+)*\.\w{2,}$/';
 	const LogicName = '/^\w*$/';
 //	const Password = '/^.{4,}$/';
@@ -23,18 +23,24 @@ final class Regexp {
 	const Integer = '/^(\-\d)?\d*$/';
 	const Phone = '/^[\d\+]?[\d\s\-]*$/';
 	const DateTime = '/^\d\d\d\d\-\d\d\-\d\d\s\d\d:\d\d:\d\d$/';
-	const HttpRequestHeader_ModifiedSince = '/^[\w\,\s:\+\-]+$/';
+	const DateFormat_Yii_FullDigit = 'yyyy-MM-dd';
+//	const HttpRequestHeader_ModifiedSince = '/^[\w\,\s:\+\-]+$/';
 //	const Language = '/^[\w\-\s]*$/';
 //	const Languages = '/^[\w\-\s\,]*$/';
 //	const Language_Label = '<span dir="ltr">Characters : A-z 0-9 _ - [space]</span>';
 //	const Location = '/^[\w\s\-\/\.\)\(\'\"]*$/';
 //	const Locations = '/^[\w\s\-\,\/\.\)\(\'\"]*$/';
 //	const Location_Label = "<span dir=\"ltr\">Characters : A-z 0-9 _ - / . ) ( &apos; &quot; [space]</span>";
-	const CurrecyAbbr='/^[\w\s\,]+$/';
-	const ASCIIChars_Simple='/^[\w\s\-\,\.\:\"\'\`\~\?\/\\\(\)\[\]\{\}\=\+\*\!\@\#\$\%\^\&\<\>]+$/';
+	const CurrecyAbbr = '/^[\w\s\,]+$/';
+	const ASCIIChars_Simple = '/^[\w\s\-\,\.\:\"\'\`\~\?\/\\\(\)\[\]\{\}\=\+\*\!\@\#\$\%\^\&\<\>]+$/';
+
+	static function CompanyURLDomain($Domain_PregEscaped) {
+		return "/^([\w\-]+\.)?$Domain_PregEscaped$/";
+	}
+
 //KASP
-	const NoComma = '/^[^,]*$/';
-	const NoComma_Req = '/^[^,]+$/';
+//	const NoComma = '/^[^,]*$/';
+//	const NoComma_Req = '/^[^,]+$/';
 //	const AuctionItemSpecifications='/^[\w\s\;\:\(\)\.\-]*$/';
 //	const AuctionItemSpecifications_Label = '<span dir="ltr">Characters : A-z 0-9 _ - : ; ) ( . [space]</span>';
 #
@@ -78,5 +84,3 @@ final class Regexp {
 	}
 
 }
-
-?>

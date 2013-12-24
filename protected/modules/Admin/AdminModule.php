@@ -6,6 +6,7 @@ class AdminModule extends \CWebModule {
 
 	public $controllerNamespace = 'Admin\controllers';
 	public $defaultController = 'Panel';
+	public $layout = 'main';
 
 	public function init() {
 		// this method is called when the module is being created
@@ -20,7 +21,7 @@ class AdminModule extends \CWebModule {
 		\Lng::InitializeTranslation(\Conf::$AdminModuleLangs);
 
 		#main title
-		\Yii::app()->name = \Lng::Admin('tr_Common', 'Admin Main Title');
+		\Yii::app()->name = \Lng::Admin('tr_common', 'Admin Main Title');
 	}
 
 	public function beforeControllerAction($controller, $action) {

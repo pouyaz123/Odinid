@@ -39,14 +39,14 @@ class BaseController extends \CController {
 				return "<span>$Lable</span>";
 			};
 			$obj->menu = array(
-				array('text' => $lnk('tr_Common', 'Logout', Routes::Logout, array('rel' => \html::AjaxExcept))),
-				array('text' => $lnk('tr_Common', 'Cartable', Routes::Cartable)),
-				array('text' => $spn(\Lng::Admin('tr_Common', 'Users')),
+				array('text' => $lnk('tr_common', 'Logout', Routes::Logout, array('rel' => \html::AjaxExcept))),
+				array('text' => $lnk('tr_common', 'Cartable', Routes::Cartable)),
+				array('text' => $spn(\Lng::Admin('tr_common', 'Users')),
 					'children' => array(
-						array('text' => $lnk('tr_Common', 'User types', Routes::User_Types)),
-						array('text' => $lnk('tr_Common', 'Invitations', Routes::User_Invitations)),
-						array('text' => $lnk('tr_Common', 'User plans', Routes::User_Plans)),
-						array('text' => $lnk('tr_Common', 'User list', Routes::User_List)),
+						array('text' => $lnk('tr_common', 'User types', Routes::User_Types)),
+						array('text' => $lnk('tr_common', 'Invitations', Routes::User_Invitations)),
+						array('text' => $lnk('tr_common', 'User plans', Routes::User_Plans)),
+						array('text' => $lnk('tr_common', 'User list', Routes::User_List)),
 					)
 				),
 			);

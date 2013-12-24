@@ -1,4 +1,5 @@
 <?php
+//mytodo 1:add user type exp and invitation exp in admin
 
 namespace Admin\models\User;
 
@@ -7,7 +8,7 @@ use \Tools as T;
 
 class Invitation extends \Base\FormModel {
 
-	public function PostName() {
+	public function getPostName() {
 		return $this->scenario;
 	}
 
@@ -17,6 +18,8 @@ class Invitation extends \Base\FormModel {
 	private $_RowID = -1;
 	public $txtCode;
 	public $ddlUserTypeID;
+	public $txtUserTypeExpDate = NULL;
+	public $txtInvitationExpDate = NULL;
 	public $txtDescription = NULL;
 
 	/**
@@ -33,8 +36,14 @@ class Invitation extends \Base\FormModel {
 			array('txtCode', 'Unique',
 				'SQL' => 'SELECT COUNT(*) FROM `_user_invitations` WHERE `Code`=:val AND `ID`!=:pk LIMIT 1',
 				'SQLParams' => array(':pk' => &$this->_RowID),
-				'MsgTModule' => 'Admin',
-				'MsgTCat' => 'tr_Common',
+				'MsgTransModule' => 'Admin',
+				'MsgTransCat' => 'tr_common',
+				'on' => 'insert, update'),
+			array('txtUserTypeExpDate', 'date',
+				'format' => C\Regexp::DateFormat_Yii_FullDigit,
+				'on' => 'insert, update'),
+			array('txtInvitationExpDate', 'date',
+				'format' => C\Regexp::DateFormat_Yii_FullDigit,
 				'on' => 'insert, update'),
 			array('txtDescription', 'length',
 				'max' => self::DescriptionMaxLen,
@@ -55,9 +64,11 @@ class Invitation extends \Base\FormModel {
 	 */
 	public function attributeLabels() {
 		return array(
-			'txtCode' => \Lng::Admin('tr_Common', 'Code'),
-			'ddlUserTypeID' => \Lng::Admin('tr_Common', 'User type'),
-			'txtDescription' => \Lng::Admin('tr_Common', 'Description'),
+			'txtCode' => \Lng::Admin('tr_common', 'Code'),
+			'ddlUserTypeID' => \Lng::Admin('tr_user', 'User type'),
+			'txtUserTypeExpDate' => \Lng::Admin('tr_user', 'User Type Expiration'),
+			'txtInvitationExpDate' => \Lng::Admin('tr_user', 'Invitation Expiration'),
+			'txtDescription' => \Lng::Admin('tr_common', 'Description'),
 		);
 	}
 
@@ -68,61 +79,60 @@ class Invitation extends \Base\FormModel {
 	function Select(\Base\DataGridParams $DGP) {
 		$AllCount = T\DB::GetField('SELECT COUNT(*) FROM `_user_invitations`');
 		$Limit = $DGP->QueryLimitParams($AllCount, $ref_LimitIdx, $ref_LimitLen);
-		return T\DB::GetTable("
-			SELECT *
-			FROM `_user_invitations`
-			WHERE {$DGP->SQLWhereClause}
-			ORDER BY {$DGP->Sort}
-			LIMIT " . $Limit);
+		return T\DB::GetTable(
+						"SELECT *"
+						. " FROM `_user_invitations`"
+						. " WHERE {$DGP->SQLWhereClause}"
+						. " ORDER BY {$DGP->Sort}"
+						. " LIMIT " . $Limit);
 	}
 
 	function Insert(\Base\DataGridParams $DGP) {
 		if ($this->validate()) {
-			$ID = T\DB::GetNewID('_user_invitations');
-			T\DB::Execute("
-				INSERT INTO `_user_invitations`(`ID`, `Code`, `UserTypeID`, `Description`)
-				VALUES (:id, :code, :typeid, :description)"
+			T\DB::Execute(
+					"INSERT INTO `_user_invitations`(`ID`, `Code`, `UserTypeID`, `UserTypeExpDate`, `InvitationExpDate`, `Description`)"
+					. " VALUES ((" . T\DB::GetNewID('_user_invitations') . "), :code, :typeid, :utexp, :invexp, :description)"
 					, array(
-				':id' => $ID,
 				':code' => $this->txtCode,
 				':typeid' => $this->ddlUserTypeID,
-				':description' => $this->txtDescription,
+				':utexp' => $this->txtUserTypeExpDate? : null,
+				':invexp' => $this->txtInvitationExpDate? : null,
+				':description' => $this->txtDescription? : null,
 			));
 		} else {
-			\html::AjaxMsg_Exit(\CHtml::errorSummary($this));
+			\html::ErrMsg_Exit(\CHtml::errorSummary($this));
 		}
 	}
 
 	function Update(\Base\DataGridParams $DGP) {
 		$this->_RowID = $DGP->RowID;
 		if ($DGP->RowID && $this->validate()) {
-			T\DB::Execute("
-				UPDATE `_user_invitations`
-				SET `Code`=:code, `UserTypeID`=:typeid, `Description`=:description
-				WHERE `ID`=:id"
+			T\DB::Execute(
+					"UPDATE `_user_invitations`"
+					. " SET `Code`=:code, `UserTypeID`=:typeid, `UserTypeExpDate`=:utexp, `InvitationExpDate`=:invexp, `Description`=:description"
+					. " WHERE `ID`=:id"
 					, array(
 				':id' => $DGP->RowID,
 				':code' => $this->txtCode,
 				':typeid' => $this->ddlUserTypeID,
-				':description' => $this->txtDescription,
+				':utexp' => $this->txtUserTypeExpDate? : null,
+				':invexp' => $this->txtInvitationExpDate? : null,
+				':description' => $this->txtDescription? : null,
 			));
 		} else {
-			\html::AjaxMsg_Exit(\CHtml::errorSummary($this));
+			\html::ErrMsg_Exit(\CHtml::errorSummary($this));
 		}
 	}
 
 	function Delete(\Base\DataGridParams $DGP) {
 		if ($DGP->RowID) {
 			$IDs = explode(',', $DGP->RowID);
-			$trans = \Yii::app()->db->beginTransaction();
-			try {
-				foreach ($IDs as $ID)
-					T\DB::Execute("DELETE FROM `_user_invitations` WHERE `ID`=:id", array(':id' => $ID));
-				$trans->commit();
-			} catch (Exception $e) {
-				$trans->rollback();
-				\Err::ErrMsg(\Lng::Admin('tr_Common', 'Deletion failed'));
-			}
+			$Queries = array();
+			foreach ($IDs as $ID)
+				$Queries[] = array("DELETE FROM `_user_invitations` WHERE `ID`=:id", array(':id' => $ID));
+			T\DB::Transaction($Queries, NULL, function() {
+				\html::ErrMsg_Exit(\Lng::Admin('tr_common', 'Deletion failed'));
+			});
 		}
 	}
 

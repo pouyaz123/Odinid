@@ -4,7 +4,7 @@
 ?>
 <div id="divLoginForm" class="form">
 	<?
-	$form = $this->beginWidget('CActiveForm', array(
+	$form = $this->beginWidget('Widgets\ActiveForm', array(
 		'id' => 'formLogin',
 		'method' => 'POST',
 		'enableClientValidation' => true,
@@ -12,7 +12,6 @@
 			'validateOnSubmit' => true,
 		),
 		'focus' => array($Model, 'txtUsername'),
-//		'htmlOptions'=>array('rel'=>\html::AjaxPanel())
 			));
 	/* @var $form CActiveForm */
 	?>
@@ -38,12 +37,7 @@
 			<?= $form->error($Model, 'txtCaptcha') ?>
 		</div>
 		<div class="row submit">
-			<? /*CHtml::ajaxSubmitButton(\Lng::Admin('tr_Common', 'Login'), ''
-					, array(
-						'replace'=>'#divLoginForm'
-					)
-				);*/ ?>
-			<?= CHtml::submitButton(\Lng::Admin('tr_Common', 'Login')
+			<?= CHtml::submitButton(\Lng::Admin('tr_common', 'Login')
 					,array('rel'=>\html::AjaxElement('#divLoginForm'))) ?>
 		</div>
 		<?= $form->errorSummary($Model); ?>

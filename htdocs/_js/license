@@ -1,11 +1,6 @@
-Tondarweb Javascript tools package
-* ajax systems
-* validation
-* suprbox(modified)
+Tondarweb(webdesignir) Javascript tools package
 
-
-@Copyright Abbas Ali Hashemian
-Role : 1st founder of this js library
+@by Abbas Ali Hashemian
 Package : WebDesignir
 Years : 2011, 2012, 2013, 2014
 tondarweb.com - webdesignir.com - namedin.com
@@ -13,12 +8,9 @@ info@namedin.com
 tondarweb@gmail.com
 
 ---------------------- Personal Hashemian opensource license -----------------------
-For webdesignir codes
-Everone can modify and use the codes for non-commercial usages but should keep this copyright license
-with the information of Abbas Ali Hashemian in the side of these codes.
-If you added or modified some codes , just add your information and copyright and license here and
-notify what code is modified by you. Help people to contact you in your info. tnx :)
-Commercial usages may have some legal headaches
+About webdesignir codes (whether PHP or JS)
+Everone can modify and use the codes just keep this license and the information of
+Abbas Ali Hashemian in the side of these codes.
 
 --------------------- Third party codes license -----------------------
 For third party opensource codes such as superbox

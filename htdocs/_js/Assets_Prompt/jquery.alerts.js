@@ -1,6 +1,6 @@
 // jQuery Alert Dialogs Plugin
 //
-// Version 1.1 (myButtons added by abbas hashemian - alixniv@gmail.com)
+// Version 1.1 (myButtons added by abbas hashemian - tondarweb@gmail.com)
 //
 // Cory S.N. LaViska
 // A Beautiful Site (http://abeautifulsite.net/)

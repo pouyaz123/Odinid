@@ -20,6 +20,7 @@
  * <img rel="REFRESHONAJAX"/> refresh this img after successful ajax communication
  * AjaxLoadingCoverContainer	//this className will be added to element and panel
  * AjaxLoadingCover				//loading div className
+ * By Abbas Ali Hashemian<tondarweb@gmail.com> - webdesignir.com
  **/
 //Any thing about post back is here
 var PostBack = new function()

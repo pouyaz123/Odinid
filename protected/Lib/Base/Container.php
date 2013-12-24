@@ -178,5 +178,3 @@ class Container extends \CComponent implements \Interfaces\String {
 	}
 
 }
-
-?>

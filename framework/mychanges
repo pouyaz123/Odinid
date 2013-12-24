@@ -1,104 +1,84 @@
-web\widgets\CActiveForm (line:444)
--	public function error($model,$attribute,$htmlOptions=array(),$enableAjaxValidation=true,$enableClientValidation=true)
-+	public function error($model,$attribute,$htmlOptions=array(),$enableAjaxValidation=false,$enableClientValidation=true)
+//--- support view state boolean for activeInputField
+web\helpers\CHtml.php (line:2251)
+	protected static function activeInputField($type,$model,$attribute,$htmlOptions)
+	{
+		...
+		if($type==='file')
+			unset($htmlOptions['value']);
+-		elseif(!isset($htmlOptions['value']))
++		elseif(!isset($htmlOptions['value']) && (!isset($htmlOptions['viewState']) || $htmlOptions['viewState']!==false))
+			$htmlOptions['value']=self::resolveValue($model,$attribute);
++		if(array_key_exists('viewState', $htmlOptions))
++			unset($htmlOptions['viewState']);
+		if($model->hasErrors($attribute))
+			self::addErrorCss($htmlOptions);
+		return self::tag('input',$htmlOptions);
+
+//--- support view state off for activePasswordField
+web\helpers\CHtml.php (line:2251)
+	public static function activePasswordField($model,$attribute,$htmlOptions=array())
+	{
++		$htmlOptions = array_merge(array('viewState'=>false), $htmlOptions);
+		self::resolveNameID($model,$attribute,$htmlOptions);
+		self::clientChange('change',$htmlOptions);
+		return self::activeInputField('password',$model,$attribute,$htmlOptions);
+	}
 
 
-validators\CCaptchaValidator (line:47)
-	protected function validateAttribute($object, $attribute) {
-+		if (property_exists($object, "DontValidateCaptcha") && $object->DontValidateCaptcha)
-+			return;
-
-
+//--- support client validation on ajax submit
+!!!!! THIS CHANGE MAY BE NOT ESSENTIAL BECAUSE I HAVE USED MY TONDARWEB AJAX SYSTEM BUT STILL TEST IT CAREFULLY
 web\js\source\jquery.yiiactiveform.js (line:129)
 htdocs/assets/16c4b960/jquery.yiiactiveform.js (line:129)
 under the 	$.fn.yiiactiveform = function (options) {
--			if (settings.validateOnSubmit) {
+			if (settings.validateOnSubmit) {
 -				$form.on('mouseup keyup', ':submit', function () {
 -					$form.data('submitObject', $(this));
 -				});
--				var validated = false;
++//				$form.on('mouseup keyup', ':submit', function () {
++//					$form.data('submitObject', $(this));
++//				});
+				var validated = false;
 -				$form.submit(function () {
--					if (validated) {
--						validated = false;
--						return true;
--					}
--					if (settings.timer !== undefined) {
--						clearTimeout(settings.timer);
--					}
--					settings.submitting = true;
--					if (settings.beforeValidate === undefined || settings.beforeValidate($form)) {
--						$.fn.yiiactiveform.validate($form, function (data) {
--							var hasError = false;
--							$.each(settings.attributes, function () {
--								hasError = $.fn.yiiactiveform.updateInput(this, data, $form) || hasError;
--							});
--							$.fn.yiiactiveform.updateSummary($form, data);
--							if (settings.afterValidate === undefined || settings.afterValidate($form, data, hasError)) {
--								if (!hasError) {
--									validated = true;
--									var $button = $form.data('submitObject') || $form.find(':submit:first');
--									// TODO: if the submission is caused by "change" event, it will not work
--									if ($button.length) {
--										$button.click();
--									} else {  // no submit button in the form
--										$form.submit();
--									}
--									return;
--								}
--							}
--							settings.submitting = false;
--						});
--					} else {
--						settings.submitting = false;
--					}
--					return false;
--				});
--			}
-+			if (settings.validateOnSubmit) {
-+				$form.on('mouseup keyup', ':submit', function () {
-+					$form.data('submitObject', $(this));
-+				});
-+				var validated = false;
 +				var fncValidation=function () {
-+					if (validated) {
-+						validated = false;
-+						return true;
-+					}
-+					if (settings.timer !== undefined) {
-+						clearTimeout(settings.timer);
-+					}
-+					settings.submitting = true;
-+					if (settings.beforeValidate === undefined || settings.beforeValidate($form)) {
-+						$.fn.yiiactiveform.validate($form, function (data) {
-+							var hasError = false;
-+							$.each(settings.attributes, function () {
-+								hasError = $.fn.yiiactiveform.updateInput(this, data, $form) || hasError;
-+							});
-+							$.fn.yiiactiveform.updateSummary($form, data);
-+							if (settings.afterValidate === undefined || settings.afterValidate($form, data, hasError)) {
-+								if (!hasError) {
-+									validated = true;
-+									var $button = $form.data('submitObject') || $form.find(':submit:first');
-+									// TODO: if the submission is caused by "change" event, it will not work
-+									if ($button.length) {
-+										$button.click();
-+									} else {  // no submit button in the form
-+										$form.submit();
-+									}
-+									return;
-+								}
-+							}
-+							settings.submitting = false;
-+						});
-+					} else {
-+						settings.submitting = false;
-+					}
-+					return false;
-+				}
+					if (validated) {
+						validated = false;
+						return true;
+					}
+					if (settings.timer !== undefined) {
+						clearTimeout(settings.timer);
+					}
+					settings.submitting = true;
+					if (settings.beforeValidate === undefined || settings.beforeValidate($form)) {
+						$.fn.yiiactiveform.validate($form, function (data) {
+							var hasError = false;
+							$.each(settings.attributes, function () {
+								hasError = $.fn.yiiactiveform.updateInput(this, data, $form) || hasError;
+							});
+							$.fn.yiiactiveform.updateSummary($form, data);
+							if (settings.afterValidate === undefined || settings.afterValidate($form, data, hasError)) {
+								if (!hasError) {
+									validated = true;
+									var $button = $form.data('submitObject') || $form.find(':submit:first');
+									// TODO: if the submission is caused by "change" event, it will not work
+									if ($button.length) {
+										$button.click();
+									} else {  // no submit button in the form
+										$form.submit();
+									}
+									return;
+								}
+							}
+							settings.submitting = false;
+						});
+					} else {
+						settings.submitting = false;
+					}
+					return false;
+				}
 +				$form.on('click', ':submit', function () {
 +					$form.data('validationDone', true);
 +					return fncValidation()
-+				});
+				});
 +				$form.submit(function(){
 +					var result
 +					if(!$form.data('validationDone'));
@@ -106,34 +86,34 @@ under the 	$.fn.yiiactiveform = function (options) {
 +					$form.data('validationDone', false);
 +					return result
 +				});
-+//				var formID='#'+$form.attr('id')
-+//				$('body').delegate(formID+' :submit', 'mouseup keyup', function () {
-+//					$form.data('submitObject', $(this));
-+//				}).delegate(formID+' :submit', 'click', function () {
-+//					$form.data('validationDone', true);
-+//					return fncValidation()
-+//				}).delegate(formID, 'submit', function(){
-+//					var result
-+//					if(!$form.data('validationDone'));
-+//						result=fncValidation()
-+//					$form.data('validationDone', false);
-+//					return result
-+//				})
-+			}
+			}
 
+//--- start session just once and cleanly
+\framework\web\CHttpSession.php (108)
+	public function open()
+	{
+		if($this->getUseCustomStorage())
+			@session_set_save_handler(array($this,'openSession'),array($this,'closeSession'),array($this,'readSession'),array($this,'writeSession'),array($this,'destroySession'),array($this,'gcSession'));
 
-\framework\web\CHttpSession.php
--	public function open()
--	{
--		if($this->getUseCustomStorage())
--			@session_set_save_handler(array($this,'openSession'),array($this,'closeSession'),array($this,'readSession'),array($this,'writeSession'),array($this,'destroySession'),array($this,'gcSession'));
--
 -		@session_start();
-+	public function open() {
-+		if ($this->getUseCustomStorage())
-+			@session_set_save_handler(array($this, 'openSession'), array($this, 'closeSession'), array($this, 'readSession'), array($this, 'writeSession'), array($this, 'destroySession'), array($this, 'gcSession'));
-+
 +		if (!\GPCS::$SessionStarted) {
 +			@session_start();
 +			\GPCS::$SessionStarted = true;
 +		}
+
+
+---------------------------- MY REVOKED CHANGES
+these changes have been got reverted because i've moved these changes to my extensions have extended these classes
+
+//--- default mode of ajax validation to be off
+web\widgets\CActiveForm (line:444)
+-	public function error($model,$attribute,$htmlOptions=array(),$enableAjaxValidation=true,$enableClientValidation=true)
++	public function error($model,$attribute,$htmlOptions=array(),$enableAjaxValidation=false,$enableClientValidation=true)
+!!!! REVOKED by : \Widgets\ActiveForm
+
+//--- don't refresh captcha in ajax validation checks
+validators\CCaptchaValidator (line:47)
+	protected function validateAttribute($object, $attribute) {
++		if (property_exists($object, "DontValidateCaptcha") && $object->DontValidateCaptcha)
++			return;
+!!!! REVOKED by : \Base\Validators\CaptchaValidator

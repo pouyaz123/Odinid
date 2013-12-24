@@ -1,4 +1,4 @@
-<?
+<?php
 
 namespace Consts;
 
@@ -452,5 +452,3 @@ class TimeZones {
 	}
 
 }
-
-?>

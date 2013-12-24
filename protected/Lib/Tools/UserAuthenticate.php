@@ -1,4 +1,4 @@
-<?
+<?php
 
 namespace Tools;
 
@@ -8,7 +8,7 @@ use \Consts as C;
 /**
  * User authenticate tools (admin or site)
  * @author Abbas Ali Hashemian <info@namedin.com> http://namedin.com <tondarweb@gmail.com> http://webdesignir.com
- * @package Odinid Portal
+ * @package Tondarweb portal migrated to Odinid Portal
  * @version 1
  * @copyright (c) Odinid
  * @access public
@@ -73,5 +73,3 @@ class UserAuthenticate {
 	}
 
 }
-
-?>

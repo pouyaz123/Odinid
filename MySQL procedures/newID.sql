@@ -1,0 +1,11 @@
+-- SELECT `$IDColumn` FROM (SELECT IFNULL("
+-- . ($Recovery ? "(SELECT t1.`$IDColumn`-1 AS `$IDColumn`"
+-- 		. " FROM `$TableName` AS t1"
+-- 		. " WHERE t1.`$IDColumn`>1"
+-- 		. " AND 0=(SELECT COUNT(t2.`$IDColumn`) FROM `$TableName` AS t2 WHERE t2.`$IDColumn`=t1.`$IDColumn`-1) LIMIT 1"
+-- 		. ")" : "NULL")
+-- . ", (IFNULL(MAX(`$IDColumn`), 0)+1)) AS `$IDColumn` FROM `$TableName` LIMIT 1) AS tbl
+
+-- SELECT `$IDColumn` FROM ("
+-- . "SELECT CONCAT({$arrOptions['PrefixQuery']}, IFNULL(MAX(SUBSTRING_INDEX(`$IDColumn`, '{$arrOptions['Delim']}', {$arrOptions['Count']})),0)+1) AS `$IDColumn` FROM `$TableName` WHERE $WHEREClause LIMIT 1"
+-- . ") AS tbl

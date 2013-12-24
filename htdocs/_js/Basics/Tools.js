@@ -1,3 +1,4 @@
+/** By Abbas Ali Hashemian<tondarweb@gmail.com> - webdesignir.com*/ 
 //+synced height
 PBDocComplete = new Array()
 MyAutoCompleteFNCs = new Array()
@@ -121,7 +122,7 @@ _t = new function() {
 	var LoadCount = 0
 	var LoadingCoverIsOn = false
 	var arrURLs = new Array()
-	t.RunScriptAfterLoad = function(jssrc, fnc) {//TODO2: complete ajax script loading system (one of other required one)
+	t.RunScriptAfterLoad = function(jssrc, fnc) {//mytodo 2: complete ajax script loading system (one of other required one)
 		jssrc = GetSrcURL(jssrc)
 		if (!arrURLs[jssrc])
 			fnc()
@@ -222,7 +223,7 @@ if (typeof($) == 'undefined') {
 	if (typeof(window.top.$) != 'undefined')
 		var $ = window.top.$
 	else
-		_t.LoadJS('Basics/jquery.min')
+		_t.LoadJS('Basics/jquery-1.8.0.min')
 	PBDocComplete.push(function() {
 		document.body.Completed = 1
 		SyncTDDivHeight()

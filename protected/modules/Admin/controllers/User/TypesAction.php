@@ -13,7 +13,7 @@ class TypesAction extends \CAction {
 	public function run() {
 		$ctrl = $this->controller;
 		/* @var $ctrl \Admin\controllers\UserController */
-		$ctrl->pageTitle = \Lng::AdminPageTitle('tr_Common', 'User types');
+		$ctrl->pageTitle = \Lng::AdminPageTitle('tr_common', 'User types');
 
 		$dg = $this->DataGrid($ctrl);
 
@@ -32,17 +32,17 @@ class TypesAction extends \CAction {
 						'chkIsDefault' => \GPCS::POST('IsDefault'),
 					);
 				};
-		$dg = \html::DataGrid_Ready1('dgTypes', 'Admin', 'tr_Common')
+		$dg = \html::DataGrid_Ready1('dgTypes', 'Admin', 'tr_common')
 				->DataKey('ID')
 				->Options(
 						\html::DataGridConfig()
 						->caption($ctrl->pageTitle)
-						->direction(\Lng::Admin('tr_Common', 'LTR_RTL'))
+						->direction(\Lng::Admin('tr_common', 'LTR_RTL'))
 				)
 				->SetColumns(
 				\html::DataGridColumn()
 				->index('t.ID')
-				->header(\Lng::Admin('tr_Common', 'ID'))
+				->header(\Lng::Admin('tr_common', 'ID'))
 				->width('50px')
 				#
 				, \html::DataGridColumn()
@@ -75,7 +75,7 @@ class TypesAction extends \CAction {
 				#
 				, \html::DataGridColumn()
 				->index('Actions')
-				->header(\Lng::Admin('tr_Common', 'Actions'))
+				->header(\Lng::Admin('tr_common', 'Actions'))
 				->search(false)
 				->editable(FALSE)
 				->sortable(false)
@@ -91,10 +91,10 @@ class TypesAction extends \CAction {
 									$url = \Yii::app()->createUrl(T\HTTP::URL_InsertGetParams(\Admin\Consts\Routes::User_Permissions, "TypeID={$dr['ID']}"));
 									$dt[$idx]['Actions'] = $DGP->DataGrid->GetActionColButtons($dr['ID'], "LnkBtn", $dr['IsUsed'])
 											. "<a class='LnkBtn' href='$url'
-													rel='AjaxElement:#divUserPermissions' title='" . \Lng::Admin('tr_UserModule', 'Edit Permissions') . "'>
+													rel='AjaxElement:#divUserPermissions' title='" . \Lng::Admin('tr_user', 'Edit Permissions') . "'>
 														<img src='/_img/admin/icons/EditPermisions.gif'/>
 													</a>"
-											. ($dr['IsUsed'] ? '<div class="Info" title="' . \Lng::Admin('tr_UserModule', "In-use user types can't be removed") . '"></div>' : '');
+											. ($dr['IsUsed'] ? '<div class="Info" title="' . \Lng::Admin('tr_user', "In-use user types can't be removed") . '"></div>' : '');
 								}
 							return $dt;
 						})
@@ -116,5 +116,3 @@ class TypesAction extends \CAction {
 	}
 
 }
-
-?>

@@ -1,4 +1,4 @@
-<?
+<?php
 
 namespace Tools;
 
@@ -41,32 +41,29 @@ class HTTP {
 		return $Size;
 	}
 
-	/** Indicates whether this Process is on local server or not */
-	private static $IsLocal = null;
-
 	public static function IsLocal() {
-		if (self::$IsLocal !== null)
-			return self::$IsLocal;
-		return self::$IsLocal =
-				(\Conf::LocalHostName && strpos($_SERVER["SERVER_NAME"], \Conf::LocalHostName) === 0) ||
+		static $IsLocal = null;
+		if ($IsLocal !== null)
+			return $IsLocal;
+		return $IsLocal = (\Conf::LocalHostName && strpos($_SERVER["SERVER_NAME"], \Conf::LocalHostName) === 0) ||
 				(\Conf::LocalHostIP && strpos($_SERVER["SERVER_ADDR"], \Conf::LocalHostIP) === 0);
 	}
 
 	static function TraverseModelPostName($ReplaceSentence = null) {
 		\CHtml::setModelNameConverter(function ($mixedModel)use($ReplaceSentence) {
-					if (is_object($mixedModel)) {
-						$PostName = method_exists($mixedModel, 'PostName') ? $mixedModel->PostName() : NULL;
-						if ($PostName)
-							return $PostName;
-					}
-					$mixedModel = is_object($mixedModel) ? get_class($mixedModel) : strval($mixedModel);
-					if (!$mixedModel)
-						throw new \CException("No valid model has been passed into Converter");
-					if ($ReplaceSentence)
-						return trim(str_replace(array($ReplaceSentence, '\\'), array('', '_'), $mixedModel), '_');
-					else
-						return trim(str_replace('\\', '_', $mixedModel), '_');
-				});
+			if (is_object($mixedModel)) {
+				$PostName = method_exists($mixedModel, 'getPostName') ? $mixedModel->getPostName() : NULL;
+				if ($PostName)
+					return $PostName;
+			}
+			$mixedModel = is_object($mixedModel) ? get_class($mixedModel) : strval($mixedModel);
+			if (!$mixedModel)
+				throw new \CException("No valid model has been passed into Converter");
+			if ($ReplaceSentence)
+				return trim(str_replace(array($ReplaceSentence, '\\'), array('', '_'), $mixedModel), '_');
+			else
+				return trim(str_replace('\\', '_', $mixedModel), '_');
+		});
 	}
 
 //	static function Ajax_getCActiveFormScript($FormID) {
@@ -74,7 +71,6 @@ class HTTP {
 //				. \Yii::app()->getClientScript()->scripts[\CClientScript::POS_READY]["CActiveForm#$FormID"]
 //				. '</script>';
 //	}
-
 	#----------------- About URL -----------------#
 
 	static function URLSection($URL = NULL, $intSectionNo = 2, $strDelimiter = '/') {
@@ -179,14 +175,12 @@ class HTTP {
 			\header($string, $replace, $http_response_code);
 	}
 
-	private static $RequestHeaders = NULL;
-
 	/**
 	 * @param str if you omit, returning result will be an array of all headers
 	 * @return arr/str (arr of all headers/str of special header)
 	 */
 	public static function RequestHeaders($HeaderName = NULL) {
-		$RequestHeaders = &self::$RequestHeaders;
+		static $RequestHeaders = NULL;
 		if (!$RequestHeaders)
 			$RequestHeaders = \F3::headers();
 //		{
@@ -196,7 +190,7 @@ class HTTP {
 //			elseif (is_callable('\nsapi_request_headers'))
 //				$RequestHeaders = \nsapi_request_headers();
 //		}
-		return $HeaderName ? @$RequestHeaders[$HeaderName] : $RequestHeaders;
+		return $HeaderName ? (isset($RequestHeaders[$HeaderName]) ? $RequestHeaders[$HeaderName] : null) : $RequestHeaders;
 	}
 
 	/** Simply Just Redirect */
@@ -226,5 +220,3 @@ class HTTP {
 //		exit;
 //	}
 }
-
-?>

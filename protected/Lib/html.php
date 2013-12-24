@@ -1,4 +1,4 @@
-<?
+<?php
 
 use \Tools as T;
 use \Consts as C;
@@ -87,13 +87,238 @@ final class html {
 		return "<$Tag title='" . ($Title ? $Title : $Value) . "'>$Value</$Tag>";
 	}
 
-	public static function AjaxMsg_Exit($Msg, $HttpHeader = C\Header::BadRequest, $HttpCode = C\Header::BadRequestCode) {
-		T\HTTP::Header($HttpHeader, true, $HttpCode);
-		echo $Msg;
-		exit;
+#----------------- Form -----------------#
+
+	const AutoComplete_GetQueryString_ParamName = 'term';
+
+	/**
+	 * WARNING! load Assets_Prompt before creating an auto complete because of jquery.ui.draggable of prompts
+	 * NOTICE! for DT and fnc if dr be a string value it causes a non-link separator
+	 * @param mixed $mixedSource //fnc($term) | strSQL | arrDT
+	 * @param mixed $ValueField str/fnc($dr)
+	 * @param mixed $LabelField str/fnc($dr)
+	 * @param arr $arrDBParams
+	 * @param bool $Multi
+	 * @param bool $Ajax
+	 * @param str $Target_jqSelector
+	 * @param int $MinLen
+	 * @param str $ValidationRegexp
+	 * @param str $KMGFieldName
+	 * @param str $Theme
+	 * @return string
+	 */
+	function jqUI_AutoComplete(
+	$ID_txtField
+	, $mixedSource
+	, $ValueField
+	, $LabelField = NULL
+	, $arrDBParams = NULL
+	, $Multi = false
+	, $Ajax = false
+	, $Target_jqSelector = NULL
+	, $MinLen = 1
+	, $ValidationRegexp = NULL
+	, $KMGFieldName = 'UsageCount'
+	, $Theme = \Conf::jQTheme
+	) {
+		\html::jqUI_AutoComplete_Load($Theme);
+		if (!$mixedSource || (!is_array($mixedSource) && !is_string($mixedSource) && !is_callable($mixedSource)))
+			return \Err::ErrMsg_Method(__METHOD__, 'Invalid mixedSource has been passed in.', func_get_args());
+		$KW = "AutoComplete_{$ID_txtField}";
+		if (!$arrDBParams || !is_array($arrDBParams))
+			$arrDBParams = array();
+		$fncMakeSource = function($FilterTerm = NULL)use($mixedSource, $arrDBParams, $ValueField, $LabelField, $KMGFieldName) {
+			$SourceIsDataTable = false;
+			if (is_string($mixedSource))
+				$mixedSource = T\DB::GetTable($mixedSource, array_merge($arrDBParams, array('term' => isset($FilterTerm) ? "%$FilterTerm%" : '%')));
+			elseif (is_callable($mixedSource))
+				$mixedSource = $mixedSource($FilterTerm);
+			else
+				$SourceIsDataTable = true;
+			if ($mixedSource) {
+				$mixedSource = array_map(function($dr)use($ValueField, $LabelField, $KMGFieldName) {
+					$arrResult = array();
+					if (!is_array($dr)) {
+						$arrResult['value'] = '';
+						$arrResult['label'] = "<div class='__uiausep'>$dr</div>";
+					} else {
+						if (is_string($ValueField))
+							$arrResult['value'] = T\DB::DRLabelMaker($dr, $ValueField);
+						elseif (is_callable($ValueField))
+							$arrResult['value'] = $ValueField($dr);
+						if ($LabelField) {
+							if (is_string($LabelField))
+								$arrResult['label'] = T\DB::DRLabelMaker($dr, $LabelField, $KMGFieldName);
+							elseif (is_callable($LabelField))
+								$arrResult['label'] = $LabelField($dr);
+						}
+					}
+					return $arrResult;
+				}, $mixedSource);
+			}
+			if ($SourceIsDataTable)
+				$mixedSource = T\DB::Filter($mixedSource, "return stripos(\$dr['value'], :term)!==false", array('term' => $FilterTerm));
+			return $mixedSource;
+		};
+		if ($Ajax) {
+			$QSTPName = self::AutoComplete_GetQueryString_ParamName;
+			\Output::AddIn_AjaxOutput(function()use($fncMakeSource, $ValidationRegexp, $QSTPName) {
+				$FilterTerm = \GPCS::GET($QSTPName);
+				if ($ValidationRegexp && !preg_match($ValidationRegexp, $FilterTerm))
+					return;
+				echo json_encode($fncMakeSource($FilterTerm));
+			}, $KW, NULL, $KW);
+			$URL = str_replace(array('"', "'"), array('\"', "\'"), T\HTTP::URL_InsertGetParams($_SERVER['REQUEST_URI'], \Output::AjaxKeyword_PostParamName . "=$KW"));
+			return "<script>MyAutoCompleteFNCs.push(function(){MyAutoComplete($('#{$ID_txtField}'),{source:'$URL'" . ($Target_jqSelector ? ",appendTo:'$Target_jqSelector'" : "") . "}," . ($Multi ? 1 : 0) . ",1,$MinLen)})</script>";
+		} else {
+			return "<script>MyAutoCompleteFNCs.push(function(){MyAutoComplete($('#{$ID_txtField}'),"
+					. "{source:" . json_encode($fncMakeSource()) . ($Target_jqSelector ? ",appendTo:'$Target_jqSelector'" : "") . "}"
+					. ',' . ($Multi ? 1 : 0) . ",0,$MinLen)})</script>";
+		}
+	}
+
+	public static function FieldContainer($Field, $Label = null, $ErrHolder = null, $ExtAttrs = NULL) {
+		return "<div class='Fld'" . ($ExtAttrs ? " $ExtAttrs" : "") . ">$Label $Field $ErrHolder</div>";
+	}
+
+	public static function ButtonContainer($Button) {
+		return "<a class='Btn'>$Button<div></div></a>";
+	}
+
+	/**
+	 * same as \CHtml::activeTextField but if you provide the $form with a valid CActiveForm object you will patch the field to the form(client validator and ...)
+	 * @param \CModel $model
+	 * @param \CActiveForm $ActiveForm
+	 * @param string $attribute
+	 * @param array $htmlOptions
+	 * @return string
+	 */
+	static function activeTextField($model, \CActiveForm $ActiveForm = null, $attribute, $htmlOptions = array()) {
+		return $ActiveForm ?
+				$ActiveForm->textField($model, $attribute, $htmlOptions) :
+				\CHtml::activeTextField($model, $attribute, $htmlOptions);
+	}
+
+	/**
+	 * same as \CHtml::activeDropDownList but if you provide the $form with a valid CActiveForm object you will patch the field to the form(client validator and ...)
+	 * @param \CModel $model
+	 * @param \CActiveForm $ActiveForm
+	 * @param string $attribute
+	 * @param array $data
+	 * @param array $htmlOptions
+	 * @return string
+	 */
+	static function activeDropDownList($model, \CActiveForm $ActiveForm = null, $attribute, $data, $htmlOptions = array()) {
+		return $ActiveForm ?
+				$ActiveForm->dropDownList($model, $attribute, $data, $htmlOptions) :
+				\CHtml::activeDropDownList($model, $attribute, $data, $htmlOptions);
+	}
+
+	/**
+	 * same as \CHtml::activeLabelEx but if you provide the $form with a valid CActiveForm object you will patch the field to the form(client validator and ...)
+	 * @param \CModel $model
+	 * @param \CActiveForm $ActiveForm
+	 * @param string $attribute
+	 * @param array $htmlOptions
+	 * @return string
+	 */
+	static function activeLabelEx($model, \CActiveForm $ActiveForm = null, $attribute, $htmlOptions = array()) {
+		return $ActiveForm ?
+				$ActiveForm->labelEx($model, $attribute, $htmlOptions) :
+				\CHtml::activeLabelEx($model, $attribute, $htmlOptions);
+	}
+
+	/**
+	 * same as \CHtml::error but if you provide the $form with a valid CActiveForm object you will patch the field to the form(client validator and ...)
+	 * @param \CModel $model
+	 * @param \CActiveForm $ActiveForm
+	 * @param string $attribute
+	 * @param array $htmlOptions
+	 * @return string
+	 */
+	static function error($model, \CActiveForm $ActiveForm = null, $attribute, $htmlOptions = array(), $enableAjaxValidation = false, $enableClientValidation = true) {
+		return $ActiveForm ?
+				$ActiveForm->error($model, $attribute, $htmlOptions, $enableAjaxValidation, $enableClientValidation) :
+				\CHtml::error($model, $attribute, $htmlOptions);
+	}
+
+	/**
+	 * upgraded \CHtml::activeDropDownList to be combobox
+	 * Generates a drop down list for a model attribute.
+	 * If the attribute has input error, the input field's CSS class will
+	 * be appended with {@link errorCss}.
+	 * @param CModel $model the data model
+	 * @param string $attribute the attribute
+	 * @param array $data data for generating the list options (value=>display)
+	 * You may use {@link listData} to generate this data.
+	 * Please refer to {@link listOptions} on how this data is used to generate the list options.
+	 * Note, the values and labels will be automatically HTML-encoded by this method.
+	 * @param array $htmlOptions additional HTML attributes. Besides normal HTML attributes, a few special
+	 * attributes are recognized. See {@link clientChange} and {@link tag} for more details.
+	 * In addition, the following options are also supported:
+	 * <ul>
+	 * <li>encode: boolean, specifies whether to encode the values. Defaults to true.</li>
+	 * <li>prompt: string, specifies the prompt text shown as the first list option. Its value is empty.  Note, the prompt text will NOT be HTML-encoded.</li>
+	 * <li>empty: string, specifies the text corresponding to empty selection. Its value is empty.
+	 * The 'empty' option can also be an array of value-label pairs.
+	 * Each pair will be used to render a list option at the beginning. Note, the text label will NOT be HTML-encoded.</li>
+	 * <li>options: array, specifies additional attributes for each OPTION tag.
+	 *     The array keys must be the option values, and the array values are the extra
+	 *     OPTION tag attributes in the name-value pairs. For example,
+	 * <pre>
+	 *     array(
+	 *         'value1'=>array('disabled'=>true,'label'=>'value 1'),
+	 *         'value2'=>array('label'=>'value 2'),
+	 *     );
+	 * </pre>
+	 * </li>
+	 * </ul>
+	 * Since 1.1.13, a special option named 'unselectValue' is available. It can be used to set the value
+	 * that will be returned when no option is selected in multiple mode. When set, a hidden field is
+	 * rendered so that if no option is selected in multiple mode, we can still obtain the posted
+	 * unselect value. If 'unselectValue' is not set or set to NULL, the hidden field will not be rendered.
+	 * @param string $strUserInputJQSelector	(optional) same as $arrUserInputTextField but only the jQuery selector rerfers to your TextField. You can't use both and the jQSelector has higher priority
+	 * @param string $txtUserInputField	(optional) same as $arrUserInputTextField but the ready text field html code
+	 * @param array $arrUserInputTextField	(optional) if had been set then the user can put new entries. The combobox will have an "other" item which shows an input text field
+	 * the array can contain 2 items : 'attribute'=>$attributeOfTheModel, 'htmlOptions'=>$htmlOptions
+	 * @return string the generated drop down list
+	 * @see clientChange
+	 * @see listData
+	 */
+	public static function activeComboBox($model, \CActiveForm $ActiveForm = null
+	, $attribute, $data, $htmlOptions = array()
+	, $strUserInputJQSelector = null
+	, $txtUserInputField = null
+	, $arrUserInputTextField = null) {
+		if (!$strUserInputJQSelector && !$txtUserInputField && $arrUserInputTextField && isset($arrUserInputTextField['attribute']))
+			$txtUserInputField = \html::activeTextField(
+							$model
+							, $ActiveForm
+							, $arrUserInputTextField['attribute']
+							, isset($arrUserInputTextField['htmlOptions']) ? $arrUserInputTextField['htmlOptions'] : array());
+		\CHtml::resolveNameID($model, $attribute, $htmlOptions);
+		return \html::activeDropDownList($model, $ActiveForm, $attribute, $data, $htmlOptions)
+				. self::ComboBoxScript(
+						"#{$htmlOptions['id']}"
+						, ($strUserInputJQSelector ? : ($txtUserInputField? : NULL))
+						, isset($strUserInputJQSelector)
+		);
+	}
+
+	public static function ComboBoxScript($jQSelector_selectTag, $strUserInputText = NULL, $UserInputIsAJQuerySelector = false) {
+		self::jqUI_Combobox_Load();
+		return "<script>\$('$jQSelector_selectTag')"
+				. ($strUserInputText ? ".data(" . ($UserInputIsAJQuerySelector ? "'UserInputJQSelector'" : "'UserInputTag'") . ", '" . addslashes($strUserInputText) . "')" : "")
+				. ".combobox()</script>";
 	}
 
 #----------------- Ajax Tools -----------------#
+
+	public static function ErrMsg_Exit($Msg, $HttpHeader = C\Header::BadRequest, $HttpCode = C\Header::BadRequestCode) {
+		T\HTTP::Header($HttpHeader, true, $HttpCode);
+		echo $Msg;
+		\Yii::app()->end();
+	}
 
 	private static function AjaxMaker($RelKW, $DefaultButton_jQSelector = NULL, $SpecialKW = NULL, $AjaxPostParams = NULL, $AjaxURL = null, $AjaxTarget_jQSelector = null) {
 		return " $RelKW" #
@@ -114,6 +339,11 @@ final class html {
 	}
 
 	/**
+	 * Tondarweb AjaxPanel can be a div or any type of html elements to be as a container for links or buttons
+	 * it causes the submit button to post the form fields through ajax
+	 * also all the links inside this ajax panel will work ajaxically
+	 * rel="<?=\html::AjaxPanel(...)?>"
+	 * use \html::AjaxExcempt to exclude an element or link from ajax submission
 	 * @param str $SpecialKW //we'll use it again for \Output::AddIn_AjaxOutput($func, $strKW = null)
 	 * @return a str for rel attr
 	 */
@@ -122,7 +352,7 @@ final class html {
 	}
 
 	/**
-	 * 
+	 * Same as {@see \html::AjaxPanel} just its arguments(function parameters) are intended for an ajax link panel
 	 * @param string $AjaxTarget_jQSelector //#divContent:insert || .divASD:replace
 	 * @param string $SpecialKW	//ajax postal special keyword
 	 * @param string $AjaxPostParams	//P1=value;P2=value
@@ -133,6 +363,8 @@ final class html {
 	}
 
 	/**
+	 * Tondarweb AjaxElement can be a button or a submit button or a link.
+	 * rel="<?=\html::AjaxElement(...)?>"
 	 * @param str $SpecialKW //we'll use it again for \Output::AddIn_AjaxOutput($func, $strKW = null)
 	 * @return a str for rel attr
 	 */
@@ -177,13 +409,12 @@ final class html {
 
 	#----------------- Other -----------------#
 
-	private static $IsAltRow = false;
-
 	static function AltRow($Reset = false, $JustClassName = false, $JustBool = false) {
+		static $IsAltRow = false;
 		if ($Reset)
-			self::$IsAltRow = false;
-		$Result = self::$IsAltRow;
-		self::$IsAltRow = self::$IsAltRow ? false : true;
+			$IsAltRow = false;
+		$Result = $IsAltRow;
+		$IsAltRow = $IsAltRow ? false : true;
 
 		$Class = $JustClassName ? ' AltRow ' : ' class="AltRow" ';
 
@@ -318,11 +549,9 @@ final class html {
 				$markup = array_filter($markup);
 				$markup = implode("\n", $markup);
 				$markup = "\n<script type='text/javascript'>\n$markup</script>";
-			}
-			else
+			} else
 				$markup = self::UniqueHandler($mixedHREF, "\n<script type='text/javascript'>_t.LoadCSS('*$mixedHREF'" . ($boolUnique ? '' : ', true') . ")</script>", $boolReturnMarkup, $boolUnique);
-		}
-		else
+		} else
 			$markup = self::UniqueHandler($mixedHREF, "\n<link rel=\"stylesheet\" type=\"text/css\" href=\"$mixedHREF\" />", $boolReturnMarkup, $boolUnique);
 		return $markup;
 	}
@@ -337,6 +566,19 @@ final class html {
 
 	private static $CSSQueue = array('INLINE' => array(), 'FILES' => array());
 
+	/**
+	 * puts the css to load in main layout and in normal ajax requests
+	 * The css will be loaded uniquely if you use $Use_ClientLoadCSS as true and $boolUnique as true
+	 * @param string $href	//this will be relative to the css root (/htdocs/_css)
+	 * 	"mycssCat/cssFile"	//if you use the relative path you can omit the .css extension
+	 * 	but to load absolute css files uniquely or repetitively just use an asterisk at first and use the css extension:<br/>
+	 * 	"* /myabsolutepath/to/file.css"
+	 * @param bool $boolUnique		//whether to load uniquely or not
+	 * @param bool $Use_ClientLoadCSS
+	 * 	//if you avoid using client css loader then the unique load can be applied only on the server codes not in the
+	 * 	client codes so if you load a css file during an ajax request it may get duplicated in the client
+	 * @param string $AjaxKW	//using ajax kw you can explicitely define what ajax request you want to load this file during it.
+	 */
 	public static function LoadCSS($href, $boolUnique = true, $Use_ClientLoadCSS = true, $AjaxKW = NULL) {
 		if (!$Use_ClientLoadCSS || (!T\HTTP::IsAsync() && !\Output::$IsRenderPassed))
 			self::CSS_Include(self::CSS_LinkTag($href, true, $boolUnique, false));
@@ -344,8 +586,8 @@ final class html {
 			$Queue = &self::$CSSQueue['FILES'];
 			$Queue[] = $href;
 			$fncLoad = function()use($Queue, $boolUnique, $Use_ClientLoadCSS) {
-						echo \html::CSS_LinkTag($Queue, true, $boolUnique, $Use_ClientLoadCSS);
-					};
+				echo \html::CSS_LinkTag($Queue, true, $boolUnique, $Use_ClientLoadCSS);
+			};
 			if (T\HTTP::IsAsync())
 				\Output::AddIn_AjaxOutput($fncLoad, $AjaxKW, null, 'HTMLLoadCSS');
 			else
@@ -415,11 +657,9 @@ final class html {
 				$markup = array_filter($markup);
 				$markup = implode("\n", $markup);
 				$markup = "\n<script type='text/javascript'>\n$markup</script>";
-			}
-			else
+			} else
 				$markup = self::UniqueHandler($mixedSrc, "\n<script type='text/javascript'>_t.LoadJS('*$mixedSrc'" . ($boolUnique ? '' : ', true') . ")</script>", $boolReturnMarkup, $boolUnique);
-		}
-		else
+		} else
 			$markup = self::UniqueHandler($mixedSrc, "\n<script src='$mixedSrc' type='text/javascript'></script>", $boolReturnMarkup, $boolUnique);
 		return $markup;
 	}
@@ -435,6 +675,19 @@ final class html {
 
 	private static $JSQueue = array('INLINE' => array(), 'FILES' => array());
 
+	/**
+	 * puts the js to load in main layout and in normal ajax requests
+	 * The js will be loaded uniquely if you use $Use_ClientLoadJS as true and $boolUnique as true
+	 * @param string $strSrc	//this will be relative to the js root (/htdocs/_js)
+	 * 	"myjsCat/jsFile"	//if you use the relative path you can omit the .js extension
+	 * 	but to load absolute js files uniquely or repetitively just use an asterisk at first and use the js extension:<br/>
+	 * 	"* /myabsolutepath/to/file.js"
+	 * @param bool $boolUnique		//whether to load uniquely or not
+	 * @param bool $Use_ClientLoadJS
+	 * 	//if you avoid using client js loader then the unique load can be applied only on the server codes not in the
+	 * 	client codes so if you load a js file during an ajax request it may get duplicated in the client
+	 * @param string $AjaxKW	//using ajax kw you can explicitely define what ajax request you want to load this file during it.
+	 */
 	public static function LoadJS($strSrc, $boolUnique = true, $Use_ClientLoadJS = true, $AjaxKW = NULL) {
 		if (!$Use_ClientLoadJS)
 			self::JS_Include(self::JS_SrcTag($strSrc, true, $boolUnique, $Use_ClientLoadJS));
@@ -442,8 +695,8 @@ final class html {
 			$Queue = &self::$JSQueue['FILES'];
 			$Queue[] = $strSrc;
 			$fncLoad = function()use($Queue, $boolUnique, $Use_ClientLoadJS) {
-						echo \html::JS_SrcTag($Queue, true, $boolUnique, $Use_ClientLoadJS);
-					};
+				echo \html::JS_SrcTag($Queue, true, $boolUnique, $Use_ClientLoadJS);
+			};
 
 			if (T\HTTP::IsAsync())
 				\Output::AddIn_AjaxOutput($fncLoad, $AjaxKW, null, 'HTMLLoadJS');
@@ -455,7 +708,7 @@ final class html {
 	/**
 	 * @param string $Code
 	 * @param string $OverrideID  //KW causes the new Code overrides the older code and the code is removable totally
-	 * @param string $AjaxKW
+	 * @param string $AjaxKW	//using ajax kw you can explicitely define what ajax request you want to put this script through it.
 	 * @param string $AjaxContentUKW
 	 */
 	public static function InlineJS($Code, $OverrideID = NULL, $AjaxKW = false, $AjaxContentUKW = NULL) {
@@ -592,6 +845,7 @@ $.superbox.settings = {
 //		$ConfJS = \html::JS_SrcTag('tiny_mce/MyConfigs/Royale_en.conf', 1, 1, 0);
 //		\html::JS_Include(\html::JS_SrcTag('tiny_mce/Core/tiny_mce') . $ConfJS);
 //		\Output::AddIn_AjaxOutput($ConfJS, $AjaxSpecialKW);
+		\html::Prompt_Load();
 		\html::LoadJS('tiny_mce/Core/tiny_mce');
 		\html::LoadJS("tiny_mce/MyConfigs/$Conf.conf");
 	}
@@ -606,7 +860,22 @@ $.superbox.settings = {
 		\html::LoadJS('jqUI/jquery.ui.widget.min');
 		\html::LoadJS('jqUI/jquery.ui.position.min');
 		\html::LoadJS('jqUI/jquery.ui.autocomplete.min');
-		\html::LoadJS('MyAutoComplete');
+		\html::LoadJS('MyJuiAutoComplete/MyAutoComplete');
+	}
+
+	/**
+	 * WARNING! load Assets_Prompt before creating an auto complete because of jquery.ui.draggable of prompts
+	 * @param type $Theme
+	 */
+	static function jqUI_Combobox_Load($Theme = \Conf::jQTheme) {
+		\html::LoadCSS("*/_js/jqUI/themes/$Theme/jquery-ui.custom.css");
+		\html::LoadCSS("*/_js/MyJuiAutoComplete/Style.css");
+		\html::LoadJS('jqUI/jquery.ui.core.min');
+		\html::LoadJS('jqUI/jquery.ui.widget.min');
+		\html::LoadJS('jqUI/jquery.ui.button.min');
+		\html::LoadJS('jqUI/jquery.ui.position.min');
+		\html::LoadJS('jqUI/jquery.ui.autocomplete.min');
+		\html::LoadJS('MyJuiAutoComplete/MyComboBox');
 	}
 
 //	static function MozillaRTL() {
@@ -617,5 +886,3 @@ $.superbox.settings = {
 //				'';
 //	}
 }
-
-?>

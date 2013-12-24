@@ -441,7 +441,7 @@ class CActiveForm extends CWidget
 	 * @return string the validation result (error display or success message).
 	 * @see CHtml::error
 	 */
-	public function error($model,$attribute,$htmlOptions=array(),$enableAjaxValidation=false,$enableClientValidation=true)
+	public function error($model,$attribute,$htmlOptions=array(),$enableAjaxValidation=true,$enableClientValidation=true)
 	{
 		if(!$this->enableAjaxValidation)
 			$enableAjaxValidation=false;

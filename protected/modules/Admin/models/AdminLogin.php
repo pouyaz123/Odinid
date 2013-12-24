@@ -7,12 +7,12 @@ use \Tools as T;
 
 /**
  * model for _users
- * NOTE : scenario name has been used as the post name in ->PostName()
+ * NOTE : scenario name has been used as the post name in ->getPostName()
  * register, activation, login
  */
 class AdminLogin extends \Base\FormModel {
 
-	public function PostName() {
+	public function getPostName() {
 		return $this->scenario;
 	}
 
@@ -27,6 +27,11 @@ class AdminLogin extends \Base\FormModel {
 	public $chkRemember;
 	public $txtCaptcha;
 
+	protected function CleanViewStateOfSpecialAttrs() {
+		$this->txtCaptcha = $this->txtPassword = null;
+		parent::CleanViewStateOfSpecialAttrs();
+	}
+
 	/**
 	 * @return array validation rules for model attributes.
 	 */
@@ -37,7 +42,7 @@ class AdminLogin extends \Base\FormModel {
 			#
 			array('chkRemember', 'boolean',
 				'on' => 'Login'),
-			array('txtCaptcha', 'captcha',
+			array('txtCaptcha', '\Validators\Captcha',
 				'on' => 'Login'),
 		);
 	}
@@ -47,41 +52,41 @@ class AdminLogin extends \Base\FormModel {
 	 */
 	public function attributeLabels() {
 		return array(
-			'txtUsername' => \Lng::Admin('tr_Common', 'Username'),
-			'txtPassword' => \Lng::Admin('tr_Common', 'Password'),
-			'chkRememberMe' => \Lng::Admin('tr_Common', 'Remember me'),
-			'txtCaptcha' => \Lng::Admin('tr_Common', 'Captcha code'),
+			'txtUsername' => \Lng::Admin('tr_user', 'Username'),
+			'txtPassword' => \Lng::Admin('tr_user', 'Password'),
+			'chkRememberMe' => \Lng::Admin('tr_user', 'Remember me'),
+			'txtCaptcha' => \Lng::Admin('tr_common', 'Captcha code'),
 		);
 	}
 
 	function Login() {
+		$drUser = null;
 		if ($this->validate()) {
-			$drUser = T\DB::GetRow('
-				SELECT `ID`, `Username`, `LastLoginIP`, `LastLoginTimeStamp`
-				FROM `_admins`
-				WHERE `Username`=:un AND `Status`=:active AND `Password`=:pw', array(
+			$drUser = T\DB::GetRow(
+							'SELECT `ID`, `Username`, `LastLoginIP`, `LastLoginTimeStamp`'
+							. ' FROM `_admins`'
+							. ' WHERE `Username`=:un AND `Status`=:active AND `Password`=:pw', array(
 						':un' => $this->txtUsername,
 						':pw' => md5($this->txtPassword),
 						':active' => C\User::Status_Active,
-					));
+			));
 			if ($drUser) {
 				$LoginIP = $_SERVER['REMOTE_ADDR'];
 				$LoginTime = time();
-				T\DB::Execute('
-					UPDATE `_admins`
-					SET `LastLoginIP`=:ip, `LastLoginTimeStamp`=:time
-					WHERE `ID`=:id', array(
+				T\DB::Execute(
+						'UPDATE `_admins`'
+						. ' SET `LastLoginIP`=:ip, `LastLoginTimeStamp`=:time'
+						. ' WHERE `ID`=:id', array(
 					':id' => $drUser['ID'],
 					':ip' => $LoginIP,
 					':time' => $LoginTime,
 				));
 				self::MakeItLoggedIn($drUser, $this->chkRemember, $LoginIP, $LoginTime);
-				return true;
-			} else {
-				$this->addError('', \Lng::Admin('tr_Common', 'Invalid username or password'));
-				return false;
-			}
+			} else
+				$this->addError('', \Lng::Admin('tr_user', 'Invalid username or password'));
 		}
+		$this->CleanViewStateOfSpecialAttrs();
+		return $drUser? : false;
 	}
 
 	private static function MakeItLoggedIn($drUser, $boolRemember, $LoginIP, $LoginTime) {
@@ -99,8 +104,11 @@ class AdminLogin extends \Base\FormModel {
 		);
 	}
 
+	/**
+	 * @return boolean
+	 */
 	public static function IsLoggedIn() {
-		$drUser = \GPCS::SESSION(self::SessionName);
+		$drUser = self::GetSessionDR();
 		if ($drUser)
 			return true;
 //		if ($drUser = \GPCS::SESSION($SessionName)) {
@@ -119,22 +127,22 @@ class AdminLogin extends \Base\FormModel {
 		$CookieName = self::CookieName;
 		$ID = \GPCS::COOKIE("$CookieName." . T\UserAuthenticate::CookieIDKey);
 		$Hash = \GPCS::COOKIE("$CookieName." . T\UserAuthenticate::CookieHashKey);
-		if ($ID && $Hash && T\UserAuthenticate::IsValidHash($CookieName, $ID)) {
-			$drUser = T\DB::GetRow('
-				SELECT `ID`, `Username`, `LastLoginIP`, `LastLoginTimeStamp`
-				FROM `_admins`
-				WHERE `ID`=:id AND `Status`=:active', array(
+		if (isset($ID) && $Hash && T\UserAuthenticate::IsValidHash($CookieName, $ID)) {
+			$drUser = T\DB::GetRow(
+							'SELECT `ID`, `Username`, `LastLoginIP`, `LastLoginTimeStamp`'
+							. ' FROM `_admins`'
+							. ' WHERE `ID`=:id AND `Status`=:active', array(
 						':id' => $ID,
 						':active' => C\User::Status_Active,
-					));
+			));
 
 			if ($drUser) {
-				//TODO1:REMOTE_ADDR OR LastLoginIP to validate user remember cookie
+				//mytodo 3:REMOTE_ADDR OR LastLoginIP to validate user remember cookie
 				$LoginIP = $_SERVER['REMOTE_ADDR'];
 //				$LoginIP = $drUser['LastLoginIP'];
 				$LoginTime = $drUser['LastLoginTimeStamp'];
 				if ($Hash === T\UserAuthenticate::GetHash($drUser['Username'], $LoginTime, $LoginIP)) {
-					static::MakeItLoggedIn($drUser, false, $LoginTime, $LoginIP);
+					self::MakeItLoggedIn($drUser, false, $LoginTime, $LoginIP);
 					return true;
 				}
 			}
@@ -145,9 +153,13 @@ class AdminLogin extends \Base\FormModel {
 		return FALSE;
 	}
 
-	public static function GetAdminSessionDR($Field = NULL) {
-		$dr = \GPCS::SESSION(self::SessionName);
-		return $Field ? $dr[$Field] : $dr;
+	public static function GetSessionDR($Field = NULL) {
+		static $dr = NULL;
+		if (!$dr)
+			$dr = \GPCS::SESSION(self::SessionName);
+		if (!$dr)
+			return NULL;
+		return $Field ? (isset($dr[$Field]) ? $dr[$Field] : NULL) : $dr;
 	}
 
 	public static function Logout() {

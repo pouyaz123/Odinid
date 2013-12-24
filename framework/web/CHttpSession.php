@@ -1,5 +1,4 @@
 <?php
-
 /**
  * CHttpSession class file.
  *
@@ -70,23 +69,24 @@
  * @package system.web
  * @since 1.0
  */
-class CHttpSession extends CApplicationComponent implements IteratorAggregate, ArrayAccess, Countable {
-
+class CHttpSession extends CApplicationComponent implements IteratorAggregate,ArrayAccess,Countable
+{
 	/**
 	 * @var boolean whether the session should be automatically started when the session application component is initialized, defaults to true.
 	 */
-	public $autoStart = true;
+	public $autoStart=true;
 
 	/**
 	 * Initializes the application component.
 	 * This method is required by IApplicationComponent and is invoked by application.
 	 */
-	public function init() {
+	public function init()
+	{
 		parent::init();
 
-		if ($this->autoStart)
+		if($this->autoStart)
 			$this->open();
-		register_shutdown_function(array($this, 'close'));
+		register_shutdown_function(array($this,'close'));
 	}
 
 	/**
@@ -98,27 +98,31 @@ class CHttpSession extends CApplicationComponent implements IteratorAggregate, A
 	 * The default implementation always return false.
 	 * @return boolean whether to use custom storage.
 	 */
-	public function getUseCustomStorage() {
+	public function getUseCustomStorage()
+	{
 		return false;
 	}
 
 	/**
 	 * Starts the session if it has not started yet.
 	 */
-	public function open() {
-		if ($this->getUseCustomStorage())
-			@session_set_save_handler(array($this, 'openSession'), array($this, 'closeSession'), array($this, 'readSession'), array($this, 'writeSession'), array($this, 'destroySession'), array($this, 'gcSession'));
+	public function open()
+	{
+		if($this->getUseCustomStorage())
+			@session_set_save_handler(array($this,'openSession'),array($this,'closeSession'),array($this,'readSession'),array($this,'writeSession'),array($this,'destroySession'),array($this,'gcSession'));
 
 		if (!\GPCS::$SessionStarted) {
 			@session_start();
 			\GPCS::$SessionStarted = true;
 		}
-		if (YII_DEBUG && session_id() == '') {
-			$message = Yii::t('yii', 'Failed to start session.');
-			if (function_exists('error_get_last')) {
-				$error = error_get_last();
-				if (isset($error['message']))
-					$message = $error['message'];
+		if(YII_DEBUG && session_id()=='')
+		{
+			$message=Yii::t('yii','Failed to start session.');
+			if(function_exists('error_get_last'))
+			{
+				$error=error_get_last();
+				if(isset($error['message']))
+					$message=$error['message'];
 			}
 			Yii::log($message, CLogger::LEVEL_WARNING, 'system.web.CHttpSession');
 		}
@@ -127,16 +131,19 @@ class CHttpSession extends CApplicationComponent implements IteratorAggregate, A
 	/**
 	 * Ends the current session and store session data.
 	 */
-	public function close() {
-		if (session_id() !== '')
+	public function close()
+	{
+		if(session_id()!=='')
 			@session_write_close();
 	}
 
 	/**
 	 * Frees all session variables and destroys all data registered to a session.
 	 */
-	public function destroy() {
-		if (session_id() !== '') {
+	public function destroy()
+	{
+		if(session_id()!=='')
+		{
 			@session_unset();
 			@session_destroy();
 		}
@@ -145,21 +152,24 @@ class CHttpSession extends CApplicationComponent implements IteratorAggregate, A
 	/**
 	 * @return boolean whether the session has started
 	 */
-	public function getIsStarted() {
-		return session_id() !== '';
+	public function getIsStarted()
+	{
+		return session_id()!=='';
 	}
 
 	/**
 	 * @return string the current session ID
 	 */
-	public function getSessionID() {
+	public function getSessionID()
+	{
 		return session_id();
 	}
 
 	/**
 	 * @param string $value the session ID for the current session
 	 */
-	public function setSessionID($value) {
+	public function setSessionID($value)
+	{
 		session_id($value);
 	}
 
@@ -169,28 +179,32 @@ class CHttpSession extends CApplicationComponent implements IteratorAggregate, A
 	 * @param boolean $deleteOldSession Whether to delete the old associated session file or not.
 	 * @since 1.1.8
 	 */
-	public function regenerateID($deleteOldSession = false) {
+	public function regenerateID($deleteOldSession=false)
+	{
 		session_regenerate_id($deleteOldSession);
 	}
 
 	/**
 	 * @return string the current session name
 	 */
-	public function getSessionName() {
+	public function getSessionName()
+	{
 		return session_name();
 	}
 
 	/**
 	 * @param string $value the session name for the current session, must be an alphanumeric string, defaults to PHPSESSID
 	 */
-	public function setSessionName($value) {
+	public function setSessionName($value)
+	{
 		session_name($value);
 	}
 
 	/**
 	 * @return string the current session save path, defaults to {@link http://php.net/session.save_path}.
 	 */
-	public function getSavePath() {
+	public function getSavePath()
+	{
 		return session_save_path();
 	}
 
@@ -198,18 +212,21 @@ class CHttpSession extends CApplicationComponent implements IteratorAggregate, A
 	 * @param string $value the current session save path
 	 * @throws CException if the path is not a valid directory
 	 */
-	public function setSavePath($value) {
-		if (is_dir($value))
+	public function setSavePath($value)
+	{
+		if(is_dir($value))
 			session_save_path($value);
 		else
-			throw new CException(Yii::t('yii', 'CHttpSession.savePath "{path}" is not a valid directory.', array('{path}' => $value)));
+			throw new CException(Yii::t('yii','CHttpSession.savePath "{path}" is not a valid directory.',
+				array('{path}'=>$value)));
 	}
 
 	/**
 	 * @return array the session cookie parameters.
 	 * @see http://us2.php.net/manual/en/function.session-get-cookie-params.php
 	 */
-	public function getCookieParams() {
+	public function getCookieParams()
+	{
 		return session_get_cookie_params();
 	}
 
@@ -221,23 +238,25 @@ class CHttpSession extends CApplicationComponent implements IteratorAggregate, A
 	 * domain, secure, httponly. Note that httponly is all lowercase.
 	 * @see http://us2.php.net/manual/en/function.session-set-cookie-params.php
 	 */
-	public function setCookieParams($value) {
-		$data = session_get_cookie_params();
+	public function setCookieParams($value)
+	{
+		$data=session_get_cookie_params();
 		extract($data);
 		extract($value);
-		if (isset($httponly))
-			session_set_cookie_params($lifetime, $path, $domain, $secure, $httponly);
+		if(isset($httponly))
+			session_set_cookie_params($lifetime,$path,$domain,$secure,$httponly);
 		else
-			session_set_cookie_params($lifetime, $path, $domain, $secure);
+			session_set_cookie_params($lifetime,$path,$domain,$secure);
 	}
 
 	/**
 	 * @return string how to use cookie to store session ID. Defaults to 'Allow'.
 	 */
-	public function getCookieMode() {
-		if (ini_get('session.use_cookies') === '0')
+	public function getCookieMode()
+	{
+		if(ini_get('session.use_cookies')==='0')
 			return 'none';
-		elseif (ini_get('session.use_only_cookies') === '0')
+		elseif(ini_get('session.use_only_cookies')==='0')
 			return 'allow';
 		else
 			return 'only';
@@ -246,68 +265,82 @@ class CHttpSession extends CApplicationComponent implements IteratorAggregate, A
 	/**
 	 * @param string $value how to use cookie to store session ID. Valid values include 'none', 'allow' and 'only'.
 	 */
-	public function setCookieMode($value) {
-		if ($value === 'none') {
-			ini_set('session.use_cookies', '0');
-			ini_set('session.use_only_cookies', '0');
-		} elseif ($value === 'allow') {
-			ini_set('session.use_cookies', '1');
-			ini_set('session.use_only_cookies', '0');
-		} elseif ($value === 'only') {
-			ini_set('session.use_cookies', '1');
-			ini_set('session.use_only_cookies', '1');
+	public function setCookieMode($value)
+	{
+		if($value==='none')
+		{
+			ini_set('session.use_cookies','0');
+			ini_set('session.use_only_cookies','0');
+		}
+		elseif($value==='allow')
+		{
+			ini_set('session.use_cookies','1');
+			ini_set('session.use_only_cookies','0');
+		}
+		elseif($value==='only')
+		{
+			ini_set('session.use_cookies','1');
+			ini_set('session.use_only_cookies','1');
 		}
 		else
-			throw new CException(Yii::t('yii', 'CHttpSession.cookieMode can only be "none", "allow" or "only".'));
+			throw new CException(Yii::t('yii','CHttpSession.cookieMode can only be "none", "allow" or "only".'));
 	}
 
 	/**
 	 * @return float the probability (percentage) that the gc (garbage collection) process is started on every session initialization, defaults to 1 meaning 1% chance.
 	 */
-	public function getGCProbability() {
-		return (float) (ini_get('session.gc_probability') / ini_get('session.gc_divisor') * 100);
+	public function getGCProbability()
+	{
+		return (float)(ini_get('session.gc_probability')/ini_get('session.gc_divisor')*100);
 	}
 
 	/**
 	 * @param float $value the probability (percentage) that the gc (garbage collection) process is started on every session initialization.
 	 * @throws CException if the value is beyond [0,100]
 	 */
-	public function setGCProbability($value) {
-		if ($value >= 0 && $value <= 100) {
+	public function setGCProbability($value)
+	{
+		if($value>=0 && $value<=100)
+		{
 			// percent * 21474837 / 2147483647 ≈ percent * 0.01
-			ini_set('session.gc_probability', floor($value * 21474836.47));
-			ini_set('session.gc_divisor', 2147483647);
+			ini_set('session.gc_probability',floor($value*21474836.47));
+			ini_set('session.gc_divisor',2147483647);
 		}
 		else
-			throw new CException(Yii::t('yii', 'CHttpSession.gcProbability "{value}" is invalid. It must be a float between 0 and 100.', array('{value}' => $value)));
+			throw new CException(Yii::t('yii','CHttpSession.gcProbability "{value}" is invalid. It must be a float between 0 and 100.',
+				array('{value}'=>$value)));
 	}
 
 	/**
 	 * @return boolean whether transparent sid support is enabled or not, defaults to false.
 	 */
-	public function getUseTransparentSessionID() {
-		return ini_get('session.use_trans_sid') == 1;
+	public function getUseTransparentSessionID()
+	{
+		return ini_get('session.use_trans_sid')==1;
 	}
 
 	/**
 	 * @param boolean $value whether transparent sid support is enabled or not.
 	 */
-	public function setUseTransparentSessionID($value) {
-		ini_set('session.use_trans_sid', $value ? '1' : '0');
+	public function setUseTransparentSessionID($value)
+	{
+		ini_set('session.use_trans_sid',$value?'1':'0');
 	}
 
 	/**
 	 * @return integer the number of seconds after which data will be seen as 'garbage' and cleaned up, defaults to 1440 seconds.
 	 */
-	public function getTimeout() {
-		return (int) ini_get('session.gc_maxlifetime');
+	public function getTimeout()
+	{
+		return (int)ini_get('session.gc_maxlifetime');
 	}
 
 	/**
 	 * @param integer $value the number of seconds after which data will be seen as 'garbage' and cleaned up
 	 */
-	public function setTimeout($value) {
-		ini_set('session.gc_maxlifetime', $value);
+	public function setTimeout($value)
+	{
+		ini_set('session.gc_maxlifetime',$value);
 	}
 
 	/**
@@ -318,7 +351,8 @@ class CHttpSession extends CApplicationComponent implements IteratorAggregate, A
 	 * @param string $sessionName session name
 	 * @return boolean whether session is opened successfully
 	 */
-	public function openSession($savePath, $sessionName) {
+	public function openSession($savePath,$sessionName)
+	{
 		return true;
 	}
 
@@ -328,7 +362,8 @@ class CHttpSession extends CApplicationComponent implements IteratorAggregate, A
 	 * Do not call this method directly.
 	 * @return boolean whether session is closed successfully
 	 */
-	public function closeSession() {
+	public function closeSession()
+	{
 		return true;
 	}
 
@@ -339,7 +374,8 @@ class CHttpSession extends CApplicationComponent implements IteratorAggregate, A
 	 * @param string $id session ID
 	 * @return string the session data
 	 */
-	public function readSession($id) {
+	public function readSession($id)
+	{
 		return '';
 	}
 
@@ -351,7 +387,8 @@ class CHttpSession extends CApplicationComponent implements IteratorAggregate, A
 	 * @param string $data session data
 	 * @return boolean whether session write is successful
 	 */
-	public function writeSession($id, $data) {
+	public function writeSession($id,$data)
+	{
 		return true;
 	}
 
@@ -362,7 +399,8 @@ class CHttpSession extends CApplicationComponent implements IteratorAggregate, A
 	 * @param string $id session ID
 	 * @return boolean whether session is destroyed successfully
 	 */
-	public function destroySession($id) {
+	public function destroySession($id)
+	{
 		return true;
 	}
 
@@ -373,7 +411,8 @@ class CHttpSession extends CApplicationComponent implements IteratorAggregate, A
 	 * @param integer $maxLifetime the number of seconds after which data will be seen as 'garbage' and cleaned up.
 	 * @return boolean whether session is GCed successfully
 	 */
-	public function gcSession($maxLifetime) {
+	public function gcSession($maxLifetime)
+	{
 		return true;
 	}
 
@@ -384,7 +423,8 @@ class CHttpSession extends CApplicationComponent implements IteratorAggregate, A
 	 * This method is required by the interface IteratorAggregate.
 	 * @return CHttpSessionIterator an iterator for traversing the session variables.
 	 */
-	public function getIterator() {
+	public function getIterator()
+	{
 		return new CHttpSessionIterator;
 	}
 
@@ -392,7 +432,8 @@ class CHttpSession extends CApplicationComponent implements IteratorAggregate, A
 	 * Returns the number of items in the session.
 	 * @return integer the number of session variables
 	 */
-	public function getCount() {
+	public function getCount()
+	{
 		return count($_SESSION);
 	}
 
@@ -401,14 +442,16 @@ class CHttpSession extends CApplicationComponent implements IteratorAggregate, A
 	 * This method is required by Countable interface.
 	 * @return integer number of items in the session.
 	 */
-	public function count() {
+	public function count()
+	{
 		return $this->getCount();
 	}
 
 	/**
 	 * @return array the list of session variable names
 	 */
-	public function getKeys() {
+	public function getKeys()
+	{
 		return array_keys($_SESSION);
 	}
 
@@ -421,7 +464,8 @@ class CHttpSession extends CApplicationComponent implements IteratorAggregate, A
 	 * @return mixed the session variable value, or $defaultValue if the session variable does not exist.
 	 * @since 1.1.2
 	 */
-	public function get($key, $defaultValue = null) {
+	public function get($key,$defaultValue=null)
+	{
 		return isset($_SESSION[$key]) ? $_SESSION[$key] : $defaultValue;
 	}
 
@@ -431,7 +475,8 @@ class CHttpSession extends CApplicationComponent implements IteratorAggregate, A
 	 * @param mixed $key the session variable name
 	 * @return mixed the session variable value, null if no such variable exists
 	 */
-	public function itemAt($key) {
+	public function itemAt($key)
+	{
 		return isset($_SESSION[$key]) ? $_SESSION[$key] : null;
 	}
 
@@ -441,8 +486,9 @@ class CHttpSession extends CApplicationComponent implements IteratorAggregate, A
 	 * @param mixed $key session variable name
 	 * @param mixed $value session variable value
 	 */
-	public function add($key, $value) {
-		$_SESSION[$key] = $value;
+	public function add($key,$value)
+	{
+		$_SESSION[$key]=$value;
 	}
 
 	/**
@@ -450,9 +496,11 @@ class CHttpSession extends CApplicationComponent implements IteratorAggregate, A
 	 * @param mixed $key the name of the session variable to be removed
 	 * @return mixed the removed value, null if no such session variable.
 	 */
-	public function remove($key) {
-		if (isset($_SESSION[$key])) {
-			$value = $_SESSION[$key];
+	public function remove($key)
+	{
+		if(isset($_SESSION[$key]))
+		{
+			$value=$_SESSION[$key];
 			unset($_SESSION[$key]);
 			return $value;
 		}
@@ -463,8 +511,9 @@ class CHttpSession extends CApplicationComponent implements IteratorAggregate, A
 	/**
 	 * Removes all session variables
 	 */
-	public function clear() {
-		foreach (array_keys($_SESSION) as $key)
+	public function clear()
+	{
+		foreach(array_keys($_SESSION) as $key)
 			unset($_SESSION[$key]);
 	}
 
@@ -472,14 +521,16 @@ class CHttpSession extends CApplicationComponent implements IteratorAggregate, A
 	 * @param mixed $key session variable name
 	 * @return boolean whether there is the named session variable
 	 */
-	public function contains($key) {
+	public function contains($key)
+	{
 		return isset($_SESSION[$key]);
 	}
 
 	/**
 	 * @return array the list of all session variables in array
 	 */
-	public function toArray() {
+	public function toArray()
+	{
 		return $_SESSION;
 	}
 
@@ -488,7 +539,8 @@ class CHttpSession extends CApplicationComponent implements IteratorAggregate, A
 	 * @param mixed $offset the offset to check on
 	 * @return boolean
 	 */
-	public function offsetExists($offset) {
+	public function offsetExists($offset)
+	{
 		return isset($_SESSION[$offset]);
 	}
 
@@ -497,7 +549,8 @@ class CHttpSession extends CApplicationComponent implements IteratorAggregate, A
 	 * @param integer $offset the offset to retrieve element.
 	 * @return mixed the element at the offset, null if no element is found at the offset
 	 */
-	public function offsetGet($offset) {
+	public function offsetGet($offset)
+	{
 		return isset($_SESSION[$offset]) ? $_SESSION[$offset] : null;
 	}
 
@@ -506,16 +559,17 @@ class CHttpSession extends CApplicationComponent implements IteratorAggregate, A
 	 * @param integer $offset the offset to set element
 	 * @param mixed $item the element value
 	 */
-	public function offsetSet($offset, $item) {
-		$_SESSION[$offset] = $item;
+	public function offsetSet($offset,$item)
+	{
+		$_SESSION[$offset]=$item;
 	}
 
 	/**
 	 * This method is required by the interface ArrayAccess.
 	 * @param mixed $offset the offset to unset element
 	 */
-	public function offsetUnset($offset) {
+	public function offsetUnset($offset)
+	{
 		unset($_SESSION[$offset]);
 	}
-
 }

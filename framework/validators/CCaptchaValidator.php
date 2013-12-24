@@ -45,8 +45,6 @@ class CCaptchaValidator extends CValidator {
 	 * @param string $attribute the attribute being validated
 	 */
 	protected function validateAttribute($object, $attribute) {
-		if (property_exists($object, "DontValidateCaptcha") && $object->DontValidateCaptcha)
-			return;
 		$value = $object->$attribute;
 		if ($this->allowEmpty && $this->isEmpty($value))
 			return;

@@ -14,5 +14,3 @@ final class Routes {
 	const User_List = '/admin/User/Users';
 
 }
-
-?>

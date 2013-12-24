@@ -33,9 +33,9 @@ class PanelController extends \Admin\Components\BaseController {
 		if (\Admin\models\AdminLogin::IsLoggedIn())
 			T\HTTP::Redirect_Immediately(
 					$this->createUrl(\Conf::AdminHomeRoute)
-					, \Lng::Admin('tr_Common', "Logged in successfully"));
+					, \Lng::Admin('tr_user', "Logged in successfully"));
 
-		$this->pageTitle = \Lng::AdminPageTitle('tr_Common', 'Login');
+		$this->pageTitle = \Lng::AdminPageTitle('tr_common', 'Login');
 
 		$LoginForm = new \Admin\models\AdminLogin('Login');
 		if ($LoginPost = \GPCS::POST('Login')) {
@@ -43,7 +43,7 @@ class PanelController extends \Admin\Components\BaseController {
 			if ($LoginForm->Login()) {
 				T\HTTP::Redirect_Immediately(
 						$this->createUrl(\Conf::AdminHomeRoute)
-						, \Lng::Admin('tr_Common', "Logged in successfully"));
+						, \Lng::Admin('tr_user', "Logged in successfully"));
 			}
 		}
 		$this->layout = 'outerpages';
@@ -56,15 +56,15 @@ class PanelController extends \Admin\Components\BaseController {
 	}
 
 	public function actionCartable() {
-		$this->pageTitle = \Lng::AdminPageTitle('tr_Common', 'Cartable');
+		$this->pageTitle = \Lng::AdminPageTitle('tr_common', 'Cartable');
 		$this->SetInternalEnv();
 		\html::PushStateScript();
-		$LastLoginTimeStamp = \Admin\models\AdminLogin::GetAdminSessionDR('LastLoginTimeStamp');
+		$LastLoginTimeStamp = \Admin\models\AdminLogin::GetSessionDR('LastLoginTimeStamp');
 		if ($LastLoginTimeStamp)
 			$LastLoginTimeStamp = gmdate('r', $LastLoginTimeStamp);
 		\Output::Render($this, 'cartable', array(
 			'LastLoginTime' => $LastLoginTimeStamp,
-			'LastLoginIP' => \Admin\models\AdminLogin::GetAdminSessionDR('LastLoginIP'),
+			'LastLoginIP' => \Admin\models\AdminLogin::GetSessionDR('LastLoginIP'),
 		));
 	}
 

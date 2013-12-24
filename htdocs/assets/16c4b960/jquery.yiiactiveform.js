@@ -127,9 +127,9 @@
 			});
 
 			if (settings.validateOnSubmit) {
-				$form.on('mouseup keyup', ':submit', function () {
-					$form.data('submitObject', $(this));
-				});
+//				$form.on('mouseup keyup', ':submit', function () {
+//					$form.data('submitObject', $(this));
+//				});
 				var validated = false;
 				var fncValidation=function () {
 					if (validated) {

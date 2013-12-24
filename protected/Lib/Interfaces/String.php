@@ -9,4 +9,3 @@ interface String {
 	public function __toString();
 }
 
-?>

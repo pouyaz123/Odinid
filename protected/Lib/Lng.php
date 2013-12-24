@@ -3,7 +3,7 @@
 /**
  * Odinid language center
  * translations and ...
- * @author Abbas Ali Hashemian <info@namedin.com> http://namedin.com <tondarweb@gmail.com> http://webdesignir.com
+ * @author Abbas Ali Hashemian <info@namedin.com> <tondarweb@gmail.com> http://webdesignir.com
  * @package Odinid Portal
  * @version 1
  * @copyright (c) Odinid
@@ -120,18 +120,15 @@ class Lng {
 			\Yii::app()->language = $Langs[0];
 	}
 
-	private static $_AppDir = NULL;
-
 	/**
 	 * returns the array of the common lang file located under /protected/messages_common
 	 * @param string $LangAndCategory such as en/User which will be /protected/messages_common/en/User.php
 	 */
 	static function GetCommonLangResourceArray($LangAndCategory) {
-		if (!self::$_AppDir)
-			self::$_AppDir = \Conf::AppDir();
-		return require_once self::$_AppDir . "/messages/$LangAndCategory.php";
+		static $AppDir = NULL;
+		if (!$AppDir)
+			$AppDir = \Conf::AppDir();
+		return require_once $AppDir . "/messages/$LangAndCategory.php";
 	}
 
 }
-
-?>

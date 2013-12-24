@@ -12,13 +12,11 @@ class AdminAuthFilter extends \CFilter {
 	protected function preFilter($filterChain) {
 		/* @var $filterChain \CFilterChain */
 		if (!\Admin\models\AdminLogin::IsLoggedIn()) {
-			\Tools\HTTP::Redirect_Immediately($filterChain->controller->createUrl(\Admin\Consts\Routes::Login));
+			\Tools\HTTP::Redirect_Immediately(\Admin\Consts\Routes::Login);
 			return FALSE;
-		} else {//TODO1: check the admin permission authority for the action here
+		} else {//mytodo 3: check the admin permission authority for the action here
 			return true;
 		}
 	}
 
 }
-
-?>

@@ -116,7 +116,7 @@ class GPCS {
 	 * @param type $FieldName
 	 * @param type $Path_withoutExt
 	 * @param type $MaxSize_Bytes
-	 * TODO2: $MaxSize_Bytes default max size should be from a var of Conf to secure
+	 * mytodo 3: $MaxSize_Bytes default max size should be from a var of Conf to secure
 	 * @param type $PCREPattern_FileName
 	 * @param type $PCREPattern_FileType
 	 * @param type $arr_GPCSConstants_ErrorCode
@@ -125,7 +125,7 @@ class GPCS {
 
 	/**
 	 * IS NOT READY YET (incomplete migration)
-	 * TODO1: Error Msgs in GPCS::Upload are by F3::get
+	 * mytodo 2: Error Msgs in GPCS::Upload are by F3::get
 	 */
 	public static function UploadFile($FieldName, $Path_withoutExt, $MaxSize_Bytes = -1, $PCREPattern_FileName = NULL, $PCREPattern_FileType = NULL, &$arr_GPCSConstants_ErrorCode = array()) {
 		$File = GPCS::FILES($FieldName);
@@ -183,4 +183,3 @@ class GPCS {
 
 }
 
-?>

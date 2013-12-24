@@ -2,4 +2,4 @@
 /* @var $this DefaultController */
 
 ?>
-<?=\Lng::Site('especial', 'Sorry , The page is Not found') ?>
+<?=\Lng::Site('tr_common', 'Sorry , The page is Not found') ?>

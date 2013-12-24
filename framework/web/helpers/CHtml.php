@@ -1623,6 +1623,7 @@ EOD;
 	 */
 	public static function activePasswordField($model,$attribute,$htmlOptions=array())
 	{
+		$htmlOptions = array_merge(array('viewState'=>false), $htmlOptions);
 		self::resolveNameID($model,$attribute,$htmlOptions);
 		self::clientChange('change',$htmlOptions);
 		return self::activeInputField('password',$model,$attribute,$htmlOptions);
@@ -2248,8 +2249,10 @@ EOD;
 
 		if($type==='file')
 			unset($htmlOptions['value']);
-		elseif(!isset($htmlOptions['value']))
+		elseif(!isset($htmlOptions['value']) && (!isset($htmlOptions['viewState']) || $htmlOptions['viewState']!==false))
 			$htmlOptions['value']=self::resolveValue($model,$attribute);
+		if(array_key_exists('viewState', $htmlOptions))
+			unset($htmlOptions['viewState']);
 		if($model->hasErrors($attribute))
 			self::addErrorCss($htmlOptions);
 		return self::tag('input',$htmlOptions);

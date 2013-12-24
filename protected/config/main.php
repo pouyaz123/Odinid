@@ -7,8 +7,8 @@
 return array(
 	'basePath' => dirname(__FILE__) . DIRECTORY_SEPARATOR . '..',
 //	'name'=>'Odinid',
-	'defaultController' => 'Site/Site',
 	'sourceLanguage' => 'en_us',
+	#
 	// preloading 'log' component
 //	'preload' => array('log'),
 	// autoloading model and component classes
@@ -25,6 +25,8 @@ return array(
 		'Consts' => 'application.Lib.Consts',
 		'Interfaces' => 'application.Lib.Interfaces',
 		'Tools' => 'application.Lib.Tools',
+		'Widgets' => 'application.Lib.Widgets',
+		'Validators' => 'application.Lib.Validators',
 	),
 	'modules' => array(
 //		'Admin' => array('class' => '\Admin\AdminModule'),
@@ -38,21 +40,35 @@ return array(
 			'ipFilters' => array('127.0.0.1'),
 		),
 	),
-	'controllerMap' => array(
-	),
+	#
 	'onBeginRequest' => function() {
 		if (!\Conf::YiiErrsOn)
 			\Err::Initialize();
 		#tondarweb output system
 		\Output::Initialize();
+		$cs=Yii::app()->clientScript;
+		$cs->scriptMap=array(
+			'jquery.js'=>false,
+			'jquery-ui.min.js'=>false,
+		);
 		//site/admin lang initiation is inside module classes
 	},
+	#
+//	'controllerPath' => YiiBase::getPathOfAlias('application.modules.Site.controllers'),
+//	'controllerNamespace' => 'Site\controllers',
+//	'defaultController' => 'site',	//this is the Site module here has been set for default controller
+	'controllerMap' => array(
+	),
 	// application components
 	'components' => array(
 //		'user' => array(
 //			// enable cookie-based authentication
 //			'allowAutoLogin' => true,
 //		),
+		'veiwRenderer'=>array(
+			'class'=>'CPradoViewRenderer',
+			'fileExtension'=>'.phtml',
+		),
 		'urlManager' => array(
 			'urlFormat' => 'path',
 			'showScriptName' => false,
@@ -60,6 +76,7 @@ return array(
 				'admin/<_c:[A-z][0-z_]+>' => 'admin/<_c>',
 //				'admin/<_c:[A-z][0-z_]+>/<_a:[A-z][0-z_]+>' => 'admin/<_c>/<_a>',
 //				'admin' => 'Admin',
+				'/' => 'site/default',
 				'<_c:[A-z][0-z_]+>/<_a:[A-z][0-z_]+>' => 'site/<_c>/<_a>',
 //				'<_c:[A-z][0-z_]+>/<_a:[A-z][0-z_]+>/<lang:[a-z]{2}(_[a-z]{2})? >' => 'site/<_c>/<_a>',
 			),

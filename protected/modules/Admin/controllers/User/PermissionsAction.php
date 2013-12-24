@@ -25,5 +25,3 @@ class PermissionsAction extends \CAction {
 	}
 
 }
-
-?>

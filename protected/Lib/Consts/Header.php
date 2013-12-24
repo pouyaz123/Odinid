@@ -6,7 +6,6 @@ namespace Consts;
  * @author Abbas Ali Hashemian <info@namedin.com> http://namedin.com <tondarweb@gmail.com> http://webdesignir.com
  * @package Tondarweb Portal
  * @version 2
- * @copyright (c) Abbas Ali Hashemian
  * @access public
  */
 class Header {
@@ -36,4 +35,3 @@ class Header {
 
 }
 
-?>

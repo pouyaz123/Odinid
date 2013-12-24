@@ -1,5 +1,5 @@
 <?php
-//TODO1: admin PlanForm is incomplete
+//mytodo 2: admin PlanForm is incomplete
 //namespace Admin\models\User;
 //
 //use \Consts as C;
@@ -7,7 +7,7 @@
 //
 //class PlanForm extends \Base\FormModel {
 //
-//	public function PostName() {
+//	public function getPostName() {
 //		return $this->scenario;
 //	}
 //
@@ -49,10 +49,10 @@
 //	 */
 //	public function attributeLabels() {
 //		return array(
-//			'txtTitle' => \Lng::Admin('tr_Common', 'Title'),
-//			'txtPlanCost' => \Lng::Admin('tr_UserModule', 'Plan cost'),
-//			'txtPerHowMonth' => \Lng::Admin('tr_UserModule', 'Per how month'),
-//			'chkIsActive' => \Lng::Admin('tr_Common', 'Is active'),
+//			'txtTitle' => \Lng::Admin('tr_common', 'Title'),
+//			'txtPlanCost' => \Lng::Admin('tr_user', 'Plan cost'),
+//			'txtPerHowMonth' => \Lng::Admin('tr_user', 'Per how month'),
+//			'chkIsActive' => \Lng::Admin('tr_common', 'Is active'),
 //		);
 //	}
 //

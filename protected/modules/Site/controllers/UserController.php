@@ -10,8 +10,10 @@ class UserController extends \Site\Components\BaseController {
 			'register' => '\Site\controllers\User\RegisterAction',
 			'captcha' => array(
 				'class' => 'CCaptchaAction',
-				'testLimit' => 1,
-			)
+				'testLimit' => 2,
+				'minLength' => 3,
+				'maxLength' => 5,
+			),
 //			'activate' => '\Site\controllers\User\ActivateAction',
 //			'resendactcode' => '\Site\controllers\User\ResendActCodeAction',
 //			'login' => '\Site\controllers\User\LoginAction',

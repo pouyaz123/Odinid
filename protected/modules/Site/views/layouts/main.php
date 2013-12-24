@@ -5,30 +5,32 @@
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<meta name="language" content="en" />
 
-		<? /* <script src="/_js/print_r.js"></script> */ ?>
+		<?= \html::JS_SrcTag('Basics/jquery-1.8.0.min', true, true, false) ?>
+		<?= \html::JS_SrcTag('jqUI/jquery.ui.core.min', true, true, false) ?>
 		<?= \html::JS_SrcTag('Basics/Tools', true, true, false) ?>
+		<? /* <script src="/_js/print_r.js"></script> */ ?>
 		<? /* 		<!-- blueprint CSS framework -->
-		<link rel="stylesheet" type="text/css" href="<?= Yii::app()->request->baseUrl; ?>/_css/screen.css" media="screen, projection" />
-		<link rel="stylesheet" type="text/css" href="<?= Yii::app()->request->baseUrl; ?>/_css/print.css" media="print" />
-		<!--[if lt IE 8]>
-		<link rel="stylesheet" type="text/css" href="<?= Yii::app()->request->baseUrl; ?>/_css/ie.css" media="screen, projection" />
-		<![endif]-->
+		  <link rel="stylesheet" type="text/css" href="<?= Yii::app()->request->baseUrl; ?>/_css/screen.css" media="screen, projection" />
+		  <link rel="stylesheet" type="text/css" href="<?= Yii::app()->request->baseUrl; ?>/_css/print.css" media="print" />
+		  <!--[if lt IE 8]>
+		  <link rel="stylesheet" type="text/css" href="<?= Yii::app()->request->baseUrl; ?>/_css/ie.css" media="screen, projection" />
+		  <![endif]-->
 
-		<link rel="stylesheet" type="text/css" href="<?= Yii::app()->request->baseUrl; ?>/_css/main.css" />
-		<link rel="stylesheet" type="text/css" href="<?= Yii::app()->request->baseUrl; ?>/_css/form.css" /> */ ?>
+		  <link rel="stylesheet" type="text/css" href="<?= Yii::app()->request->baseUrl; ?>/_css/main.css" />
+		  <link rel="stylesheet" type="text/css" href="<?= Yii::app()->request->baseUrl; ?>/_css/form.css" /> */ ?>
 
 		<title><?= CHtml::encode($this->pageTitle); ?></title>
 		<script type="text/javascript">
 			PageURL = window.location.href;
 			Resources = {
-				PostBack_AJAX_Err: "<?= \Lng::Site('Common', 'An error occurred with server communication!') ?>"
-						, PostBack_AJAX_ErrRetry: "<?= \Lng::Site('Common', 'An error occurred with server communication. Will you retry?') ?>"
-						, Confirmation: "<?= \Lng::Site('Common', 'Are you sure?') ?>"
+				PostBack_AJAX_Err: "<?= \Lng::Site('Common', 'Ajax communication error') ?>"
+				, PostBack_AJAX_ErrRetry: "<?= \Lng::Site('Common', 'Ajax communication error. retry?') ?>"
+				, Confirmation: "<?= \Lng::Site('Common', 'Are you sure?') ?>"
 			}
 		</script>
 		<?= \html::CSS_LinkTag('Generally') ?>
 		<?= \html::CSS_LinkTag('Site') ?>
-		<?= \html::CSS_LinkTag('form') ?>
+		<? /* = \html::CSS_LinkTag('form') */ ?>
 		<?= \html::CSS_LinkTag('*/_js/Basics/PostBack.css') ?>
 		<?= \html::$cntIncludedCSS ?>
 		<?= \html::InlineCSS_GetRenderedMarkup() ?>
@@ -66,9 +68,9 @@
 				));
 				?>
 			<? endif ?>
-
-			<?= $content; ?>
-
+			<div id="divContent">
+				<?= $content; ?>
+			</div>
 			<div class="clear"></div>
 
 			<div id="footer">
@@ -77,6 +79,6 @@
 			</div>
 
 		</div>
-		<?=\html::JS_SrcTag('Basics/PostBack')?><?/** Contains Postback and AJAX Tools    , true, true, false*/?>
+		<?= \html::JS_SrcTag('Basics/PostBack') ?><? /** Contains Postback and AJAX Tools    , true, true, false */ ?>
 	</body>
 </html>

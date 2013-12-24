@@ -17,7 +17,7 @@ tinyMCE.init({
 	width: '830px',
 	height: '400px',
 	theme_advanced_resizing: true,
-	// TODO3: MCE Full system
+	// mytodo x: MCE Full system
 	// Drop Down lists for link/image/media/template dialogs
 //	template_external_list_url : "lists/template_list.js",
 //	external_link_list_url : "lists/link_list.js",

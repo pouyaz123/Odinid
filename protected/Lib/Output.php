@@ -4,7 +4,7 @@ use \Tools as T;
 use \Consts as C;
 
 /**
- * Tondarweb Output center
+ * Tondarweb Output engine
  * collects and controls async(ajax) and non-async outputs, thumbnails and and all output things
  * @author Abbas Ali Hashemian <info@namedin.com> http://namedin.com <tondarweb@gmail.com> http://webdesignir.com
  * @package Tondarweb Portal
@@ -25,14 +25,14 @@ class Output {
 	 * @var \Base\Container
 	 */
 	public static $cntAjax = null;
-	private static $IsInitialized = false;
 
 	public static function Initialize() {
-		if (!self::$IsInitialized) {
+		static $IsInitialized = false;
+		if (!$IsInitialized) {
 			self::$cntPage = \html::Container("_cntPage");
 			self::$cntAjax = \html::Container("_cntAjax");
 		}
-		self::$IsInitialized = true;
+		$IsInitialized = true;
 	}
 
 	public static $IsRenderPassed = false;
@@ -40,6 +40,8 @@ class Output {
 	public static function Render($objController = NULL, $view = NULL, $data = NULL, $ActiveFormID = NULL, $return = false, $processOutput = false) {
 		self::$IsRenderPassed = true;
 		$IsAjax = T\HTTP::IsAsync();
+		if ($view && !$objController)
+			$objController = \Yii::app()->controller;
 		/* @var $objController CController */
 		if ($objController) {
 			if (!$view)
@@ -47,20 +49,20 @@ class Output {
 			if ($IsAjax) {
 				if (!GPCS::REQUEST(self::AjaxKeyword_PostParamName))
 					self::$cntAjax->AddContent(function()use($objController, $ActiveFormID, $view, $data) {
-								if (method_exists($objController, 'getPageTitle'))
-									\html::AjaxPageTitle($objController->pageTitle);
+						if (method_exists($objController, 'getPageTitle'))
+							\html::AjaxPageTitle($objController->pageTitle);
 //							echo $objController->renderPartial($view, $data, true)
 //									. ($ActiveFormID?T\HTTP::Ajax_getCActiveFormScript($ActiveFormID):'');
-								$output = $objController->renderPartial($view, $data, true);
-								$cs = \Yii::app()->getClientScript();
-								/* @var $cs \CClientScript */
-								$cs->renderBodyEnd($output);
-								echo $output;
-							});
+						$output = $objController->renderPartial($view, $data, true);
+						$cs = \Yii::app()->getClientScript();
+						/* @var $cs \CClientScript */
+						$cs->renderBodyEnd($output);
+						echo $output;
+					});
 			} else {
 				self::$cntPage->AddContent(function()use($objController, $view, $data) {
-							$objController->render($view, $data);
-						});
+					$objController->render($view, $data);
+				});
 			}
 		}
 		//IMPORTANT use ->__toString() method because the Yii thrown exceptions in components and ... does not work in to string magic call
@@ -93,14 +95,15 @@ class Output {
 					$mixedContent($Params);
 				else
 					echo $mixedContent;
-			}
-			else
+			} else
 				self::$cntAjax->AddContent($mixedContent, $Params, $ContentUniqueKW);
 			return true;
 		}
 		return false;
 	}
 
-}
+	public static function IsThisAsyncPostBack($AjaxKW) {
+		return \GPCS::REQUEST(self::AjaxKeyword_PostParamName) === $AjaxKW;
+	}
 
-?>
+}

@@ -6,7 +6,6 @@ namespace Consts;
  * @author Abbas Ali Hashemian <info@namedin.com> http://namedin.com <tondarweb@gmail.com> http://webdesignir.com
  * @package Tondarweb Portal
  * @version 1
- * @copyright (c) Abbas Ali Hashemian
  * @access public
  */
 final class Permissions {
@@ -35,4 +34,3 @@ final class Permissions {
 	 * 4 & 10 = 0000 = 0 */
 }
 
-?>

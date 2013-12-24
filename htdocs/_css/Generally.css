@@ -16,12 +16,14 @@ p{margin: 0px;}
 
 .FullH{height: 100%;}
 .FullW{width: 100%;}
+.InlineBlock{display: inline-block}
 .SyncTDDivHeight{/*in Tools.js*/}
 .absContainer{position: relative}
 .CenterMargins {margin-left: auto; margin-right: auto;}
 .CenterAlign{text-align: center}
-.TopAlign, .TopAlign td{vertical-align: top}
+.TopAlign, td.TopAlign, .TopAlign td{vertical-align: top}
 .MidAlign, td.MidAlign, .MidAlign td{vertical-align: middle}
+.BtmAlign, td.BtmAlign, .BtmAlign td{vertical-align: bottom}
 .rtl .OppositeFloat{float: left !important}
 .ltr .OppositeFloat{float: right !important}
 .rtl .OppositeAlign{text-align: left}
@@ -71,13 +73,13 @@ p{margin: 0px;}
 .FileIcon{background: #aaa; margin: 3px 0px}
 
 .Info{background:url('/_img/icons/info16.png') no-repeat; display: inline-block; width: 16px; height: 16px; }
-.ChkRdo .Info, .Field .Info{position: absolute; top: -8px; z-index: 1}
+.ChkRdo .Info, .Fld .Info{position: absolute; top: -8px; z-index: 1}
 .Caption .ChkRdo{margin: 0px}
 .Caption .ChkRdo input{margin-right: 0px !important}
-.ltr .Field .Info, .ltr .ChkRdo .Info{left: -8px}
-.rtl .Field .Info, .rtl .ChkRdo .Info{right: -8px}
+.ltr .Fld .Info, .ltr .ChkRdo .Info{left: -8px}
+.rtl .Fld .Info, .rtl .ChkRdo .Info{right: -8px}
 
-.Field{display: inline-block; min-height: 24px; line-height: 24px; vertical-align: middle; min-width: 300px;
+.Fld{display: inline-block; min-height: 24px; line-height: 24px; vertical-align: middle; min-width: 300px;
 	   background: #fff; padding: 0px 4px; border: 1px solid #ccd;
 	   position: relative; /*z-index: 1; MyDDL problem*/
 	   /*behavior:url(/_css/PIE.htc);*/
@@ -86,21 +88,21 @@ p{margin: 0px;}
 	   -khtml-border-radius: 4px;
 	   -moz-border-radius: 4px;}
 
-.rtl .Field input.ltr
-, .rtl .Field select.ltr
-, .rtl .Field div.MyDDL
-, .rtl .Field textarea.ltr{float: left}
-.ltr .Field input.rtl
-, .ltr .Field select.rtl
-, .ltr .Field div.MyDDL
-, .ltr .Field textarea.rtl{float: right}
-.Field, .ChkRdo{margin: 5px;}
+.rtl .Fld input.ltr
+, .rtl .Fld select.ltr
+, .rtl .Fld div.MyDDL
+, .rtl .Fld textarea.ltr{float: left}
+.ltr .Fld input.rtl
+, .ltr .Fld select.rtl
+, .ltr .Fld div.MyDDL
+, .ltr .Fld textarea.rtl{float: right}
+.Fld, .ChkRdo{margin: 5px;}
 
-.Field label{white-space: nowrap; min-width: 100px;}
-.rtl .Field label{text-align: left; padding-left: 3px; float: right}
-.ltr .Field label{text-align: right; padding-right: 3px; float: left}
-.Field label, .ChkRdo label{cursor: pointer; display: inline-block; vertical-align: middle}
-.Field label:hover, .ChkRdo label:hover{color: #f00}
+.Fld label{white-space: nowrap; min-width: 100px;}
+.rtl .Fld label{text-align: left; padding-left: 3px; float: right}
+.ltr .Fld label{text-align: right; padding-right: 3px; float: left}
+.Fld label, .ChkRdo label{cursor: pointer; display: inline-block; vertical-align: middle}
+.Fld label:hover, .ChkRdo label:hover{color: #f00}
 .ChkRdo label{white-space: normal !important; display: inline}
 
 .ChkRdo{display: inline-block; vertical-align: middle}
@@ -108,12 +110,12 @@ p{margin: 0px;}
 .rtl .ChkRdo input{margin-right: 10px}
 .ltr .ChkRdo input{margin-left: 10px}
 
-.Field div.MyDDL{width:190px}
+.Fld div.MyDDL{width:190px}
 
 .Txt{line-height: 22px; vertical-align: middle}
 .Txt input{height: 22px; vertical-align: middle; padding: 0px}
 .Txt textarea{height: 100px}
-.Txt input, .Field textarea{width: 190px; border: 0px; background: none}
+.Txt input, .Fld textarea{width: 190px; border: 0px; background: none}
 /*captcha*/
 .Captcha input{width: 80px !important; border: 1px solid #999; text-align: left; direction: ltr}
 .Captcha img{width: 100px; height: 40px; vertical-align: middle}
@@ -135,7 +137,7 @@ p{margin: 0px;}
 .File input{height: auto !important; border: 0px none #fff}
 
 
-/*TODO2: Totally Prepare Error Pages*/
+/*mytodo 3: Totally Prepare Error Pages*/
 /*--------- Msgs ---------*/
 .AltRow{background: #eef}
 
@@ -170,12 +172,14 @@ p{margin: 0px;}
 .AltRow{background: #eef}
 /*ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-rtl*/
 /*--------- jQuery UI Grid ---------*/
-.ui-widget, .ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget button{font-family: tahoma !important; font-size:11px !important }
+.ui-widget, .ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget button{font-family: tahoma !important; font-size:11px !important}
+.ui-jqgrid-sortable{font-weight: normal !important}
 .ui-jqgrid tr.jqgrow td{white-space: normal !important}
 .ui-jqgrid tr.jqgrow td.SubLIsInDG{overflow: visible !important}
 td.SubLIsInDG li{float: none !important}
 td.SubLIsInDG .KASPBluLnks a.Btn, td.SubLIsInDG .KASPBluLnks a.Btn span{display: block}
 .ui-resizable-handle{z-index: 3 !important}
+.ui-datepicker{z-index: 951 !important}
 .ui-icon-triangle-1-s { background-position: -68px -16px !important; }
 .ui-icon-triangle-1-n { background-position: -3px -16px !important; }
 .ltr .s-ico{right: 8px !important}
