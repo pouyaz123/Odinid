@@ -10,5 +10,7 @@ return array_merge(
 //	'Invalid invitation code' => 'Invalid invitation code',
 //	'Registration failed!' => 'Registration failed!',
 	'Registered successfully' => 'Registration has been done successfully. An activation link has been sent to your mailbox',
-//	'Please use this activation link {link} <br/> Or this activation code {code}' => 'Please use this activation link {link} <br/> Or this activation code {code}',
+//	'Please use this activation link' => 'Please use this activation link',
+//	'Or copy this activation code and post it in below activation page' => 'Or copy this activation code and post it in below activation page',
+//	'Activation link' => 'Activation link',
 		));

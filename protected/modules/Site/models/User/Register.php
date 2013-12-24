@@ -237,9 +237,9 @@ class Register extends \Base\FormModel {
 					)"
 				);
 			}
-//			$Result = T\DB::Transaction($Queries, $CommonParams, function(\Exception $ex) {
-//						\html::ErrMsg_Exit(\Lng::Site('tr_user', 'Registration failed!'));
-//					});
+			$Result = T\DB::Transaction($Queries, $CommonParams, function(\Exception $ex) {
+						\html::ErrMsg_Exit(\Lng::Site('tr_user', 'Registration failed!'));
+					});
 		}
 		$this->CleanViewStateOfSpecialAttrs();
 		return $Result ? true : false;

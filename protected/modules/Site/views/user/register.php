@@ -7,7 +7,7 @@
 //	$this->module->id,
 //);
 ?>
-<div class="form" rel="<?= \html::AjaxPanel('#btnRegister') ?>">
+<div id="divRegisterForm" class="form">
 	<?
 	$form = $this->beginWidget('Widgets\ActiveForm', array(
 		'id' => 'Register',
@@ -98,7 +98,11 @@
 				<?=
 				html::ButtonContainer(
 						CHtml::submitButton(\Lng::Site('tr_user', 'Register')
-								, array('name' => 'btnRegister', 'id' => 'btnRegister')))
+								, array(
+							'name' => 'btnRegister',
+							'rel' => \html::AjaxElement('#divRegisterForm')
+								)
+				))
 				?>
 			</td>
 			<td class="BtmAlign">

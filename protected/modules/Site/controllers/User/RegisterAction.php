@@ -59,7 +59,7 @@ class RegisterAction extends \CAction {
 			\Base\FormModel::AjaxValidation('Register', $userModel, true);
 		#
 		if ($RegisterResult) {
-			\Site\models\User\Activation::SendActivationEmail($ActivationCode);
+			\Site\models\User\Activation::SendActivationEmail($ActivationCode, $userModel->txtEmail, $userModel->txtUsername);
 			\Output::Render($this->controller, '../messages/success', array('msg' => \Lng::Site('User', 'Registered successfully')));
 		} else
 			\Output::Render($this->controller, 'register'

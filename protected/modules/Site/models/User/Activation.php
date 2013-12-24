@@ -103,18 +103,14 @@ class Activation extends \Base\FormModel {
 //	}
 
 	static function SendActivationEmail($ActivationCode, $Email, $Name = '') {
-		\Err::DebugBreakPoint(\Yii::app()->controller->render('Site.views.emails.activation', array(
-					'Code' => $ActivationCode,
-					'Url' => \Yii::app()->createUrl(\Site\Consts\Routes::UserActivation, array(), array('code' => $ActivationCode))
-				)));
 		$MS = T\SendMail::GetConfiguredMailSender();
 		$MS->AddAddress($Email, $Name);
 		$MS->send2(
 				\Lng::Site('tr_user', 'Activation link')
-				, \Yii::app()->controller->render('Site.views.emails.activation', array(
+				, \Yii::app()->controller->renderPartial('Site.views.emails.activation', array(
 					'Code' => $ActivationCode,
-					'Url' => \Yii::app()->createUrl(\Site\Consts\Routes::UserActivation, array(), array('code' => $ActivationCode))
-				))
+					'Url' => \Yii::app()->createAbsoluteUrl(T\HTTP::URL_InsertGetParams(\Site\Consts\Routes::UserActivation, "code=$ActivationCode"))
+						), true)
 		);
 	}
 
