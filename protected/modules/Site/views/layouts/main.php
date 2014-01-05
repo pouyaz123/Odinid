@@ -23,9 +23,9 @@
 		<script type="text/javascript">
 			PageURL = window.location.href;
 			Resources = {
-				PostBack_AJAX_Err: "<?= \Lng::Site('Common', 'Ajax communication error') ?>"
-				, PostBack_AJAX_ErrRetry: "<?= \Lng::Site('Common', 'Ajax communication error. retry?') ?>"
-				, Confirmation: "<?= \Lng::Site('Common', 'Are you sure?') ?>"
+				PostBack_AJAX_Err: "<?= \Lng::General('Ajax communication error') ?>"
+				, PostBack_AJAX_ErrRetry: "<?= \Lng::General('Ajax communication error. retry?') ?>"
+				, Confirmation: "<?= \Lng::General('Are you sure?') ?>"
 			}
 		</script>
 		<?= \html::CSS_LinkTag('Generally') ?>

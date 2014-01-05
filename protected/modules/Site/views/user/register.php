@@ -69,7 +69,7 @@
 								if (Email && URL && Domain && (URL.indexOf('http://') > -1 || URL.indexOf('https://') > -1)) {
 									$('#divDomainMsg').html(
 											!URL.find2find_substr('://').find2find_substr('', '/').match(new RegExp('<?= trim(Consts\Regexp::CompanyURLDomain("' + $.ui.autocomplete.escapeRegex(Domain) + '"), '/') ?>', "i"))
-											? '<?= addslashes(Lng::Site('tr_company', "The url domain doesn't not matched to your email domain")) ?>'
+											? '<?= addslashes(Lng::Site('tr_company', "The url's domain doesn't match to your email domain")) ?>'
 											: '')
 								}
 							}

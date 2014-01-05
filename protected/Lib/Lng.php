@@ -105,6 +105,31 @@ class Lng {
 		return self::t('Admin', $category, $message, $params, $source, $language);
 	}
 
+	/**
+	 * Translates a message to the specified language.
+	 * This method supports choice format (see {@link CChoiceFormat}),
+	 * i.e., the message returned will be chosen from a few candidates according to the given
+	 * number value. This feature is mainly used to solve plural format issue in case
+	 * a message has different plural forms in some languages.
+	 * @param string $message the original message
+	 * @param array $params parameters to be applied to the message using <code>strtr</code>.
+	 * The first parameter can be a number without key.
+	 * And in this case, the method will call {@link CChoiceFormat::format} to choose
+	 * an appropriate message translation.
+	 * Starting from version 1.1.6 you can pass parameter for {@link CChoiceFormat::format}
+	 * or plural forms format without wrapping it with array.
+	 * This parameter is then available as <code>{n}</code> in the message translation string.
+	 * @param string $source which message source application component to use.
+	 * Defaults to null, meaning using 'coreMessages' for messages belonging to
+	 * the 'yii' category and using 'messages' for the rest messages.
+	 * @param string $language the target language. If null (default), the {@link CApplication::getLanguage application language} will be used.
+	 * @return string the translated message
+	 * @see CMessageSource
+	 */
+	static function General($message, $params = array(), $source = null, $language = null) {
+		return self::t(null, 'tr_general', $message, $params, $source, $language);
+	}
+
 	static function tarray(&$array, $strTranslationModule = NULL, $category = NULL, $params = array(), $source = null, $language = null) {
 		if ($category)
 			foreach ($array as $key => $msg)
@@ -130,5 +155,29 @@ class Lng {
 			$AppDir = \Conf::AppDir();
 		return require_once $AppDir . "/messages/$LangAndCategory.php";
 	}
+
+	/**
+	 * gets default language from \Yii::app()->sourceLanguage orelse if it was empty get from \Conf::$SiteModuleLangs[0]
+	 * @staticvar null $Lng
+	 * @return \Lng_LangObj $Object to get the properties of the language easily
+	 */
+	static function GetDefaultLang() {
+		static $Lng = null;
+		if (!$Lng) {
+			$Lng = new Lng_LangObj();
+			$Lng->LocaleID = \Yii::app()->sourceLanguage;
+			if (!$Lng->LocaleID)
+				$Lng->LocaleID = \Conf::$SiteModuleLangs[0];
+			$Lng->LangCode = strstr($Lng->LocaleID, '_', true);
+		}
+		return $Lng;
+	}
+
+}
+
+class Lng_LangObj {
+
+	public $LocaleID;
+	public $LangCode;
 
 }

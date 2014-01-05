@@ -1,6 +1,5 @@
 <? /* @var $this \Site\Components\BaseController */ ?>
-<? $this->beginContent('Site.views.layouts.main'); ?>
-<div id="divContent">
+<div>
 	<?= $content; ?>
 </div>
-<? $this->endContent(); ?>
+<div style="text-align: center">Odinid.com - Odinid cg network</div>

@@ -10,9 +10,9 @@ use \Components as Com;
  * Tondarweb SMTP
  *
  * @author Abbas Ali Hashemian <info@namedin.com> http://namedin.com <tondarweb@gmail.com> http://webdesignir.com
- * @package Tondarweb Portal
+ * @package Tondarweb portal migrated to Odinid cg network
  * @version 2
- * @copyright (c) Abbas Ali Hashemian
+ * @copyright (c) Odinid
  * @access public
  */
 class SendMail extends PHPMailer\PHPMailer {
@@ -37,8 +37,8 @@ class SendMail extends PHPMailer\PHPMailer {
 	static function GetConfiguredMailSender($FromTitle = NULL, $From = NULL, $IsHTML = true, $Charset = T\DB::CharsetLevel2, $Debug = \Conf::Err_TraceMode) {
 		$Params = \Conf::SMTP_GetParams();
 		$SMTP = new static; //my instance or my extended instance
-
-		$SMTP->IsSMTP();
+//		$SMTP->IsSMTP();	//depracated
+		$SMTP->Mailer = 'smtp';
 		$SMTP->SMTPDebug = $Debug;
 		$SMTP->SMTPAuth = true;
 		$SMTP->Host = $Params['Server'];
@@ -62,16 +62,35 @@ class SendMail extends PHPMailer\PHPMailer {
 	}
 
 	/**
-	 * This is same as PHPMailer::MsgHTML but this one forces you to set the Subject
-	 * Evaluates the message and returns modifications for inline images and backgrounds and sets the result inside in the email body
+	 * This method uses \Yii::app()->controller to render the template so a controller must be exist in the execution
+	 * @param string $TemplateName currently we have used simple templates so<br/>
+	 * this is same as the filename of the template<br/>
+	 * but later we will use a database model like webdesignir named.com and this will be same as the logicname
+	 * @param string $Lang the language code in template files model will be the name of parent directory of the template file<br/>
+	 * default lang has been got via \Lng::GetDefaultLang()->LangCode
+	 * @return string email template html contents
+	 */
+	static function GetEmailTemplate($TemplateName, $Lang = null, $Data = null) {
+		if (!$Lang)
+			$Lang = \Lng::GetDefaultLang()->LangCode;
+		$TemplateFilePath = "Site.views.layouts.email_templates.$Lang.$TemplateName";
+		if (!is_file(\Yii::getPathOfAlias($TemplateFilePath) . '.php'))
+			\Err::ErrMsg_Method(__METHOD__, "The email template doesn't exist", array($TemplateFilePath, func_get_args()));
+		return \Yii::app()->controller->renderPartial($TemplateFilePath, $Data, true);
+	}
+
+	/**
+	 * This method forces you to set the Subject in the side of content
+	 * uses ->Subject and ->MsgHTML($HTMLBody) and ->Send() sequentially
 	 * @param type $Subject required email subject
 	 * @param type $HTMLBody Text to be HTML modified
 	 * @param string $basedir baseline directory for path
-	 * @return string $message
+	 * @return bool result of ->Send()
 	 */
-	function send2($Subject, $HTMLBody, $basedir = '') {
+	function Send2($Subject, $HTMLBody, $basedir = '') {
 		$this->Subject = $Subject;
-		return $this->MsgHTML($HTMLBody);
+		$this->MsgHTML($HTMLBody, $basedir);
+		return $this->Send();
 	}
 
 //	static function GetConfiguredMandrill() {

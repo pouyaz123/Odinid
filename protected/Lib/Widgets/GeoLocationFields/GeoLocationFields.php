@@ -175,9 +175,11 @@ class GeoLocationFields extends \Base\Widget {
 
 		$Model = &$this->_Model;
 		if (!$Model || !is_object($Model) || !is_a($Model, '\CModel'))
-			throw new \CException('No valid Model has been passed to ' . __CLASS__ . ' widget');
+			\Err::ErrMsg_Method(__METHOD__, 'No valid Model has been passed to ' . __CLASS__ . ' widget');
+//			throw new \CException('No valid Model has been passed to ' . __CLASS__ . ' widget');
 		if (!$this->ddlCountryAttr)
-			throw new \CException('At least the Country attr must be passed into ' . __CLASS__ . ' widget');
+			\Err::ErrMsg_Method(__METHOD__, 'At least the Country attr must be passed into ' . __CLASS__ . ' widget');
+//			throw new \CException('At least the Country attr must be passed into ' . __CLASS__ . ' widget');
 
 		$_this = &$this;
 		\Output::AddIn_AjaxOutput(function()use($Model, $_this) {

@@ -42,7 +42,7 @@ class AdminLogin extends \Base\FormModel {
 			#
 			array('chkRemember', 'boolean',
 				'on' => 'Login'),
-			array('txtCaptcha', '\Validators\Captcha',
+			array('txtCaptcha', 'MyCaptcha',
 				'on' => 'Login'),
 		);
 	}
@@ -55,7 +55,7 @@ class AdminLogin extends \Base\FormModel {
 			'txtUsername' => \Lng::Admin('tr_user', 'Username'),
 			'txtPassword' => \Lng::Admin('tr_user', 'Password'),
 			'chkRememberMe' => \Lng::Admin('tr_user', 'Remember me'),
-			'txtCaptcha' => \Lng::Admin('tr_common', 'Captcha code'),
+			'txtCaptcha' => \Lng::General('Captcha code'),
 		);
 	}
 

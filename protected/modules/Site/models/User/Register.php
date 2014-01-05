@@ -5,6 +5,10 @@ namespace Site\models\User;
 use \Consts as C;
 use \Tools as T;
 
+/**
+ * @property-read string $ActivationCode the activation code after a registration process
+ * @method boolean Register() user registration //triggers the relater event handlers
+ */
 class Register extends \Base\FormModel {
 
 	const UserType_Company = 'Company';
@@ -46,9 +50,14 @@ class Register extends \Base\FormModel {
 		return $this->_arrAccountTypes;
 	}
 
+	private $_ActivationCode = null;
+
+	function getActivationCode() {
+		return $this->_ActivationCode;
+	}
+
 	protected function CleanViewStateOfSpecialAttrs() {
 		$this->txtPassword = $this->txtCaptcha = null;
-		parent::CleanViewStateOfSpecialAttrs();
 	}
 
 	/**
@@ -61,22 +70,23 @@ class Register extends \Base\FormModel {
 			array('ddlAccountType', 'in', 'range' => array_keys($this->_arrAccountTypes)),
 			array('txtPassword', 'length',
 				'min' => C\Regexp::Password_MinLength),
-			array('txtCaptcha', '\Validators\Captcha'),
+			array('txtCaptcha', 'MyCaptcha'),
 			#email
 			array('txtEmail', 'email'),
 			array('txtEmailRepeat', 'compare',
 				'compareAttribute' => 'txtEmail'),
 			array('txtEmail', 'IsUnique',
-				'SQL' => 'SELECT COUNT(*) FROM `_user_contactbook` WHERE `Email`=:val LIMIT 1',
-				'Msg' => '{attribute} "{value}" has been used previously.'),
+				'SQL' => 'SELECT COUNT(*) FROM `_users` u'
+				. ' INNER JOIN (SELECT 1) tmp ON u.`PrimaryEmail`=:val'
+				. ' LEFT JOIN `_user_recoveries` ur ON ur.`PendingEmail`=:val'
+				. ' LIMIT 1'),
 			#username
 			array('txtUsername', 'match', 'pattern' => C\Regexp::Username),
 			array('txtUsername', 'match', 'not' => true, 'pattern' => C\Regexp::Username_InvalidCases),
 			array('txtUsername', 'length',
 				'min' => C\Regexp::Username_MinLen, 'max' => C\Regexp::Username_MaxLen),
 			array('txtUsername', 'IsUnique',
-				'SQL' => 'SELECT COUNT(*) FROM `_users` WHERE `Username`=:val LIMIT 1',
-				'Msg' => '{attribute} "{value}" has been used previously.'),
+				'SQL' => 'SELECT COUNT(*) FROM `_users` WHERE `Username`=:val LIMIT 1'),
 			#artist
 			array('txtInvitationCode', 'required',
 				'on' => 'ArtistRegister'),
@@ -102,7 +112,7 @@ class Register extends \Base\FormModel {
 			'txtEmailRepeat' => \Lng::Site('tr_user', 'Confirm email'),
 			'txtUsername' => \Lng::Site('tr_user', 'Username'),
 			'txtPassword' => \Lng::Site('tr_user', 'Password'),
-			'txtCaptcha' => \Lng::Site('tr_common', 'Captcha code'),
+			'txtCaptcha' => \Lng::General('Captcha code'),
 			#artist
 			'txtInvitationCode' => \Lng::Site('tr_user', 'Invitation code'),
 			#Company
@@ -124,7 +134,7 @@ class Register extends \Base\FormModel {
 						"SELECT `UserTypeID`, `UserTypeExpDate`"
 						. " FROM `_user_invitations`"
 						. " WHERE `Code`=:code"
-						. " AND (ISNULL(`InvitationExpDate`) OR `InvitationExpDate`='' OR `InvitationExpDate`>NOW())"
+						. " AND (ISNULL(`InvitationExpDate`) OR `InvitationExpDate`='' OR `InvitationExpDate`>UTC_DATE())"
 						, array(':code' => $this->txtInvitationCode));
 		if (!$this->_drUserType)
 			$this->addError('txtInvitationCode', \Lng::Site('tr_user', 'Invalid invitation code'));
@@ -135,7 +145,9 @@ class Register extends \Base\FormModel {
 			$Domain = explode('@', $this->txtEmail);
 			$Domain = $Domain[1];
 			$URLDomain = parse_url($this->txtCompanyURL, PHP_URL_HOST);
-			if (preg_match(C\Regexp::CompanyURLDomain(preg_quote($Domain, '/')), $URLDomain)) {
+			if (!preg_match(C\Regexp::CompanyURLDomain(preg_quote($Domain, '/')), $URLDomain))
+				$this->addError($attr, Lng::Site('tr_company', "The url's domain doesn't match to your email domain"));
+			else {
 				$this->_CompanyDomain = $Domain;
 				if (T\DB::GetField(
 								"SELECT COUNT(*)"
@@ -147,44 +159,58 @@ class Register extends \Base\FormModel {
 		}
 	}
 
-	function Register(&$ActivationCode = null) {
-		$Result = false;
-		if ($this->validate()) {
-			$PrimaryUserID = Login::GetSessionDR('ID');
-			$drUserType = &$this->_drUserType;
-			$strSQLPart_UserType = $drUserType ?
-					":utid" :
-					"SELECT `ID` FROM `_user_types` WHERE `IsDefault`";
-			$ActivationCode = T\DB::GetUniqueCode('_user_recoveries', 'Code');
-			$Queries = array();
-			$CommonParams = array(
-				':un' => $this->txtUsername,
-			);
-			$Queries[] = array("INSERT INTO `_users`(`ParentAccountID`, `AccountType`, `UserTypeID`, `UTypeExpDate`, `Username`, `Password`, `RegisterDateTime`)"
-				. " VALUES(:parentid, :accounttype, ($strSQLPart_UserType), :utexp, :un, :pw, :registertime)",
-				array(
-					':parentid' => $PrimaryUserID,
-					':accounttype' => $this->ddlAccountType,
-					':utid' => $drUserType ? $drUserType['UserTypeID'] : NULL,
-					':utexp' => $drUserType ? $drUserType['UserTypeExpDate'] : NULL,
-					':pw' => $this->txtPassword,
-					':registertime' => gmdate('Y-m-d H:i:s'),
+	function onAfterRegister() {
+		$this->CleanViewStateOfSpecialAttrs();
+	}
+
+	function callRegister() {
+		if (!$this->validate())
+			return false;
+
+		$this->_ActivationCode = T\DB::GetUniqueCode('_user_recoveries', 'Code');
+		$PrimaryUserID = Login::GetSessionDR('ID');
+		$IsCompany = ($this->ddlAccountType == self::UserType_Company);
+		$drUserType = &$this->_drUserType;
+		$strSQLPart_UserType = $drUserType ?
+				":utid" :
+				"SELECT `ID` FROM `_user_types` WHERE `IsDefault`";
+		$Queries = array();
+		$CommonParams = array(
+			':un' => $this->txtUsername,
+		);
+		$Queries[] = array("INSERT INTO `_users`(`ParentAccountID`, `AccountType`, `UserTypeID`, `UTypeExpDate`, `Username`, `Password`, `RegisterDateTime`)"
+			. " VALUES(:parentid, :accounttype, ($strSQLPart_UserType), :utexp, :un, :pw, :registertime)",
+			array(
+				':parentid' => $PrimaryUserID,
+				':accounttype' => $this->ddlAccountType,
+				':utid' => $drUserType ? $drUserType['UserTypeID'] : NULL,
+				':utexp' => $drUserType ? $drUserType['UserTypeExpDate'] : NULL,
+				':pw' => $this->txtPassword,
+				':registertime' => gmdate('Y-m-d H:i:s'),
+			)
+		);
+		$Queries[] = array("INSERT INTO `_user_recoveries`(`UID`, `Code`, `TimeStamp`, `PendingEmail`, `Type`, `CompanyDomain`)"
+			. " VALUES(@regstr_uid:=(SELECT ID FROM _users WHERE Username=:un), :code, :time, :email, :activation, :domain)",
+			array(
+				':code' => $this->_ActivationCode,
+				':time' => time(),
+				':email' => $this->txtEmail,
+				':activation' => C\User::Recovery_Activation,
+				':domain' => $IsCompany ? $this->_CompanyDomain : null,
+			)
+		);
+		if ($IsCompany) {
+			//company url
+			$Queries[] = array(
+				"INSERT INTO `_company_info`(`OwnerUID`, `URL`)"
+				. " VALUES(@regstr_uid, :url)"
+				, array(
+					':url' => $this->txtCompanyURL
 				)
 			);
-			$Queries[] = array("INSERT INTO `_user_recoveries`(`UID`, `Code`, `TimeStamp`, `PendingEmail`, `Type`, `CompanyDomain`)"
-				. " VALUES(@regstr_uid:=(SELECT ID FROM _users WHERE Username=:un), :code, :time, :email, :pending, :domain)",
-				array(
-					':code' => $ActivationCode,
-					':time' => time(),
-					':email' => $this->txtEmail,
-					':pending' => C\User::Status_Pending,
-					':domain' => $this->_CompanyDomain,
-				)
-			);
-			if ($this->ddlAccountType == self::UserType_Company) {
-				//locations
-				$Queries[] = array(
-					"CALL geo_getGeoLocationIDs(
+			//locations
+			$Queries[] = array(
+				"CALL geo_getGeoLocationIDs(
 						:country
 						, :division
 						, :city
@@ -202,21 +228,21 @@ class Register extends \Base\FormModel {
 						, @regstr_UserCountryID
 						, @regstr_UserDivisionID
 						, @regstr_UserCityID)"
-					, array(
-						':country' => $this->txtCountry? : $this->ddlCountry,
-						':division' => $this->txtDivision? : $this->ddlDivision,
-						':city' => $this->txtCity? : $this->ddlCity,
-						':city_quoted' => preg_quote($this->txtCity? : $this->ddlCity),
-					)
-				);
-				$strSQLPart_LocationID = T\DB::GetNewID_Combined(
-								'_user_locations'
-								, 'CombinedID'
-								, 'UID=@regstr_uid'
-								, null
-								, array('PrefixQuery' => "CONCAT(@regstr_uid, '_')"));
-				$Queries[] = array(
-					"INSERT INTO `_user_locations`(
+				, array(
+					':country' => $this->txtCountry? : $this->ddlCountry,
+					':division' => $this->txtDivision? : $this->ddlDivision,
+					':city' => $this->txtCity? : $this->ddlCity,
+					':city_quoted' => preg_quote($this->txtCity? : $this->ddlCity),
+				)
+			);
+			$strSQLPart_LocationID = T\DB::GetNewID_Combined(
+							'_user_locations'
+							, 'CombinedID'
+							, 'UID=@regstr_uid'
+							, null
+							, array('PrefixQuery' => "CONCAT(@regstr_uid, '_')"));
+			$Queries[] = array(
+				"INSERT INTO `_user_locations`(
 						`CombinedID`
 						, `UID`
 						, `GeoCountryISO2`
@@ -235,13 +261,11 @@ class Register extends \Base\FormModel {
 						, @regstr_UserDivisionID
 						, @regstr_UserCityID
 					)"
-				);
-			}
-			$Result = T\DB::Transaction($Queries, $CommonParams, function(\Exception $ex) {
-						\html::ErrMsg_Exit(\Lng::Site('tr_user', 'Registration failed!'));
-					});
+			);
 		}
-		$this->CleanViewStateOfSpecialAttrs();
+		$Result = T\DB::Transaction($Queries, $CommonParams, function(\Exception $ex) {
+					\html::ErrMsg_Exit(\Lng::Site('tr_user', 'Registration failed!'));
+				});
 		return $Result ? true : false;
 	}
 

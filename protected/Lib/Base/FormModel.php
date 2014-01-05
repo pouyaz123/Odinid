@@ -6,6 +6,13 @@ use \Tools as T;
 use \Consts as C;
 
 /**
+ * The IsUnique validator alias for \Validators\IsUnique will be registered through this class<br/>
+ * ----<br/>
+ * This event system can be used too:<br/>
+ * function callMyModelBusiness(){}<br/>
+ * function onBeforeMyModelBusiness(){}<br/>
+ * function onAfterMyModelBusiness(){}<br/>
+ * $model->MyModelBusiness();
  * @author Abbas Ali Hashemian <info@namedin.com> <tondarweb@gmail.com> http://webdesignir.com
  * @package Odinid Portal
  * @version 1
@@ -16,8 +23,35 @@ use \Consts as C;
 class FormModel extends \CFormModel {
 
 	public $DontValidateCaptcha = false;
-	public $ValidationMsg_TranslationModule = null;
-	public $ValidationMsg_TranslationCategory = 'Common';
+	private static $MyValidatorsRegistered = false;
+
+	public function __construct($scenario = '') {
+		$MyValidatorsRegistered = &self::$MyValidatorsRegistered;
+		if (!$MyValidatorsRegistered) {
+			\CValidator::$builtInValidators['MyCaptcha'] = '\Validators\Captcha';
+			\CValidator::$builtInValidators['IsUnique'] = '\Validators\DBNotExist';
+			\CValidator::$builtInValidators['IsExist'] = '\Validators\DBExist';
+//			\CValidator::$builtInValidators['DB'] = '\Validators\DBValidator';
+			$MyValidatorsRegistered = true;
+		}
+		parent::__construct($scenario);
+	}
+
+	public function __call($name, $parameters) {
+		$calller = "call$name";
+		if (method_exists($this, $calller)) {
+			$eventBeforeCall = "onBefore$name";
+			$eventAfterCall = "onAfter$name";
+			if (method_exists($this, $eventBeforeCall))
+				call_user_method_array($eventBeforeCall, $this, $parameters);
+			$result = call_user_method_array($calller, $this, $parameters);
+			if (method_exists($this, $eventAfterCall))
+				call_user_method_array($eventAfterCall, $this, $parameters);
+			return $result;
+		} else
+			parent::__call($name, $parameters);
+	}
+
 	//----------- XSS -----------//
 	protected $XSSPurification = true;
 
@@ -65,87 +99,6 @@ class FormModel extends \CFormModel {
 		}
 	}
 
-	//----------- Unique Validation -----------//
-	private static $UniqueMsg = 'The {attribute} {value} is not unique';
-
-	/**
-	 * @param str $attr		//attribute name
-	 * @param arr $params
-	 * 	SQL //can be passed in and the :val param is the post value as string(no refernce)<br/>
-	 * 	SQLParams //params to pass into SQL
-	 * 	Msg //{attribute} and {value} are accessible. It can be omitted to use default msg.
-	 * 	MsgTransModule //translation module
-	 * 	MsgTransCat //must be set when the Msg is absent to use the default msg
-	 */
-	public function IsUnique($attr, $params) {
-		$val = $this->attributes[$attr];
-		if (!isset($params['SQL']))
-			\Err::ErrMsg_Method(__METHOD__, 'Unique SQL has not been set', func_get_args());
-		if ($val) {
-			if (!isset($params['MsgTransModule']))
-				$params['MsgTransModule'] = $this->ValidationMsg_TranslationModule;
-			if (!isset($params['MsgTransCat']))
-				$params['MsgTransCat'] = $this->ValidationMsg_TranslationCategory;
-			if (!isset($params['Msg']) && (!isset($params['MsgTransModule']) || !isset($params['MsgTransCat'])))
-				\Err::ErrMsg_Method(__METHOD__, 'Set Msg or translation module and cat to generate a validation msg.', func_get_args());
-			$SQLParams = isset($params['SQLParams']) ? $params['SQLParams'] : array();
-			$SQLParams[':val'] = $val;
-			$result = T\DB::GetField($params['SQL'], $SQLParams);
-			if ($result) {
-				if (!isset($params['Msg']))
-					$params['Msg'] = \Lng::t(
-									$params['MsgTransModule']
-									, $params['MsgTransCat']
-									, self::$UniqueMsg
-					);
-
-				$this->addError($attr, str_replace(array('{attribute}', '{value}'), array($this->getAttributeLabel($attr), $val), $params['Msg']));
-			}
-		}
-	}
-
-	/**
-	 * Alias for IsUnique to avoid mistakes
-	 * @param type $attr
-	 * @param type $params
-	 */
-	public function Unique($attr, $params) {
-		$this->IsUnique($attr, $params);
-	}
-
-	//----------- OrRequire Validation -----------//
-//	private $_orRequire_Data = array('attrs'=>array(), 'isvalid');
-//	private $_orRequire_IsValid = false;
-//
-//	/**
-//	 * At least one of the attributes have been assigned to this validator must be required(filled)
-//	 * @param str $attr		//attribute name
-//	 * @param arr $params
-//	 * 	Msg //{attribute} and {value} are accessible. It can be omitted to use default msg.
-//	 * 	MsgTransModule //translation module
-//	 * 	MsgTransCat //must be set when the Msg is absent to use the default msg
-//	 */
-//	function orRequire($attr, $param) {
-//		$ErrAttrs = &$this->_orRequire_Data;
-//		if (!isset($this->$attr)) {
-//			$ErrAttrs[] = array('attr' => $attr, 'param' => $param);
-//		} else
-//			$this->_orRequire_IsValid = true;
-//	}
-//
-//	private function afterValidate_OrRequire() {
-//		if (!$this->_orRequire_IsValid) {
-//			foreach ($this->_orRequire_Data as $attr => $param) {
-//				$this->addError($attr, '');
-//			}
-//		}
-//	}
-//
-//	protected function afterValidate() {
-//		$this->afterValidate_OrRequire();
-//		parent::afterValidate();
-//	}
-
 	//----------- Ajax Validation -----------//
 	/**
 	 * Summarized ajax client-server validation safe for captcha sessions
@@ -181,24 +134,4 @@ class FormModel extends \CFormModel {
 		
 	}
 
-//	//NO VIEW STATE
-//	private $_NoViewStateAttrs = array();
-//
-//	/**
-//	 * No viewstate for fields such as password or captcha
-//	 * @param type $attr
-//	 * @param type $params
-//	 */
-//	public function NoViewState($attr, $params) {
-//		$this->_NoViewStateAttrs[$attr] = $params;
-//	}
-//
-//	protected function afterValidate() {
-//		//bug: if we set it to null here we can't do related tasks in the model
-//		//also we can't separate the behavior in successful and failed validation
-//		foreach ($this->_NoViewStateAttrs as $attr => $param) {
-//			$this->$attr = NULL;
-//		}
-//		parent::afterValidate();
-//	}
 }

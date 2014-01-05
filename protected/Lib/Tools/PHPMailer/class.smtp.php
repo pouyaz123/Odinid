@@ -196,7 +196,7 @@ class SMTP {
      if ($max != 0 && $tval > $max) { // don't bother if unlimited
       @set_time_limit($tval);
      }
-	 if(\Conf::SMTP_stream_set_timeout_On)
+	 if(\Conf::PHPMailer_SMTP_stream_set_timeout_On)
 		stream_set_timeout($this->smtp_conn, $tval, 0);
     }
 
@@ -965,7 +965,7 @@ class SMTP {
     if (!is_resource($this->smtp_conn)) {
       return $data;
     }
-	 if(\Conf::SMTP_stream_set_timeout_On)
+	 if(\Conf::PHPMailer_SMTP_stream_set_timeout_On)
 	    stream_set_timeout($this->smtp_conn, $this->Timeout);
     if ($this->Timelimit > 0) {
       $endtime = time() + $this->Timelimit;

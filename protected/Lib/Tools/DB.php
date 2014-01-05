@@ -316,12 +316,12 @@ class DB {
 	 */
 	public static function GetUniqueCode($DBTableName = NULL, $DBColumnName = NULL) {
 		if ($DBTableName) {
-			$IsUniqueACode = false;
-			while (!$IsUniqueACode) {
-				$Code = uniqid(mt_rand(0, self::UniqueCode_MaxRand), true);
+			$IsUniqueCode = false;
+			while (!$IsUniqueCode) {
+				$Code = md5(uniqid(mt_rand(0, self::UniqueCode_MaxRand), true));
 				if (T\DB::GetField("SELECT COUNT(*) FROM $DBTableName WHERE `$DBColumnName`=:code"
 								, array(':code' => $Code)) == 0)
-					$IsUniqueACode = true;
+					$IsUniqueCode = true;
 			}
 		} else
 			$Code = uniqid(mt_rand(0, self::UniqueCode_MaxRand), true);

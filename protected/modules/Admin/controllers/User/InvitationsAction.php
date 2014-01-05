@@ -46,7 +46,7 @@ class InvitationsAction extends \CAction {
 				->Options(
 						\html::DataGridConfig()
 						->caption($ctrl->pageTitle)
-						->direction(\Lng::Admin('tr_common', 'LTR_RTL'))
+						->direction(\Lng::General('LTR_RTL'))
 				)
 				->SetColumns(
 				\html::DataGridColumn()

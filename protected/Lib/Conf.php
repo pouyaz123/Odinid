@@ -6,18 +6,18 @@ class Conf {
 	const SSLOn_Site = false;
 
 	#
-	//SMTP or Mandrill
-	const MandrillAPIKey = 'wJ6R_apzxGtpmrrYNFMcjA';
-	static $SMTP_ConnParams = array(
+	//SMTP
+
+	private static $SMTP_ConnParams = array(
 		'Mandrill' => array(
 			'Server' => 'smtp.mandrillapp.com'
 			, 'Port' => 465 //ssl:465 - tls:587
 			, 'Encryption' => 'ssl'
 			, 'Username' => 'pouyazm@gmail.com'
-			, 'Password' => \Conf::MandrillAPIKey
+			, 'Password' => 'wJ6R_apzxGtpmrrYNFMcjA'
 			, 'From' => 'pouyazm@gmail.com'
 			, 'FromTitle' => 'Odinid'
-			, 'HTMLAltTxt' => 'To view this email message, open it in a program that understands HTML!'
+			, 'HTMLAltTxt' => 'View this in a browser or program supports HTML!'
 		)
 	);
 
@@ -25,9 +25,11 @@ class Conf {
 		return self::$SMTP_ConnParams['Mandrill'];
 	}
 
-	const SMTP_stream_set_timeout_On = false;
+	const PHPMailer_SMTP_stream_set_timeout_On = false;
 
+	#Cache
 	#
+	
 	//local vs. online
 	const LocalHostName = "odinid";
 	const LocalHostIP = "127.0.0.";

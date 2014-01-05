@@ -1,5 +1,4 @@
 <?php
-//mytodo 1:add user type exp and invitation exp in admin
 
 namespace Admin\models\User;
 
@@ -33,11 +32,9 @@ class Invitation extends \Base\FormModel {
 			array('txtCode', 'length',
 				'max' => self::CodeMaxLen,
 				'on' => 'insert, update'),
-			array('txtCode', 'Unique',
+			array('txtCode', 'IsUnique',
 				'SQL' => 'SELECT COUNT(*) FROM `_user_invitations` WHERE `Code`=:val AND `ID`!=:pk LIMIT 1',
 				'SQLParams' => array(':pk' => &$this->_RowID),
-				'MsgTransModule' => 'Admin',
-				'MsgTransCat' => 'tr_common',
 				'on' => 'insert, update'),
 			array('txtUserTypeExpDate', 'date',
 				'format' => C\Regexp::DateFormat_Yii_FullDigit,

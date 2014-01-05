@@ -15,6 +15,9 @@ final class User {
 	const Status_Pending = 'Pending';
 	const Status_Disabled = 'Disabled';
 	const Status_Suspended = 'Suspended';
+	#
+	const Recovery_Activation = 'Activation';
+	const Recovery_Recovery = 'Recovery';
+	const Recovery_EmailVerify = 'EmailVerify';
 
 }
-

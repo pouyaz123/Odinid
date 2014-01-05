@@ -7,6 +7,7 @@
 return array(
 	'basePath' => dirname(__FILE__) . DIRECTORY_SEPARATOR . '..',
 //	'name'=>'Odinid',
+	'id'=>'OdYii',	//id of the application must be short. it is used for cache keys and ...
 	'sourceLanguage' => 'en_us',
 	#
 	// preloading 'log' component
@@ -52,6 +53,12 @@ return array(
 			'jquery-ui.min.js'=>false,
 		);
 		//site/admin lang initiation is inside module classes
+		#rabbit cache engine (local/online) : like a rabbit is fast but not persistent
+		if(extension_loaded('apc')) //mytodo x: no local ApcCache : i'm on win7 & PHP5.5.6 and now Dec2013 there is no Apc ext dll for me. Also i don't know how to work with opcache. For rabbitCache , i have used File cache instead in \Tools\Cache
+			\Yii::app()->components['rabbitCache'] = array(
+				'class' => 'CApcCache'	//Sync this rabbitCache type with the return types in the phpDocs of the \Tools\Cache class
+			);
+		\CHtml::$afterRequiredLabel = '*';
 	},
 	#
 //	'controllerPath' => YiiBase::getPathOfAlias('application.modules.Site.controllers'),
@@ -61,14 +68,6 @@ return array(
 	),
 	// application components
 	'components' => array(
-//		'user' => array(
-//			// enable cookie-based authentication
-//			'allowAutoLogin' => true,
-//		),
-		'veiwRenderer'=>array(
-			'class'=>'CPradoViewRenderer',
-			'fileExtension'=>'.phtml',
-		),
 		'urlManager' => array(
 			'urlFormat' => 'path',
 			'showScriptName' => false,
@@ -81,8 +80,9 @@ return array(
 //				'<_c:[A-z][0-z_]+>/<_a:[A-z][0-z_]+>/<lang:[a-z]{2}(_[a-z]{2})? >' => 'site/<_c>/<_a>',
 			),
 		),
-		'session' => array(
-			'autoStart' => false
+		'fileCache' => array(
+			'class' => 'CFileCache',
+			'embedExpiry' => true,
 		),
 		'db' => array(
 			'connectionString' => 'mysql:host=localhost;dbname=odinid_db',
@@ -96,6 +96,13 @@ return array(
 			// use 'site/error' action to display errors
 			'errorAction' => 'site/_errors/Error',
 		),
+		'session' => array(
+			'autoStart' => false
+		),
+//		'veiwRenderer'=>array(
+//			'class'=>'CPradoViewRenderer',
+//			'fileExtension'=>'.phtml',
+//		),
 //		'log' => array(	//take care of the log in the preload here above
 //			'class' => 'CLogRouter',
 //			'routes' => array(
@@ -110,6 +117,10 @@ return array(
 //					'class'=>'CWebLogRoute',
 //				),
 //			),
+//		),
+//		'user' => array(
+//			// enable cookie-based authentication
+//			'allowAutoLogin' => true,
 //		),
 	),
 	// application-level parameters that can be accessed

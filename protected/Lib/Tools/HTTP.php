@@ -58,7 +58,8 @@ class HTTP {
 			}
 			$mixedModel = is_object($mixedModel) ? get_class($mixedModel) : strval($mixedModel);
 			if (!$mixedModel)
-				throw new \CException("No valid model has been passed into Converter");
+				\Err::ErrMsg_Method(__METHOD__, "No valid model has been passed into Converter", array($ReplaceSentence, func_get_args()));
+//				throw new \CException("No valid model has been passed into Converter");
 			if ($ReplaceSentence)
 				return trim(str_replace(array($ReplaceSentence, '\\'), array('', '_'), $mixedModel), '_');
 			else
