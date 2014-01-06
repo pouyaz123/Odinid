@@ -1,7 +1,7 @@
 <?php
 //admin common
 return array_merge(
-		\Lng::GetCommonLangResourceArray('en/tr_common')
+		\t2::GetCommonLangResourceArray('en/tr_common')
 		, array(
 	'Admin Main Title' => 'Odinid Admin',
 	#

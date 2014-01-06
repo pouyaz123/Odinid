@@ -228,6 +228,7 @@ class GeoLocationFields extends \Base\Widget {
 						)
 						, \html::activeLabelEx($Model, $_this->ActiveForm, $_this->ddlDivisionAttr)
 						, $_this->txtDivisionAttr ? \html::error($Model, $_this->ActiveForm, $_this->txtDivisionAttr) : null
+						, 'style="width:300px"'
 		);
 	}
 

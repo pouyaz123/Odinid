@@ -8,6 +8,15 @@ a:hover{color: #000}
 
 
 /*--------- Forms ---------*/
+.Btn, .Btn:visited, .Btn span, .Btn input, .Btn div {background: url('/_img/admin/btnGeneral.png') no-repeat;}
+.Btn, .Btn:visited{padding-right: 5px; background-position: right -40px}
+.Btn div{background-position: left -20px}
+.Btn span, .Btn input{background-position: center 0px; background-repeat: repeat-x}
+a.Btn, a.Btn input{color: #fff}
+.Btn:hover {background-position: right -100px}
+.Btn:hover div{background-position: left -80px}
+.Btn:hover span, .Btn:hover input{background-position: left -60px}
+.LnkBtn{background: #fff; behavior:none}
 
 /*--------- Contents ---------*/
 

@@ -66,7 +66,7 @@ class Register extends \Base\FormModel {
 	public function rules() {
 		return array(
 			#common
-			array('txtEmail, txtUsername, txtPassword, txtCaptcha', 'required'),
+			array('txtEmail, txtEmailRepeat, txtUsername, txtPassword, txtCaptcha', 'required'),
 			array('ddlAccountType', 'in', 'range' => array_keys($this->_arrAccountTypes)),
 			array('txtPassword', 'length',
 				'min' => C\Regexp::Password_MinLength),
@@ -107,25 +107,25 @@ class Register extends \Base\FormModel {
 	 */
 	public function attributeLabels() {
 		return array(
-			'ddlAccountType' => \Lng::Site('tr_user', 'Account type'),
-			'txtEmail' => \Lng::Site('tr_user', 'Email'),
-			'txtEmailRepeat' => \Lng::Site('tr_user', 'Confirm email'),
-			'txtUsername' => \Lng::Site('tr_user', 'Username'),
-			'txtPassword' => \Lng::Site('tr_user', 'Password'),
-			'txtCaptcha' => \Lng::General('Captcha code'),
+			'ddlAccountType' => \t2::Site_User('Account type'),
+			'txtEmail' => \t2::Site_User('Email'),
+			'txtEmailRepeat' => \t2::Site_User('Confirm email'),
+			'txtUsername' => \t2::Site_User('Username'),
+			'txtPassword' => \t2::Site_User('Password'),
+			'txtCaptcha' => \t2::General('Captcha code'),
 			#artist
-			'txtInvitationCode' => \Lng::Site('tr_user', 'Invitation code'),
+			'txtInvitationCode' => \t2::Site_User('Invitation code'),
 			#Company
-			'txtCompanyURL' => \Lng::Site('tr_company', 'Company web URL'),
+			'txtCompanyURL' => \t2::Site_Company('Company web URL'),
 			#location
-			'ddlCountry' => \Lng::Site('tr_common', 'Country'),
-			'ddlDivision' => \Lng::Site('tr_common', 'Division'),
-			'ddlCity' => \Lng::Site('tr_common', 'City'),
-			'txtCountry' => \Lng::Site('tr_common', 'Country'),
-			'txtDivision' => \Lng::Site('tr_common', 'Division'),
-			'txtCity' => \Lng::Site('tr_common', 'City'),
-//			'txtAddress1' => \Lng::Site('tr_common', 'Address 1'),
-//			'txtAddress2' => \Lng::Site('tr_common', 'Address 2'),
+			'ddlCountry' => \t2::Site_Common('Country'),
+			'ddlDivision' => \t2::Site_Common('Division'),
+			'ddlCity' => \t2::Site_Common('City'),
+			'txtCountry' => \t2::Site_Common('Country'),
+			'txtDivision' => \t2::Site_Common('Division'),
+			'txtCity' => \t2::Site_Common('City'),
+//			'txtAddress1' => \t2::Site_Common('Address 1'),
+//			'txtAddress2' => \t2::Site_Common('Address 2'),
 		);
 	}
 
@@ -137,7 +137,7 @@ class Register extends \Base\FormModel {
 						. " AND (ISNULL(`InvitationExpDate`) OR `InvitationExpDate`='' OR `InvitationExpDate`>UTC_DATE())"
 						, array(':code' => $this->txtInvitationCode));
 		if (!$this->_drUserType)
-			$this->addError('txtInvitationCode', \Lng::Site('tr_user', 'Invalid invitation code'));
+			$this->addError('txtInvitationCode', \t2::Site_User('Invalid invitation code'));
 	}
 
 	function IsClaimedCompanyDomain($attr, $params) {
@@ -146,7 +146,7 @@ class Register extends \Base\FormModel {
 			$Domain = $Domain[1];
 			$URLDomain = parse_url($this->txtCompanyURL, PHP_URL_HOST);
 			if (!preg_match(C\Regexp::CompanyURLDomain(preg_quote($Domain, '/')), $URLDomain))
-				$this->addError($attr, Lng::Site('tr_company', "The url's domain doesn't match to your email domain"));
+				$this->addError($attr, \t2::Site_Company("The url's domain doesn't match to your email domain"));
 			else {
 				$this->_CompanyDomain = $Domain;
 				if (T\DB::GetField(
@@ -154,7 +154,7 @@ class Register extends \Base\FormModel {
 								. " FROM `_company_info`"
 								. " WHERE `Domain`=:domain AND NOT ISNULL(`OwnerUID`)"
 								, array(':domain' => $Domain)))
-					$this->addError($attr, \Lng::Site('tr_company', 'Company has been claimed previously'));
+					$this->addError($attr, \t2::Site_Company('Company has been claimed previously'));
 			}
 		}
 	}
@@ -264,7 +264,7 @@ class Register extends \Base\FormModel {
 			);
 		}
 		$Result = T\DB::Transaction($Queries, $CommonParams, function(\Exception $ex) {
-					\html::ErrMsg_Exit(\Lng::Site('tr_user', 'Registration failed!'));
+					\html::ErrMsg_Exit(\t2::Site_User('Registration failed!'));
 				});
 		return $Result ? true : false;
 	}

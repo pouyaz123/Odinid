@@ -44,10 +44,12 @@ class Register extends \CAction {
 				);
 				/* @var $wdgGeoLocation \Widgets\GeoLocationFields\GeoLocationFields */
 				\html::PushStateScript('?type=company');
+				$this->controller->pageTitle = \t2::SitePageTitle('tr_user', 'Register Company');
 				break;
 			case $Model::UserType_Artist:
 				$Model->scenario = 'ArtistRegister';
 				\html::PushStateScript('?type=artist');
+				$this->controller->pageTitle = \t2::SitePageTitle('tr_user', 'Register Artist');
 				break;
 		}
 		#
@@ -64,7 +66,7 @@ class Register extends \CAction {
 					$ActivationCode
 					, $Model->txtEmail
 					, $Model->txtUsername);
-			\Output::Render($this->controller, '../messages/success', array('msg' => \Lng::Site('tr_user', 'Registered successfully')));
+			\Output::Render($this->controller, '../messages/success', array('msg' => \t2::Site_User('Registered successfully')));
 		} else
 			\Output::Render($this->controller, 'register'
 					, array(

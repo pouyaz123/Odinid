@@ -88,7 +88,7 @@ class DataGrid extends Container {
 	public function SetTranslation($strTranslationModule, $strTranslationCat) {
 		$this->_TranslationModule = $strTranslationModule;
 		$this->_TranslationCat = $strTranslationCat;
-		\Lng::tarray($this->_Resources, $strTranslationModule, $strTranslationCat);
+		\t2::tarray($this->_Resources, $strTranslationModule, $strTranslationCat);
 		return $this;
 	}
 

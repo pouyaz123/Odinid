@@ -23,14 +23,14 @@
 		<script type="text/javascript">
 			PageURL = window.location.href;
 			Resources = {
-				PostBack_AJAX_Err: "<?= \Lng::General('Ajax communication error') ?>"
-				, PostBack_AJAX_ErrRetry: "<?= \Lng::General('Ajax communication error. retry?') ?>"
-				, Confirmation: "<?= \Lng::General('Are you sure?') ?>"
+				PostBack_AJAX_Err: "<?= \t2::General('Ajax communication error') ?>"
+				, PostBack_AJAX_ErrRetry: "<?= \t2::General('Ajax communication error. retry?') ?>"
+				, Confirmation: "<?= \t2::General('Are you sure?') ?>"
 			}
 		</script>
 		<?= \html::CSS_LinkTag('Generally') ?>
 		<?= \html::CSS_LinkTag('Site') ?>
-		<? /* = \html::CSS_LinkTag('form') */ ?>
+		<?= \html::CSS_LinkTag('form') ?>
 		<?= \html::CSS_LinkTag('*/_js/Basics/PostBack.css') ?>
 		<?= \html::$cntIncludedCSS ?>
 		<?= \html::InlineCSS_GetRenderedMarkup() ?>
@@ -40,25 +40,25 @@
 		<?= \html::JS_SrcTag('Titler/Titler'); ?>
 	</head>
 
-	<body>
+	<body class="Titler">
 
-		<div class="container" id="page">
+		<div class="container <?= \t2::General('LTR_RTL') ?>" id="page">
 
 			<div id="header">
 				<div id="logo"><?= CHtml::encode(Yii::app()->name); ?></div>
 			</div>
 
 			<div id="mainmenu">
-				<?
-				$this->widget('zii.widgets.CMenu', array(
-					'items' => array(
-						array('label' => 'Home', 'url' => array('/site/index')),
-						array('label' => 'About', 'url' => array('/site/page', 'view' => 'about')),
-						array('label' => 'Contact', 'url' => array('/site/contact')),
-						array('label' => 'Login', 'url' => array('/site/login'), 'visible' => Yii::app()->user->isGuest),
-						array('label' => 'Logout (' . Yii::app()->user->name . ')', 'url' => array('/site/logout'), 'visible' => !Yii::app()->user->isGuest)
-					),
-				));
+				<? /*
+				  $this->widget('zii.widgets.CMenu', array(
+				  'items' => array(
+				  array('label' => 'Home', 'url' => array('/site/index')),
+				  array('label' => 'About', 'url' => array('/site/page', 'view' => 'about')),
+				  array('label' => 'Contact', 'url' => array('/site/contact')),
+				  array('label' => 'Login', 'url' => array('/site/login'), 'visible' => Yii::app()->user->isGuest),
+				  array('label' => 'Logout (' . Yii::app()->user->name . ')', 'url' => array('/site/logout'), 'visible' => !Yii::app()->user->isGuest)
+				  ),
+				  )); */
 				?>
 			</div>
 			<? if (isset($this->breadcrumbs)): ?>
@@ -68,7 +68,7 @@
 				));
 				?>
 			<? endif ?>
-			<div id="divContent">
+			<div id="divContent" rel="<?= \html::AjaxLinks("#divContent:insert") ?>">
 				<?= $content; ?>
 			</div>
 			<div class="clear"></div>

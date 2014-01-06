@@ -52,10 +52,10 @@ class AdminLogin extends \Base\FormModel {
 	 */
 	public function attributeLabels() {
 		return array(
-			'txtUsername' => \Lng::Admin('tr_user', 'Username'),
-			'txtPassword' => \Lng::Admin('tr_user', 'Password'),
-			'chkRememberMe' => \Lng::Admin('tr_user', 'Remember me'),
-			'txtCaptcha' => \Lng::General('Captcha code'),
+			'txtUsername' => \t2::Admin_User('Username'),
+			'txtPassword' => \t2::Admin_User('Password'),
+			'chkRemember' => \t2::Admin_User('Remember me'),
+			'txtCaptcha' => \t2::General('Captcha code'),
 		);
 	}
 
@@ -83,7 +83,7 @@ class AdminLogin extends \Base\FormModel {
 				));
 				self::MakeItLoggedIn($drUser, $this->chkRemember, $LoginIP, $LoginTime);
 			} else
-				$this->addError('', \Lng::Admin('tr_user', 'Invalid username or password'));
+				$this->addError('', \t2::Admin_User('Invalid username or password'));
 		}
 		$this->CleanViewStateOfSpecialAttrs();
 		return $drUser? : false;

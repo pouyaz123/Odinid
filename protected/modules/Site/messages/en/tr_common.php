@@ -1,6 +1,6 @@
 <?php
 return array_merge(
-		\Lng::GetCommonLangResourceArray('en/tr_common')
+		\t2::GetCommonLangResourceArray('en/tr_common')
 		, array(
 //	'Country' => 'Country'
 	'Division' => 'State | Province | Territory',

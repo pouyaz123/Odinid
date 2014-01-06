@@ -60,10 +60,10 @@ class Type extends \Base\FormModel {
 	 */
 	public function attributeLabels() {
 		return array(
-			'txtLogicName' => \Lng::Admin('tr_common', 'Logic name'),
-			'txtTitle' => \Lng::Admin('tr_common', 'Title'),
-			'chkIsActive' => \Lng::Admin('tr_common', 'Is active'),
-			'chkIsDefault' => \Lng::Admin('tr_common', 'Is default'),
+			'txtLogicName' => \t2::Admin_Common('Logic name'),
+			'txtTitle' => \t2::Admin_Common('Title'),
+			'chkIsActive' => \t2::Admin_Common('Is active'),
+			'chkIsDefault' => \t2::Admin_Common('Is default'),
 		);
 	}
 
@@ -138,7 +138,7 @@ class Type extends \Base\FormModel {
 				$Queries[] = array("DELETE FROM `_user_types`
 					WHERE `ID`=:id AND ID NOT IN (SELECT DISTINCT `UserTypeID` FROM `_users`)", array(':id' => $ID));
 			T\DB::Transaction($Queries, NULL, function() {
-				\html::ErrMsg_Exit(\Lng::Admin('tr_common', 'Deletion failed'));
+				\html::ErrMsg_Exit(\t2::Admin_Common('Deletion failed'));
 			});
 		}
 	}
@@ -146,7 +146,7 @@ class Type extends \Base\FormModel {
 	function UniqueDefaultValidate($attr, $params) {
 		$ID = &$this->_RowID;
 		if ($this->$attr && T\DB::GetField('SELECT COUNT(*) FROM `_user_types` WHERE `IsDefault` AND ID!=:id', array(':id' => $ID)))
-			$this->addError('chkIsDefault', \Lng::Admin('tr_user', 'Only one default user type'));
+			$this->addError('chkIsDefault', \t2::Admin_User('Only one default user type'));
 	}
 
 }

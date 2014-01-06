@@ -32,19 +32,19 @@
 				?>
 				<?=
 				html::FieldContainer(
-						$form->textField($Model, 'txtEmail')
+						$form->textField($Model, 'txtEmail', array('autocomplete' => 'off'))
 						, $form->labelEx($Model, 'txtEmail')
 						, $form->error($Model, 'txtEmail', array(), true))
 				?>
 				<?=
 				html::FieldContainer(
-						$form->textField($Model, 'txtEmailRepeat')
+						$form->textField($Model, 'txtEmailRepeat', array('autocomplete' => 'off'))
 						, $form->labelEx($Model, 'txtEmailRepeat')
 						, $form->error($Model, 'txtEmailRepeat'))
 				?>
 				<?=
 				html::FieldContainer(
-						$form->textField($Model, 'txtUsername')
+						$form->textField($Model, 'txtUsername', array('autocomplete' => 'off'))
 						, $form->labelEx($Model, 'txtUsername')
 						, $form->error($Model, 'txtUsername', array(), true))
 				?>
@@ -58,7 +58,7 @@
 				switch ($Model->ddlAccountType) {
 					case $Model::UserType_Company:
 						echo html::FieldContainer(
-								$form->textField($Model, 'txtCompanyURL')
+								$form->textField($Model, 'txtCompanyURL', array('autocomplete' => 'off'))
 								, $form->labelEx($Model, 'txtCompanyURL')
 								, $form->error($Model, 'txtCompanyURL')) . '<div id="divDomainMsg"></div>';
 						?>
@@ -69,7 +69,7 @@
 								if (Email && URL && Domain && (URL.indexOf('http://') > -1 || URL.indexOf('https://') > -1)) {
 									$('#divDomainMsg').html(
 											!URL.find2find_substr('://').find2find_substr('', '/').match(new RegExp('<?= trim(Consts\Regexp::CompanyURLDomain("' + $.ui.autocomplete.escapeRegex(Domain) + '"), '/') ?>', "i"))
-											? '<?= addslashes(Lng::Site('tr_company', "The url's domain doesn't match to your email domain")) ?>'
+											? '<?= addslashes(t2::Site('tr_company', "The url's domain doesn't match to your email domain")) ?>'
 											: '')
 								}
 							}
@@ -88,16 +88,16 @@
 						break;
 				}
 				?>
-				<div><? $form->widget('CCaptcha') ?></div>
 				<?=
-				html::FieldContainer(
-						$form->textField($Model, 'txtCaptcha', array('autocomplete' => 'off'))
+				html::CaptchaFieldContainer(
+						html::CaptchaImage($form)
+						, $form->textField($Model, 'txtCaptcha', array('autocomplete' => 'off'))
 						, $form->labelEx($Model, 'txtCaptcha')
 						, $form->error($Model, 'txtCaptcha'))
 				?>
 				<?=
 				html::ButtonContainer(
-						CHtml::submitButton(\Lng::Site('tr_user', 'Register')
+						CHtml::submitButton(\t2::Site_User('Register')
 								, array(
 							'name' => 'btnRegister',
 							'rel' => \html::AjaxElement('#divRegisterForm')
@@ -110,5 +110,6 @@
 			</td>
 		</tr>
 	</table>
+	<? // CHtml::link() ?>
 	<? $this->endWidget(); ?>
 </div>

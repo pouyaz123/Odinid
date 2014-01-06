@@ -33,7 +33,7 @@ class BaseController extends \CController {
 			\Base\DataGrid::LoadFiles();
 
 			$lnk = function($LngCat, $Label, $Route, $arrHtmlOptions = array()) {
-				return \CHtml::link(\Lng::Admin($LngCat, $Label), $Route, $arrHtmlOptions);
+				return \CHtml::link(\t2::Admin($LngCat, $Label), $Route, $arrHtmlOptions);
 			};
 			$spn = function($Lable) {
 				return "<span>$Lable</span>";
@@ -41,7 +41,7 @@ class BaseController extends \CController {
 			$obj->menu = array(
 				array('text' => $lnk('tr_common', 'Logout', Routes::Logout, array('rel' => \html::AjaxExcept))),
 				array('text' => $lnk('tr_common', 'Cartable', Routes::Cartable)),
-				array('text' => $spn(\Lng::Admin('tr_common', 'Users')),
+				array('text' => $spn(\t2::Admin_Common('Users')),
 					'children' => array(
 						array('text' => $lnk('tr_common', 'User types', Routes::User_Types)),
 						array('text' => $lnk('tr_common', 'Invitations', Routes::User_Invitations)),

@@ -18,10 +18,10 @@ class SiteModule extends \CWebModule {
 		));
 		
 		#languages
-		\Lng::InitializeTranslation(\Conf::$SiteModuleLangs);
+		\t2::InitializeTranslation(\Conf::$SiteModuleLangs);
 
 		#main title
-		\Yii::app()->name = \Lng::Site('tr_common', 'Odinid');
+		\Yii::app()->name = \t2::Site_Common('Odinid');
 	}
 
 	public function beforeControllerAction($controller, $action) {

@@ -43,10 +43,10 @@ class FormModel extends \CFormModel {
 			$eventBeforeCall = "onBefore$name";
 			$eventAfterCall = "onAfter$name";
 			if (method_exists($this, $eventBeforeCall))
-				call_user_method_array($eventBeforeCall, $this, $parameters);
-			$result = call_user_method_array($calller, $this, $parameters);
+				call_user_func_array(array($this, $eventBeforeCall), $parameters);
+			$result = call_user_func_array(array($this, $calller), $parameters);
 			if (method_exists($this, $eventAfterCall))
-				call_user_method_array($eventAfterCall, $this, $parameters);
+				call_user_func_array(array($this, $eventAfterCall), $parameters);
 			return $result;
 		} else
 			parent::__call($name, $parameters);

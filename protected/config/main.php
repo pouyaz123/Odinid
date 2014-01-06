@@ -58,7 +58,9 @@ return array(
 			\Yii::app()->components['rabbitCache'] = array(
 				'class' => 'CApcCache'	//Sync this rabbitCache type with the return types in the phpDocs of the \Tools\Cache class
 			);
-		\CHtml::$afterRequiredLabel = '*';
+		\CHtml::$afterRequiredLabel = ' *';
+		if(\Tools\HTTP::IsAsync())
+			\html::PushStateScript($_SERVER['REQUEST_URI']);
 	},
 	#
 //	'controllerPath' => YiiBase::getPathOfAlias('application.modules.Site.controllers'),

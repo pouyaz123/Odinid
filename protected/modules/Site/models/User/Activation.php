@@ -5,6 +5,12 @@ namespace Site\models\User;
 use \Consts as C;
 use \Tools as T;
 
+/**
+ * Tasks :
+ * verifying emails (on changing primary email)
+ * user activation (new registered users)
+ * resend activation code to refresh expired activation links
+ */
 class Activation extends \Base\FormModel {
 
 	public function getPostName() {
@@ -32,7 +38,7 @@ class Activation extends \Base\FormModel {
 			array('txtActivationCode', 'IsValidActivationCode',
 				'on' => 'Activation'),
 			#resend activation
-			array('txtEmail, txtCaptcha', 'required',
+			array('txtEmail, txtEmailRepeat, txtCaptcha', 'required',
 				'on' => 'ResendActivation'),
 			#
 			array('txtEmail', 'email',
@@ -43,7 +49,7 @@ class Activation extends \Base\FormModel {
 			array('txtEmail', 'IsExist', //is a not verified, not activated email
 				'SQL' => "SELECT COUNT(*) FROM `_user_recoveries` ur"
 				. " INNER JOIN (SELECT 1) tmp ON ur.`Type`=:activation AND ur.`PendingEmail`=:val"
-				. " INNER JOIN `_users` u ON u.`ID`=ur.`UID` AND u.`Status`!=:disabled" //only not blocked users
+				. " INNER JOIN `_users` u ON u.`ID`=ur.`UID` AND u.`Status`!=:disabled" //prevent blocked users
 				. " LIMIT 1",
 				'SQLParams' => array(
 					':disabled' => C\User::Status_Disabled,
@@ -61,10 +67,10 @@ class Activation extends \Base\FormModel {
 	 */
 	public function attributeLabels() {
 		return array(
-			'txtActivationCode' => \Lng::Site('tr_user', 'Activation code'),
-			'txtEmail' => \Lng::Site('tr_user', 'Email'),
-			'txtEmailRepeat' => \Lng::Site('tr_user', 'Confirm email'),
-			'txtCaptcha' => \Lng::General('Captcha code'),
+			'txtActivationCode' => \t2::Site_User('Activation code'),
+			'txtEmail' => \t2::Site_User('Email'),
+			'txtEmailRepeat' => \t2::Site_User('Confirm email'),
+			'txtCaptcha' => \t2::General('Captcha code'),
 		);
 	}
 
@@ -85,7 +91,7 @@ class Activation extends \Base\FormModel {
 		T\GCC::UserRecoveries();
 
 		if (!$this->_drActivationRow)
-			$this->addError('txtActivationCode', \Lng::Site('tr_user', 'Invalid activation code'));
+			$this->addError('txtActivationCode', \t2::Site_User('Invalid activation code'));
 	}
 
 	function Activate() {
@@ -97,13 +103,6 @@ class Activation extends \Base\FormModel {
 			':uid' => $drAR['UID'],
 		);
 		$Queries = array();
-//		$Queries[] = array("INSERT INTO `_user_contactbook`(`CombinedID`, `UID`, `Email`)"
-//			. " VALUES(:combinedid, :uid, :email)"
-//			, array(
-//				':combinedid' => T\DB::GetNewID_Combined('_user_contactbook', 'CombinedID', 'UID=:uid'
-//						, array(':uid' => $drAR['UID'])),
-//			)
-//		);
 		$Queries[] = array("UPDATE `_users` SET `Status`=:active, `PrimaryEmail`=:email"
 			. " WHERE `ID`=:uid AND `Status`!=:disabled"
 			, array(
@@ -123,34 +122,42 @@ class Activation extends \Base\FormModel {
 		$Queries[] = array("DELETE FROM `_user_recoveries` WHERE `Code`=:code"
 			, array(':code' => $this->txtActivationCode));
 		$Result = T\DB::Transaction($Queries, $CommonParams, function(\Exception $ex) {
-					\html::ErrMsg_Exit(\Lng::Site('tr_user', 'Activation failed!'));
+					\html::ErrMsg_Exit(\t2::Site_User('Activation failed!'));
 				});
 		return $Result ? true : false;
 	}
 
-//	function ResendActivationLink() {
-//		if (!$this->validate())
-//			return false;
-//
-//		$Queries = array();
-//		$Queries[] = array("DELETE FROM `_user_recoveries` WHERE `PendingEmail`=:email");
-//		$Queries[] = array("INSERT INTO `_user_recoveries`(`UID`, `Code`, `TimeStamp`, `PendingEmail`, `Type`, `CompanyDomain`)"
-//			. " VALUES(@regstr_uid:=(SELECT ID FROM _users WHERE Username=:un), :code, :time, :email, :activation, :domain)",
-//			array(
-//				':code' => T\DB::GetUniqueCode('_user_recoveries', 'Code'),
-//				':time' => time(),
-//				':email' => $this->txtEmail,
-//				':activation' => C\User::Recovery_Activation,
-//				':domain' => $IsCompany ? $this->_CompanyDomain : null,
-//			)
-//		);
-//	}
+	function ResendActivationLink() {
+		if (!$this->validate())
+			return false;
+
+		$Username = T\DB::GetField("SELECT u.`Username` FROM `_user_recoveries` ur"
+						. " INNER JOIN (SELECT 1) tmp ON ur.`PendingEmail`=:email"
+						. " INNER JOIN `_users` u ON u.`ID`=ur.`UID`"
+						, array(':email' => $this->txtEmail)
+		);
+		$Code = T\DB::GetUniqueCode('_user_recoveries', 'Code');
+		$Result = T\DB::Execute("UPDATE `_user_recoveries` SET `Code`=:code, `TimeStamp`=:time WHERE `PendingEmail`=:email"
+						, array(
+					':code' => $Code,
+					':time' => time(),
+					':email' => $this->txtEmail,
+						)
+		);
+		if (!$Result) {
+			\html::ErrMsg_Exit(\t2::Site_Common('Failed! Plz retry.'));
+			return FALSE;
+		} else {
+			self::SendActivationEmail($Code, $this->txtEmail, $Username);
+			return TRUE;
+		}
+	}
 
 	static function SendActivationEmail($ActivationCode, $Email, $Name = '') {
 		$MS = T\SendMail::GetConfiguredMailSender();
 		$MS->AddAddress($Email, $Name);
 		if (!$MS->Send2(
-						\Lng::Site('tr_user', 'Activation link')
+						\t2::Site_User('Activation link')
 						, T\SendMail::GetEmailTemplate('activation', null, array(
 							'Code' => $ActivationCode,
 							'CodeUrl' => \Yii::app()->createAbsoluteUrl(T\HTTP::URL_InsertGetParams(\Site\Consts\Routes::UserActivation, "code=$ActivationCode")),
@@ -158,8 +165,10 @@ class Activation extends \Base\FormModel {
 							'Name' => $Name,
 							'Email' => $Email,
 						))
-				))
+				)) {
+			\html::ErrMsg_Exit(\t2::Site_User('Failed to send activation link!'));
 			\Err::TraceMsg_Method(__METHOD__, "Failed to send the user activation link", func_get_args());
+		}
 	}
 
 }

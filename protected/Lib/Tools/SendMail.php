@@ -67,12 +67,12 @@ class SendMail extends PHPMailer\PHPMailer {
 	 * this is same as the filename of the template<br/>
 	 * but later we will use a database model like webdesignir named.com and this will be same as the logicname
 	 * @param string $Lang the language code in template files model will be the name of parent directory of the template file<br/>
-	 * default lang has been got via \Lng::GetDefaultLang()->LangCode
+	 * default lang has been got via \t2::GetDefaultLang()->LangCode
 	 * @return string email template html contents
 	 */
 	static function GetEmailTemplate($TemplateName, $Lang = null, $Data = null) {
 		if (!$Lang)
-			$Lang = \Lng::GetDefaultLang()->LangCode;
+			$Lang = \t2::GetDefaultLang()->LangCode;
 		$TemplateFilePath = "Site.views.layouts.email_templates.$Lang.$TemplateName";
 		if (!is_file(\Yii::getPathOfAlias($TemplateFilePath) . '.php'))
 			\Err::ErrMsg_Method(__METHOD__, "The email template doesn't exist", array($TemplateFilePath, func_get_args()));

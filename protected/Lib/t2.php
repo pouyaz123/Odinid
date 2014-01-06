@@ -1,20 +1,32 @@
 <?php
 
 /**
- * Odinid language center
- * translations and ...
+ * Odinid language center (translation 2 previously was Lng from Language)
+ * t2 is more simple and similar to Yii standard
+ * translations and ... 
+ * WARNING : when you add new translation file add it to the Lng_StaticMethodPHPDoc.php class to have right intelli sense auto complete
  * @author Abbas Ali Hashemian <info@namedin.com> <tondarweb@gmail.com> http://webdesignir.com
  * @package Odinid Portal
- * @version 1
+ * @version 2
  * @copyright (c) Odinid
  * @access public
  */
-class Lng {
+class t2 {
 
 	private static $_SiteLoaded = false;
 	private static $_AdminLoaded = false;
 	private static $Err_ConflictUsage = 'Conflict in usage of both of Site and Admin translation resources';
 
+	/**
+	 * improved Yii::t to support modular base
+	 * @param type $strTranslationModule
+	 * @param type $category
+	 * @param type $message
+	 * @param type $params
+	 * @param type $source
+	 * @param type $language
+	 * @return type
+	 */
 	static function t($strTranslationModule = null, $category, $message, $params = array(), $source = null, $language = null) {
 		if ($category) {
 			return \Yii::t(
@@ -25,10 +37,43 @@ class Lng {
 		}
 	}
 
+	/**
+	 * PHPDoc doesn't support magic static methods to have autocomplete so we have a fake Lng class too here : Lng_StaticMethodPHPDoc
+	 * @param type $name
+	 * @param type $arguments
+	 * @access private
+	 */
+	public static function __callStatic($name, $arguments) {
+		$Module = trim(strstr($name, '_', true), '_');
+		$Category = trim(strstr($name, '_'), '_');
+		$Category = strtolower('tr_' . $Category);
+		array_unshift($arguments, $Category);
+		return call_user_func_array(array(__CLASS__, $Module), $arguments);
+	}
+
+	/**
+	 * ONLY RETURNS the appropriate composed title
+	 * @param type $ModuleName
+	 * @param type $category
+	 * @param type $message
+	 * @param type $params
+	 * @param type $source
+	 * @param type $language
+	 * @return type
+	 */
 	static function PageTitle($ModuleName, $category, $message, $params = array(), $source = null, $language = null) {
 		return \Yii::app()->name . ' | ' . self::t($ModuleName, $category, $message, $params, $source, $language);
 	}
 
+	/**
+	 * ONLY RETURNS the appropriate composed title
+	 * @param type $category
+	 * @param type $message
+	 * @param type $params
+	 * @param type $source
+	 * @param type $language
+	 * @return type
+	 */
 	static function AdminPageTitle($category, $message, $params = array(), $source = null, $language = null) {
 		self::$_AdminLoaded = true;
 		if (self::$_SiteLoaded)
@@ -36,6 +81,15 @@ class Lng {
 		return self::PageTitle('Admin', $category, $message, $params, $source, $language);
 	}
 
+	/**
+	 * ONLY RETURNS the appropriate composed title
+	 * @param type $category
+	 * @param type $message
+	 * @param type $params
+	 * @param type $source
+	 * @param type $language
+	 * @return type
+	 */
 	static function SitePageTitle($category, $message, $params = array(), $source = null, $language = null) {
 		self::$_SiteLoaded = true;
 		if (self::$_AdminLoaded)
@@ -43,6 +97,7 @@ class Lng {
 		return self::PageTitle('Site', $category, $message, $params, $source, $language);
 	}
 
+//	 * @deprecated since version 1.1 due to easy to use functions : Site_Common, ...
 	/**
 	 * Translates a message to the specified language.
 	 * This method supports choice format (see {@link CChoiceFormat}),
@@ -74,6 +129,7 @@ class Lng {
 		return self::t('Site', $category, $message, $params, $source, $language);
 	}
 
+//	 * @deprecated since version 1.1 due to easy to use functions : Admin_User, ...
 	/**
 	 * Translates a message to the specified language.
 	 * This method supports choice format (see {@link CChoiceFormat}),
@@ -130,6 +186,16 @@ class Lng {
 		return self::t(null, 'tr_general', $message, $params, $source, $language);
 	}
 
+	/**
+	 * same as \t2::t which is improved Yii:t to support modular base
+	 * tarray translates each element of the array and modifies the referenced array to the translated version
+	 * @param type $array reference
+	 * @param type $strTranslationModule
+	 * @param type $category
+	 * @param type $params
+	 * @param type $source
+	 * @param type $language
+	 */
 	static function tarray(&$array, $strTranslationModule = NULL, $category = NULL, $params = array(), $source = null, $language = null) {
 		if ($category)
 			foreach ($array as $key => $msg)

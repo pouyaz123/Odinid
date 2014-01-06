@@ -13,7 +13,7 @@ class TypesAction extends \CAction {
 	public function run() {
 		$ctrl = $this->controller;
 		/* @var $ctrl \Admin\controllers\UserController */
-		$ctrl->pageTitle = \Lng::AdminPageTitle('tr_common', 'User types');
+		$ctrl->pageTitle = \t2::AdminPageTitle('tr_common', 'User types');
 
 		$dg = $this->DataGrid($ctrl);
 
@@ -37,12 +37,12 @@ class TypesAction extends \CAction {
 				->Options(
 						\html::DataGridConfig()
 						->caption($ctrl->pageTitle)
-						->direction(\Lng::General('LTR_RTL'))
+						->direction(\t2::General('LTR_RTL'))
 				)
 				->SetColumns(
 				\html::DataGridColumn()
 				->index('t.ID')
-				->header(\Lng::Admin('tr_common', 'ID'))
+				->header(\t2::Admin_Common('ID'))
 				->width('50px')
 				#
 				, \html::DataGridColumn()
@@ -75,7 +75,7 @@ class TypesAction extends \CAction {
 				#
 				, \html::DataGridColumn()
 				->index('Actions')
-				->header(\Lng::Admin('tr_common', 'Actions'))
+				->header(\t2::Admin_Common('Actions'))
 				->search(false)
 				->editable(FALSE)
 				->sortable(false)
@@ -91,10 +91,10 @@ class TypesAction extends \CAction {
 									$url = \Yii::app()->createUrl(T\HTTP::URL_InsertGetParams(\Admin\Consts\Routes::User_Permissions, "TypeID={$dr['ID']}"));
 									$dt[$idx]['Actions'] = $DGP->DataGrid->GetActionColButtons($dr['ID'], "LnkBtn", $dr['IsUsed'])
 											. "<a class='LnkBtn' href='$url'
-													rel='AjaxElement:#divUserPermissions' title='" . \Lng::Admin('tr_user', 'Edit Permissions') . "'>
+													rel='AjaxElement:#divUserPermissions' title='" . \t2::Admin_User('Edit Permissions') . "'>
 														<img src='/_img/admin/icons/EditPermisions.gif'/>
 													</a>"
-											. ($dr['IsUsed'] ? '<div class="Info" title="' . \Lng::Admin('tr_user', "In-use user types can't be removed") . '"></div>' : '');
+											. ($dr['IsUsed'] ? '<div class="Info" title="' . \t2::Admin_User("In-use user types can't be removed") . '"></div>' : '');
 								}
 							return $dt;
 						})

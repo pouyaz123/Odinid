@@ -107,82 +107,118 @@ final class html {
 	 * @param str $Theme
 	 * @return string
 	 */
-	function jqUI_AutoComplete(
-	$ID_txtField
-	, $mixedSource
-	, $ValueField
-	, $LabelField = NULL
-	, $arrDBParams = NULL
-	, $Multi = false
-	, $Ajax = false
-	, $Target_jqSelector = NULL
-	, $MinLen = 1
-	, $ValidationRegexp = NULL
-	, $KMGFieldName = 'UsageCount'
-	, $Theme = \Conf::jQTheme
-	) {
-		\html::jqUI_AutoComplete_Load($Theme);
-		if (!$mixedSource || (!is_array($mixedSource) && !is_string($mixedSource) && !is_callable($mixedSource)))
-			return \Err::ErrMsg_Method(__METHOD__, 'Invalid mixedSource has been passed in.', func_get_args());
-		$KW = "AutoComplete_{$ID_txtField}";
-		if (!$arrDBParams || !is_array($arrDBParams))
-			$arrDBParams = array();
-		$fncMakeSource = function($FilterTerm = NULL)use($mixedSource, $arrDBParams, $ValueField, $LabelField, $KMGFieldName) {
-			$SourceIsDataTable = false;
-			if (is_string($mixedSource))
-				$mixedSource = T\DB::GetTable($mixedSource, array_merge($arrDBParams, array('term' => isset($FilterTerm) ? "%$FilterTerm%" : '%')));
-			elseif (is_callable($mixedSource))
-				$mixedSource = $mixedSource($FilterTerm);
-			else
-				$SourceIsDataTable = true;
-			if ($mixedSource) {
-				$mixedSource = array_map(function($dr)use($ValueField, $LabelField, $KMGFieldName) {
-					$arrResult = array();
-					if (!is_array($dr)) {
-						$arrResult['value'] = '';
-						$arrResult['label'] = "<div class='__uiausep'>$dr</div>";
-					} else {
-						if (is_string($ValueField))
-							$arrResult['value'] = T\DB::DRLabelMaker($dr, $ValueField);
-						elseif (is_callable($ValueField))
-							$arrResult['value'] = $ValueField($dr);
-						if ($LabelField) {
-							if (is_string($LabelField))
-								$arrResult['label'] = T\DB::DRLabelMaker($dr, $LabelField, $KMGFieldName);
-							elseif (is_callable($LabelField))
-								$arrResult['label'] = $LabelField($dr);
-						}
-					}
-					return $arrResult;
-				}, $mixedSource);
-			}
-			if ($SourceIsDataTable)
-				$mixedSource = T\DB::Filter($mixedSource, "return stripos(\$dr['value'], :term)!==false", array('term' => $FilterTerm));
-			return $mixedSource;
-		};
-		if ($Ajax) {
-			$QSTPName = self::AutoComplete_GetQueryString_ParamName;
-			\Output::AddIn_AjaxOutput(function()use($fncMakeSource, $ValidationRegexp, $QSTPName) {
-				$FilterTerm = \GPCS::GET($QSTPName);
-				if ($ValidationRegexp && !preg_match($ValidationRegexp, $FilterTerm))
-					return;
-				echo json_encode($fncMakeSource($FilterTerm));
-			}, $KW, NULL, $KW);
-			$URL = str_replace(array('"', "'"), array('\"', "\'"), T\HTTP::URL_InsertGetParams($_SERVER['REQUEST_URI'], \Output::AjaxKeyword_PostParamName . "=$KW"));
-			return "<script>MyAutoCompleteFNCs.push(function(){MyAutoComplete($('#{$ID_txtField}'),{source:'$URL'" . ($Target_jqSelector ? ",appendTo:'$Target_jqSelector'" : "") . "}," . ($Multi ? 1 : 0) . ",1,$MinLen)})</script>";
-		} else {
-			return "<script>MyAutoCompleteFNCs.push(function(){MyAutoComplete($('#{$ID_txtField}'),"
-					. "{source:" . json_encode($fncMakeSource()) . ($Target_jqSelector ? ",appendTo:'$Target_jqSelector'" : "") . "}"
-					. ',' . ($Multi ? 1 : 0) . ",0,$MinLen)})</script>";
-		}
+//	function jqUI_AutoComplete(
+//	$ID_txtField
+//	, $mixedSource
+//	, $ValueField
+//	, $LabelField = NULL
+//	, $arrDBParams = NULL
+//	, $Multi = false
+//	, $Ajax = false
+//	, $Target_jqSelector = NULL
+//	, $MinLen = 1
+//	, $ValidationRegexp = NULL
+//	, $KMGFieldName = 'UsageCount'
+//	, $Theme = \Conf::jQTheme
+//	) {
+//		\html::jqUI_AutoComplete_Load($Theme);
+//		if (!$mixedSource || (!is_array($mixedSource) && !is_string($mixedSource) && !is_callable($mixedSource)))
+//			return \Err::ErrMsg_Method(__METHOD__, 'Invalid mixedSource has been passed in.', func_get_args());
+//		$KW = "AutoComplete_{$ID_txtField}";
+//		if (!$arrDBParams || !is_array($arrDBParams))
+//			$arrDBParams = array();
+//		$fncMakeSource = function($FilterTerm = NULL)use($mixedSource, $arrDBParams, $ValueField, $LabelField, $KMGFieldName) {
+//			$SourceIsDataTable = false;
+//			if (is_string($mixedSource))
+//				$mixedSource = T\DB::GetTable($mixedSource, array_merge($arrDBParams, array('term' => isset($FilterTerm) ? "%$FilterTerm%" : '%')));
+//			elseif (is_callable($mixedSource))
+//				$mixedSource = $mixedSource($FilterTerm);
+//			else
+//				$SourceIsDataTable = true;
+//			if ($mixedSource) {
+//				$mixedSource = array_map(function($dr)use($ValueField, $LabelField, $KMGFieldName) {
+//					$arrResult = array();
+//					if (!is_array($dr)) {
+//						$arrResult['value'] = '';
+//						$arrResult['label'] = "<div class='__uiausep'>$dr</div>";
+//					} else {
+//						if (is_string($ValueField))
+//							$arrResult['value'] = T\DB::DRLabelMaker($dr, $ValueField);
+//						elseif (is_callable($ValueField))
+//							$arrResult['value'] = $ValueField($dr);
+//						if ($LabelField) {
+//							if (is_string($LabelField))
+//								$arrResult['label'] = T\DB::DRLabelMaker($dr, $LabelField, $KMGFieldName);
+//							elseif (is_callable($LabelField))
+//								$arrResult['label'] = $LabelField($dr);
+//						}
+//					}
+//					return $arrResult;
+//				}, $mixedSource);
+//			}
+//			if ($SourceIsDataTable)
+//				$mixedSource = T\DB::Filter($mixedSource, "return stripos(\$dr['value'], :term)!==false", array('term' => $FilterTerm));
+//			return $mixedSource;
+//		};
+//		if ($Ajax) {
+//			$QSTPName = self::AutoComplete_GetQueryString_ParamName;
+//			\Output::AddIn_AjaxOutput(function()use($fncMakeSource, $ValidationRegexp, $QSTPName) {
+//				$FilterTerm = \GPCS::GET($QSTPName);
+//				if ($ValidationRegexp && !preg_match($ValidationRegexp, $FilterTerm))
+//					return;
+//				echo json_encode($fncMakeSource($FilterTerm));
+//			}, $KW, NULL, $KW);
+//			$URL = str_replace(array('"', "'"), array('\"', "\'"), T\HTTP::URL_InsertGetParams($_SERVER['REQUEST_URI'], \Output::AjaxKeyword_PostParamName . "=$KW"));
+//			return "<script>MyAutoCompleteFNCs.push(function(){MyAutoComplete($('#{$ID_txtField}'),{source:'$URL'" . ($Target_jqSelector ? ",appendTo:'$Target_jqSelector'" : "") . "}," . ($Multi ? 1 : 0) . ",1,$MinLen)})</script>";
+//		} else {
+//			return "<script>MyAutoCompleteFNCs.push(function(){MyAutoComplete($('#{$ID_txtField}'),"
+//					. "{source:" . json_encode($fncMakeSource()) . ($Target_jqSelector ? ",appendTo:'$Target_jqSelector'" : "") . "}"
+//					. ',' . ($Multi ? 1 : 0) . ",0,$MinLen)})</script>";
+//		}
+//	}
+
+	public static function FieldContainer($Field, $Label = null, $ErrHolder = null, $ExtAttrs = NULL, $ExtClasses = "") {
+//		\Err::DebugBreakPoint(preg_match('/^.*<input[^\n]*[\s\t\n]type=[\"\'](checkbox|radio)[\'\"].+$/is', '<input type="hidden" name="Login[chkRemember]" value="0" id="ytLogin_chkRemember"><input type="checkbox" value="1" id="Login_chkRemember" name="Login[chkRemember]">'));
+//		<input type="hidden" name="Login[chkRemember]" value="0" id="ytLogin_chkRemember"><input type="checkbox" value="1" id="Login_chkRemember" name="Login[chkRemember]">
+//		$IsInput = (stripos($Field, '<input') !== false);	//sometimes a hidden field is at first
+		$IsChlRdo = preg_match('/^.*<input[^\n]*[\s\t\n]type=[\"\'](checkbox|radio)[\'\"].+$/is', $Field);
+		if (!$IsChlRdo)
+			$IsTxt = preg_match('/^.*<input[^\n]*[\s\t\n]type=[\"\'](text|password)[\'\"].+$/is', $Field);
+
+		return "<div class='"
+				. ($IsChlRdo ? "ChkRdo" : "Fld" . ($IsTxt ? " Txt" : ""))
+				. ($ExtClasses ? " $ExtClasses" : "") . "'"
+				. ($ExtAttrs ? " $ExtAttrs" : "") . ">"
+				. ($IsChlRdo ? "$Field $Label" : "$Label : $Field") . " $ErrHolder"
+				. "</div>";
 	}
 
-	public static function FieldContainer($Field, $Label = null, $ErrHolder = null, $ExtAttrs = NULL) {
-		return "<div class='Fld'" . ($ExtAttrs ? " $ExtAttrs" : "") . ">$Label $Field $ErrHolder</div>";
+	public static function CaptchaFieldContainer($Image, $Field, $Label = null, $ErrHolder = null, $ExtAttrs = NULL, $ExtClasses = "Captcha") {
+		return self::FieldContainer($Field . ' ' . $Image, $Label, $ErrHolder, $ExtAttrs, $ExtClasses);
 	}
 
 	public static function ButtonContainer($Button) {
 		return "<a class='Btn'>$Button<div></div></a>";
+	}
+
+	/**
+	 * $form->widget('CCaptcha')
+	 * @param CFormModel $form essentially pass the form when you use CActiveForm
+	 */
+	static function CaptchaImage(CActiveForm $form = null, $className = null, $properties = array(), $captureOutput = true) {
+		if (!$className)
+			$className = 'CCaptcha';
+		$properties = \Tools\Basics::Merge_MultiDimension(
+						array(
+					'buttonLabel' => '',
+					'buttonOptions' => array('title' => \t2::General('Refresh captcha')),
+						)
+						, $properties);
+		return $form->widget($className, $properties, $captureOutput);
+//		$Result = $form->widget($className, $properties, $captureOutput);
+//		if ($captureOutput)
+//			$Result = "<div>$Result</div>";
+//		return $Result;
 	}
 
 	/**
@@ -388,6 +424,8 @@ final class html {
 	 * @return type
 	 */
 	public static function PushStateScript($URL = NULL, $Return = false, $InlineUniqueKW = null, $AjaxKW = '', $AjaxContentUKW = NULL) {
+		if (!$InlineUniqueKW)
+			$InlineUniqueKW = 'html_PushStateScript';
 		if (!$URL)
 			$URL = $_SERVER['REQUEST_URI'];
 		$URL = addslashes($URL);

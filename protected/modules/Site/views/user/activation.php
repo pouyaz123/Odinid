@@ -2,10 +2,10 @@
 /* @var $this \Site\controllers\UserController */
 /* @var $Model \Site\models\User\Activation */
 ?>
-<div id="divActivateForm" class="form">
+<div id="divActivationForm" class="form">
 	<?
 	$form = $this->beginWidget('Widgets\ActiveForm', array(
-		'id' => 'Activate',
+		'id' => 'Activation',
 		'method' => 'POST',
 		'enableClientValidation' => true,
 		'clientOptions' => array(
@@ -20,16 +20,16 @@
 			<td style="width: 350px">
 				<?=
 				html::FieldContainer(
-						$form->textField($Model, 'txtActivationCode')
+						$form->textField($Model, 'txtActivationCode', array('autocomplete' => 'off'))
 						, $form->labelEx($Model, 'txtActivationCode')
-						, $form->error($Model, 'txtActivationCode', array(), true))
+						, $form->error($Model, 'txtActivationCode'))
 				?>
 				<?=
 				html::ButtonContainer(
-						CHtml::submitButton(\Lng::Site('tr_user', 'Activate')
+						CHtml::submitButton(\t2::Site_User('Activate')
 								, array(
 							'name' => 'btnActivate',
-							'rel' => \html::AjaxElement('#divActivateForm')
+							'rel' => \html::AjaxElement('#divActivationForm')
 								)
 				))
 				?>

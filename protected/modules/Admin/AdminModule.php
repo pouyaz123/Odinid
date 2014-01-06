@@ -18,10 +18,10 @@ class AdminModule extends \CWebModule {
 		));
 
 		#languages
-		\Lng::InitializeTranslation(\Conf::$AdminModuleLangs);
+		\t2::InitializeTranslation(\Conf::$AdminModuleLangs);
 
 		#main title
-		\Yii::app()->name = \Lng::Admin('tr_common', 'Admin Main Title');
+		\Yii::app()->name = \t2::Admin_Common('Admin Main Title');
 	}
 
 	public function beforeControllerAction($controller, $action) {

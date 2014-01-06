@@ -1,7 +1,7 @@
 <?php
 
 return array_merge(
-		\Lng::GetCommonLangResourceArray('en/tr_user')
+		\t2::GetCommonLangResourceArray('en/tr_user')
 		, array(
 	'Logged in successfully' => 'Welcome, Admin panel is loading ...',
 	'Cartable msg' => 'This information will be used to remember you online till you login from different ip or at different time with another browser.',

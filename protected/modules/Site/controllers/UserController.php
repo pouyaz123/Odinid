@@ -15,7 +15,7 @@ class UserController extends \Site\Components\BaseController {
 				'maxLength' => 5,
 			),
 			'activation' => '\Site\controllers\User\Activation',
-			'activation_resend' => '\Site\controllers\User\ResendActivation',
+			'resendactivation' => '\Site\controllers\User\ResendActivation',
 //			'resendactcode' => '\Site\controllers\User\ResendActCodeAction',
 //			'login' => '\Site\controllers\User\LoginAction',
 //			'recovery' => '\Site\controllers\User\RecoveryAction',

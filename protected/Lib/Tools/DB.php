@@ -181,7 +181,7 @@ class DB {
 	/**
 	 * @param string $strQuery
 	 * @param array $arrParams
-	 * @return mixed | NULL
+	 * @return mixed|NULL
 	 */
 	public static function GetField($strQuery, $arrParams = NULL, $columnIndex = 0, &$objCDbDataReader = NULL, &$objCDbCommand = NULL) {
 		$objCDbDataReader = self::Query($strQuery, $arrParams, $objCDbCommand);

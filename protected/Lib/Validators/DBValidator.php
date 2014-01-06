@@ -71,10 +71,10 @@ abstract class DBValidator extends \CValidator {
 		if (!$message) {
 			switch ($CheckType) {
 				case self::UniqueCheck:
-					$message = \Lng::General('The {attribute} {value} is not unique');
+					$message = \t2::General('The {attribute} {value} is not unique');
 					break;
 				case self::ExistCheck:
-					$message = \Lng::General("The {attribute} {value} doesn't exist");
+					$message = \t2::General("The {attribute} {value} doesn't exist");
 					break;
 			}
 			$message = str_replace(

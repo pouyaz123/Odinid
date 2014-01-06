@@ -1,4 +1,4 @@
 <?php
 /* @var $this DefaultController */
 ?>
-<?= \Lng::General('Sorry , The page is Not found') ?>
+<?= \t2::General('Sorry , The page is Not found') ?>

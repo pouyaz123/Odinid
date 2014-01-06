@@ -49,10 +49,10 @@
 //	 */
 //	public function attributeLabels() {
 //		return array(
-//			'txtTitle' => \Lng::Admin('tr_common', 'Title'),
-//			'txtPlanCost' => \Lng::Admin('tr_user', 'Plan cost'),
-//			'txtPerHowMonth' => \Lng::Admin('tr_user', 'Per how month'),
-//			'chkIsActive' => \Lng::Admin('tr_common', 'Is active'),
+//			'txtTitle' => \t2::Admin_Common('Title'),
+//			'txtPlanCost' => \t2::Admin_User('Plan cost'),
+//			'txtPerHowMonth' => \t2::Admin_User('Per how month'),
+//			'chkIsActive' => \t2::Admin_Common('Is active'),
 //		);
 //	}
 //
