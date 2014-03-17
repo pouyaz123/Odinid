@@ -7,12 +7,19 @@ use \Consts as C;
  * Tondarweb Error & Debugging Tools and Handlers
  *
  * @author Abbas Ali Hashemian <info@namedin.com> http://namedin.com <tondarweb@gmail.com> http://webdesignir.com
- * @package Tondarweb Portal
- * @version 1
- * @copyright (c) Abbas Ali Hashemian
+ * @package Tondarweb Portal migrated to Odinid
+ * @version 2
+ * @copyright (c) Odinid
  * @access public
  */
-class Err {
+class Err extends CException {
+
+	public function __construct($MethodName, $message, $mixedDetails = "No Details", $code = 500) {
+		parent::__construct(
+				self::ErrMsg_Method($MethodName, $message, $mixedDetails, true, false)
+				, $code
+		);
+	}
 
 	public static function Initialize() {
 		if (!\Conf::YiiErrsOn)
@@ -27,40 +34,47 @@ class Err {
 //		if (self::$BreakPointsCount > 0)
 //			echo '<div>there is ' . self::$BreakPointsCount . ' number of loose breakpoints within codes</div>';
 //	}
-
 #----------------- Errors -----------------#
 
-	public static function ErrMsg($strMessage = "", $mixedDetails = "No Details", $mixedWhatReturns = false, $BreakCode = true, $Add500ErrCodeInHeader = true) {
+	public static function ErrMsg($strMessage = "", $mixedDetails = "No Details", $boolReturn = false, $BreakCode = true, $Add500ErrCodeInHeader = true) {
 		//Logging
 		self::AppendLogMsg("SYS", $strMessage, $mixedDetails);
 
+		$Code = C\Header::ServerInternalErrorCode;
 		if ($Add500ErrCodeInHeader)
-			T\HTTP::Header(C\Header::ServerInternalError, true, C\Header::ServerInternalErrorCode);
+			T\HTTP::Header(C\Header::ServerInternalError, true, $Code);
 
 		if (Conf::Err_SecureMode) {
 			$strMessage = "A System Error or Trace Msg Occurred!(Secure Mode is ON. check logs!)";
 			$mixedDetails = NULL;
-		} else { //mytodo 2: html encoding for err details
-			$mixedDetails = "<div style='height:15px; overflow:hidden; padding: 2px; cursor:default; background:#400; color:#fee; font-family:Lucida Console' onclick='this.style.height=\"auto\"; this.style.overflow=\"auto\"'>"
-					. (is_array($mixedDetails) ? print_r($mixedDetails, true) : $mixedDetails)
+		} else { //mytodo x: html encoding for err details
+			$mixedDetails = !is_string($mixedDetails) ? print_r($mixedDetails, true) : $mixedDetails;
+			$DetailsBoxHeight='15px';
+			$mixedDetails = "<div style='height:$DetailsBoxHeight; overflow:hidden; padding: 2px; cursor:default; background:#400; color:#fee; font-family:Lucida Console'"
+					. " onclick='if(!this.v){this.style.height=\"auto\"; this.style.overflow=\"auto\"; this.v=1}else{this.style.height=\"$DetailsBoxHeight\"; this.style.overflow=\"hidden\"; this.v=0}'>"
+					. " $mixedDetails "
 					. "</div>";
 		}
 
-		echo "
-<div style='background:#fee; color:#400; border:1px solid #400; padding:2px; margin:3px 0px; direction:ltr; text-align:left'>
-	<!-##--ERROR--##->
-	$strMessage
-	<pre style=\"margin:0px; overflow:auto\">
-		$mixedDetails
-	</pre>
-</div>";
-		if ($BreakCode)
-			exit;
-		return $mixedWhatReturns;
+		$strMessage = "<div style='background:#fee; color:#400; border:1px solid #400; padding:2px; margin:3px 0px; direction:ltr; text-align:left'>"
+				. "\n<!--##--ERROR--##-->\n"
+				. $strMessage
+				. " <pre style=\"margin:0px; overflow:auto\"> "
+				. $mixedDetails
+				. " </pre>"
+				. "</div>";
+		if ($BreakCode) {
+			throw new \CException($strMessage, $Code);
+//			exit;
+		}
+		if ($boolReturn)
+			return $strMessage;
+		else
+			echo $strMessage;
 	}
 
-	public static function ErrMsg_Method($MethodName, $strMsg, $mixedDetails = "No Details", $mixedWhatReturns = false, $BreakCode = true) {
-		return self::ErrMsg("$MethodName : $strMsg", $mixedDetails, $mixedWhatReturns, $BreakCode);
+	public static function ErrMsg_Method($MethodName, $strMsg, $mixedDetails = "No Details", $boolReturn = false, $BreakCode = true) {
+		return self::ErrMsg("$MethodName : $strMsg", $mixedDetails, $boolReturn, $BreakCode);
 	}
 
 	public static function ErrMsg_MainHandler($ENO, $EStr, $FileN, $LineNO, $EContext) {
@@ -77,19 +91,18 @@ class Err {
 #----------------- Tracing And Debug -----------------#
 	/** Displays Msg only at trace mode */
 
-	public static function TraceMsg($strMessage = "", $mixedDetails = "No Details", $mixedWhatReturns = false) {
+	public static function TraceMsg($strMessage = "", $mixedDetails = "No Details", $boolReturn = false) {
 		$strMessage = "<b>(Trace)</b> $strMessage";
 
 		//Logging
 		self::AppendLogMsg("TRACE", $strMessage, $mixedDetails);
 
 		if (Conf::Err_TraceMode)
-			self::ErrMsg($strMessage, $mixedDetails, $mixedWhatReturns, false, false);
-		return $mixedWhatReturns;
+			return self::ErrMsg($strMessage, $mixedDetails, $boolReturn, false, false);
 	}
 
-	public static function TraceMsg_Method($MethodName, $strMsg, $mixedDetails = "No Details", $mixedWhatReturns = false) {
-		return self::TraceMsg("$MethodName : $strMsg", $mixedDetails, $mixedWhatReturns);
+	public static function TraceMsg_Method($MethodName, $strMsg, $mixedDetails = "No Details", $boolReturn = false) {
+		return self::TraceMsg("$MethodName : $strMsg", $mixedDetails, $boolReturn);
 	}
 
 	/** Just Developing and Debugging time */
@@ -99,7 +112,7 @@ class Err {
 		T\HTTP::Header(C\Header::ServerInternalError, true, C\Header::ServerInternalErrorCode);
 		echo "
 <div style='direction:ltr; text-align:left; background:#fff'>
-	<!-##--ERROR--##->
+	<!--##--ERROR--##-->
 	<span style='background:#a00; color:#fff'>(Break Point Msg)</span> : 
 	<pre style='border:1px solid #000; padding:3px; overflow:auto'>
 		$Msg
@@ -143,7 +156,6 @@ class Err {
 //		echo \Template::serve('MsgPages/Master.tpl');
 //		exit;
 //	}
-
 //	static function F3_ErrorHandler() {
 ////		Language::SetAppLang(Language::GetDefaultLangRow(NULL, \GPCS::COOKIE('DefLng')));
 //		\Language::CheckLang(true);
@@ -165,18 +177,15 @@ class Err {
 //		}
 //		exit(); //for certainty
 //	}
-
 //	static function HotLink() {
 //		F3::error(404); //mytodo 3: hot linking page
 //	}
-
 //	static function ForbiddenAction_Admin($ActionDesc = NULL) {
 //		T\HTTP::Header(C\Header::Forbidden, true, C\Header::ForbiddenCode);
 //		$ActionDesc = $ActionDesc ? \F3::resolve($ActionDesc) : '';
 //		self::ErrPage_Admin("{{@res_ForbiddenAction}} : $ActionDesc");
 //		exit;
 //	}
-
 //	static function ErrPage_Admin($Msg) {
 //		\F3::set('ErrPageMsg', $Msg);
 //		if (T\HTTP::IsAsync())
@@ -187,5 +196,4 @@ class Err {
 //		}
 //		exit;
 //	}
-
 }

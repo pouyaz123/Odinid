@@ -6,6 +6,7 @@ use \Tools as T;
 use \Consts as C;
 
 /**
+ * BE CAREFUL : about the XSSPurification on password fields and ... because XSSPurification is on by default for all attributes<br/>
  * The IsUnique validator alias for \Validators\IsUnique will be registered through this class<br/>
  * ----<br/>
  * This event system can be used too:<br/>
@@ -19,6 +20,11 @@ use \Consts as C;
  * @copyright (c) Odinid
  * @access public
  * @property string $PostName //post name will be used in rendered form
+ * @method void getPostName()	//this is a not-forced(optional) abstract method<br/>
+ * post name of this model in the $_POST<br/>
+ * $_POST['modelPostName']['attributeName']<br/>
+ * @method void call() Don't use call... methods. They have relative events must be triggered. The name of the right method is without call prefix such as : ->MyMethod() for callMyMethod
+ * @property-read boolean $XSSPurification xss purification state
  */
 class FormModel extends \CFormModel {
 
@@ -52,8 +58,22 @@ class FormModel extends \CFormModel {
 			parent::__call($name, $parameters);
 	}
 
+	public function setAttributes($values, $safeOnly = true) {
+		parent::setAttributes($values, $safeOnly);
+		//HTML purification
+		$this->XSSPurify();
+	}
+
 	//----------- XSS -----------//
-	protected $XSSPurification = true;
+//	protected $XSSPurification = true;
+	/**
+	 * the state of XSS purification will be used in setAttributes before any validation happens<br/>
+	 * also "protected $XSSPurification = true;" can be used
+	 * @return boolean
+	 */
+	function getXSSPurification() {
+		return true;
+	}
 
 	/**
 	 * @var array options for \CHtmlPurifier
@@ -64,6 +84,7 @@ class FormModel extends \CFormModel {
 	));
 
 	/**
+	 * @deprecated since version 1 because it's better to purify all and create exceptions to have more security.
 	 * @return string|array|false list of attrs "attr1,attr2" or "*" or array(...) or false(no purification). "*" is by default
 	 */
 	protected function XSSPurify_Attrs() {
@@ -77,20 +98,25 @@ class FormModel extends \CFormModel {
 		return array();
 	}
 
-	public function setAttributes($values, $safeOnly = true) {
-		parent::setAttributes($values, $safeOnly);
-		//HTML purification
-		if ($this->XSSPurification) {
-			$XSSPurify_Attrs = $this->XSSPurify_Attrs();
-			if ($XSSPurify_Attrs == '*') {
+	/**
+	 * Performs XSSPurification on this model only if ->XSSPurification was true<br/>
+	 * This will be triggered automatically by setAttributes before any validation happens.
+	 * So if you don't use massive assignment call this method by hand<br/>
+	 */
+	public function XSSPurify() {
+		$XSSPurify_Attrs = $this->XSSPurify_Attrs();
+		if ($this->XSSPurification && $XSSPurify_Attrs) {
+			if ($XSSPurify_Attrs === '*') {
+				//all attributes except ...
 				$Exceptions = $this->XSSPurify_Exceptions();
 				if ($Exceptions && is_string($Exceptions))
 					$Exceptions = explode(',', preg_replace('/\t|\n|\s/', '', $Exceptions));
 				foreach ($this->attributes as $attr => $val) {
 					if (!in_array($attr, $Exceptions, true))
-						$this->$attr = T\Security::XSSPurify($this->$attr, $this->XSSPurify_Options);
+						$this->$attr = T\Security::XSSPurify($val, $this->XSSPurify_Options);
 				}
 			}elseif ($XSSPurify_Attrs) {
+				//special attributes
 				if (is_string($XSSPurify_Attrs))
 					$XSSPurify_Attrs = explode(',', preg_replace('/\t|\n|\s/', '', $XSSPurify_Attrs));
 				foreach ($XSSPurify_Attrs as $attr)
@@ -107,7 +133,7 @@ class FormModel extends \CFormModel {
 	 * @param bool $DontValidateCaptcha	//prevents refreshing captcha session on single field ajax validations
 	 * @param string $AjaxKWPostName
 	 */
-	static function AjaxValidation($AjaxKW, \Base\FormModel $Model, $DontValidateCaptcha = false, $AjaxKWPostName = 'ajax') {
+	final static function AjaxValidation($AjaxKW, \Base\FormModel $Model, $DontValidateCaptcha = false, $AjaxKWPostName = 'ajax') {
 		if (\GPCS::POST($AjaxKWPostName) == $AjaxKW) {
 			if (property_exists($Model, 'DontValidateCaptcha'))
 				$Model->DontValidateCaptcha = $DontValidateCaptcha;
@@ -116,22 +142,15 @@ class FormModel extends \CFormModel {
 		}
 	}
 
-	/**
-	 * post name of this model in the $_POST
-	 * $_POST['modelPostName']['attributeName']
-	 */
-	public function getPostName() {
-		
-	}
-
-	/**
-	 * clean the viewstate of special attrs
-	 * Yii doesn't support ViewState management which is a security risk about password field.
-	 * i told them but it is not considered : https://github.com/yiisoft/yii/pull/3107
-	 * i added the viewState boolean to the $htmlOptions of \CHtml::activeInputField with a default false value for \CHtml::activePasswordField
+	/** this is a not-forced(optional) abstract method and do nothing in the base \Base\FormModel.
+	 * So children are not recalling this parent method<br/>
+	 * clean the viewstate of special attrs<br/>
+	 * Yii doesn't support ViewState management which is a security risk about password field.<br/>
+	 * i told them but it is not considered : https://github.com/yiisoft/yii/pull/3107<br/>
+	 * i added the viewState boolean to the $htmlOptions of \CHtml::activeInputField with a default false value for \CHtml::activePasswordField<br/>
 	 */
 	protected function CleanViewStateOfSpecialAttrs() {
-		
+		//don't put anything here
 	}
 
 }

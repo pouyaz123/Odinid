@@ -123,7 +123,7 @@ final class html {
 //	) {
 //		\html::jqUI_AutoComplete_Load($Theme);
 //		if (!$mixedSource || (!is_array($mixedSource) && !is_string($mixedSource) && !is_callable($mixedSource)))
-//			return \Err::ErrMsg_Method(__METHOD__, 'Invalid mixedSource has been passed in.', func_get_args());
+//			throw new \Err(__METHOD__, 'Invalid mixedSource has been passed in.', func_get_args());
 //		$KW = "AutoComplete_{$ID_txtField}";
 //		if (!$arrDBParams || !is_array($arrDBParams))
 //			$arrDBParams = array();
@@ -178,18 +178,15 @@ final class html {
 //	}
 
 	public static function FieldContainer($Field, $Label = null, $ErrHolder = null, $ExtAttrs = NULL, $ExtClasses = "") {
-//		\Err::DebugBreakPoint(preg_match('/^.*<input[^\n]*[\s\t\n]type=[\"\'](checkbox|radio)[\'\"].+$/is', '<input type="hidden" name="Login[chkRemember]" value="0" id="ytLogin_chkRemember"><input type="checkbox" value="1" id="Login_chkRemember" name="Login[chkRemember]">'));
-//		<input type="hidden" name="Login[chkRemember]" value="0" id="ytLogin_chkRemember"><input type="checkbox" value="1" id="Login_chkRemember" name="Login[chkRemember]">
-//		$IsInput = (stripos($Field, '<input') !== false);	//sometimes a hidden field is at first
-		$IsChlRdo = preg_match('/^.*<input[^\n]*[\s\t\n]type=[\"\'](checkbox|radio)[\'\"].+$/is', $Field);
-		if (!$IsChlRdo)
+		$IsChkRdo = preg_match('/^.*<input[^\n]*[\s\t\n]type=[\"\'](checkbox|radio)[\'\"].+$/is', $Field);
+		if (!$IsChkRdo)
 			$IsTxt = preg_match('/^.*<input[^\n]*[\s\t\n]type=[\"\'](text|password)[\'\"].+$/is', $Field);
 
 		return "<div class='"
-				. ($IsChlRdo ? "ChkRdo" : "Fld" . ($IsTxt ? " Txt" : ""))
+				. ($IsChkRdo ? "ChkRdo" : "Fld" . ($IsTxt ? " Txt" : ""))
 				. ($ExtClasses ? " $ExtClasses" : "") . "'"
 				. ($ExtAttrs ? " $ExtAttrs" : "") . ">"
-				. ($IsChlRdo ? "$Field $Label" : "$Label : $Field") . " $ErrHolder"
+				. ($IsChkRdo ? "$Field $Label" : "$Label : $Field") . " $ErrHolder"
 				. "</div>";
 	}
 
@@ -198,7 +195,7 @@ final class html {
 	}
 
 	public static function ButtonContainer($Button) {
-		return "<a class='Btn'>$Button<div></div></a>";
+		return "<a href='javascript:;' class='Btn'>$Button<div></div></a>";
 	}
 
 	/**
@@ -211,7 +208,7 @@ final class html {
 		$properties = \Tools\Basics::Merge_MultiDimension(
 						array(
 					'buttonLabel' => '',
-					'buttonOptions' => array('title' => \t2::General('Refresh captcha')),
+					'buttonOptions' => array('title' => \t2::General('Refresh captcha'), 'rel' => self::AjaxExcept),
 						)
 						, $properties);
 		return $form->widget($className, $properties, $captureOutput);
@@ -334,19 +331,39 @@ final class html {
 							, isset($arrUserInputTextField['htmlOptions']) ? $arrUserInputTextField['htmlOptions'] : array());
 		\CHtml::resolveNameID($model, $attribute, $htmlOptions);
 		return \html::activeDropDownList($model, $ActiveForm, $attribute, $data, $htmlOptions)
-				. self::ComboBoxScript(
+				. "\n" . self::ComboBoxScript(
 						"#{$htmlOptions['id']}"
 						, ($strUserInputJQSelector ? : ($txtUserInputField? : NULL))
 						, isset($strUserInputJQSelector)
 		);
 	}
 
+	const Combobox_NoSearchRel = 'NoSearchCombobox';
+
 	public static function ComboBoxScript($jQSelector_selectTag, $strUserInputText = NULL, $UserInputIsAJQuerySelector = false) {
 		self::jqUI_Combobox_Load();
-		return "<script>\$('$jQSelector_selectTag')"
+		return "<script>"
+				. "_t.RunScriptAfterLoad('MyJuiAutoComplete/MyComboBox', function(){"
+				. "\$('$jQSelector_selectTag')"
 				. ($strUserInputText ? ".data(" . ($UserInputIsAJQuerySelector ? "'UserInputJQSelector'" : "'UserInputTag'") . ", '" . addslashes($strUserInputText) . "')" : "")
-				. ".combobox()</script>";
+				. ".combobox()"
+				. "})"
+				. "</script>";
 	}
+
+	/**
+	 * @param str $Text		will get escapced for js
+	 * @param str $Title	will get escapced for js
+	 * @return string
+	 */
+	static function PostbackConfirm_OnClick($Text = '', $Title = 'Are you sure?') {
+		self::LoadJS('Assets_Prompt/jquery.alerts');
+		$Text = addslashes(t2::General($Text));
+		$Title = addslashes(t2::General($Text));
+		return "return PostBack.jConfirm(this, '$Text', '$Title')";
+	}
+
+	const OnceClick = 'OnceClick';
 
 #----------------- Ajax Tools -----------------#
 
@@ -356,13 +373,13 @@ final class html {
 		\Yii::app()->end();
 	}
 
-	private static function AjaxMaker($RelKW, $DefaultButton_jQSelector = NULL, $SpecialKW = NULL, $AjaxPostParams = NULL, $AjaxURL = null, $AjaxTarget_jQSelector = null) {
+	private static function AjaxMaker($RelKW, $DefaultButton_jQSelector = NULL, $SpecialKW = NULL, $strAjaxPostParams = NULL, $AjaxURL = null, $AjaxTarget_jQSelector = null) {
 		return " $RelKW" #
 				. ( $AjaxTarget_jQSelector ? ':' . $AjaxTarget_jQSelector : '' ) #
 				. ( $AjaxURL ? self::AsyncURL($AjaxURL) : '' )
 				. ($DefaultButton_jQSelector ? self::DefaultButton($DefaultButton_jQSelector) : '')
 				. ($SpecialKW ? ' ' . \Output::AjaxKeyword_PostParamName . ":$SpecialKW " : '')
-				. ($AjaxPostParams ? " AjaxPostParams:$AjaxPostParams " : '')
+				. ($strAjaxPostParams ? " AjaxPostParams:$strAjaxPostParams " : '')
 				. ' ';
 	}
 
@@ -381,38 +398,41 @@ final class html {
 	 * rel="<?=\html::AjaxPanel(...)?>"
 	 * use \html::AjaxExcempt to exclude an element or link from ajax submission
 	 * @param str $SpecialKW //we'll use it again for \Output::AddIn_AjaxOutput($func, $strKW = null)
+	 * @param string $strAjaxPostParams	//P1=value;P2=value
 	 * @return a str for rel attr
 	 */
-	public static function AjaxPanel($DefaultButton_jQSelector = NULL, $SpecialKW = NULL, $AjaxPostParams = NULL, $AjaxURL = null, $AjaxTarget_jQSelector = null) {
-		return self::AjaxMaker('AjaxPanel', $DefaultButton_jQSelector, $SpecialKW, $AjaxPostParams, $AjaxURL, $AjaxTarget_jQSelector);
+	public static function AjaxPanel($DefaultButton_jQSelector = NULL, $SpecialKW = NULL, $strAjaxPostParams = NULL, $AjaxURL = null, $AjaxTarget_jQSelector = null) {
+		return self::AjaxMaker('AjaxPanel', $DefaultButton_jQSelector, $SpecialKW, $strAjaxPostParams, $AjaxURL, $AjaxTarget_jQSelector);
 	}
 
 	/**
 	 * Same as {@see \html::AjaxPanel} just its arguments(function parameters) are intended for an ajax link panel
 	 * @param string $AjaxTarget_jQSelector //#divContent:insert || .divASD:replace
 	 * @param string $SpecialKW	//ajax postal special keyword
-	 * @param string $AjaxPostParams	//P1=value;P2=value
+	 * @param string $strAjaxPostParams	//P1=value;P2=value
 	 * @return string //string value to be placed in a "rel" attribute
 	 */
-	public static function AjaxLinks($AjaxTarget_jQSelector = null, $SpecialKW = NULL, $AjaxPostParams = NULL) {
-		return self::AjaxMaker('AjaxPanel', NULL, $SpecialKW, $AjaxPostParams, NUlL, $AjaxTarget_jQSelector);
+	public static function AjaxLinks($AjaxTarget_jQSelector = null, $SpecialKW = NULL, $strAjaxPostParams = NULL) {
+		return self::AjaxMaker('AjaxPanel', NULL, $SpecialKW, $strAjaxPostParams, NUlL, $AjaxTarget_jQSelector);
 	}
 
 	/**
 	 * Tondarweb AjaxElement can be a button or a submit button or a link.
 	 * rel="<?=\html::AjaxElement(...)?>"
 	 * @param str $SpecialKW //we'll use it again for \Output::AddIn_AjaxOutput($func, $strKW = null)
+	 * @param string $strAjaxPostParams	//P1=value;P2=value
 	 * @return a str for rel attr
 	 */
-	public static function AjaxElement($AjaxTarget_jQSelector = null, $SpecialKW = NULL, $AjaxPostParams = NULL, $AjaxURL = null) {
-		return self::AjaxMaker('AjaxElement', NULL, $SpecialKW, $AjaxPostParams, $AjaxURL, $AjaxTarget_jQSelector);
+	public static function AjaxElement($AjaxTarget_jQSelector = null, $SpecialKW = NULL, $strAjaxPostParams = NULL, $AjaxURL = null) {
+		return self::AjaxMaker('AjaxElement', NULL, $SpecialKW, $strAjaxPostParams, $AjaxURL, $AjaxTarget_jQSelector);
 	}
 
-//	public static function GetAsync_URLHash($AjaxTarget_jQSelector, $AjaxPostParams) {
-//		return "##ASYNCHASH#$AjaxPostParams->$AjaxTarget_jQSelector";
+//	public static function GetAsync_URLHash($AjaxTarget_jQSelector, $strAjaxPostParams) {
+//		return "##ASYNCHASH#$strAjaxPostParams->$AjaxTarget_jQSelector";
 //	}
 
 	const AjaxExcept = " AjaxExcept ";
+	const SimpleAjaxPanel = " SimpleAjaxPanel ";
 
 	/**
 	 * Change URL using HTML5 pushState js dom method(for ajax communications)
@@ -842,12 +862,6 @@ $.superbox.settings = {
 		html::LoadJS('jqUI/jquery.ui.widget.min');
 		html::LoadJS('jqUI/jquery.ui.mouse.min');
 		html::LoadJS('Assets_Prompt/jquery.alerts');
-	}
-
-	static function PostbackConfirm_OnClick($Text = '', $Title = '{{@res_Confirmation}}') {
-		$Text = addslashes($Text);
-		$Title = addslashes($Title);
-		return " onclick=\"return PostBack.jConfirm(this, '$Text', '$Title')\" ";
 	}
 
 	static function Scrollable_Load() {

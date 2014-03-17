@@ -24,7 +24,7 @@ class Container extends \CComponent implements \Interfaces\String {
 
 	private static function TakeGlobalID($ID, $Obj) {
 		if (\F3::get($ID))
-			\Err::ErrMsg_Method(__METHOD__, 'Control ID conflict(repeated)', $ID);
+			throw new \Err(__METHOD__, 'Control ID conflict(repeated)', $ID);
 		\F3::set($ID, $Obj);
 		$ID = str_replace(array('][', '].', '.', '[', ']'), array('_', '_', '_', '_', ''), $ID); //arrays (like form fields)
 //		if (preg_match('/^\w+$/', $ID))
@@ -60,7 +60,7 @@ class Container extends \CComponent implements \Interfaces\String {
 	 */
 	public function AddContentAt($mixedContent, $Idx = -1, $Params = NULL, $UKW = NULL) {
 		if (!is_int($Idx) || !(is_callable($mixedContent) || is_string($mixedContent) || is_a($mixedContent, '\Interfaces\String')))
-			\Err::ErrMsg_Method(__METHOD__, 'Atleast one invalid argument is passed!', func_get_args());
+			throw new \Err(__METHOD__, 'Atleast one invalid argument is passed!', func_get_args());
 
 		$mixedContent = array('Content' => $mixedContent, 'Params' => $Params);
 		$Contents = &$this->Contents;

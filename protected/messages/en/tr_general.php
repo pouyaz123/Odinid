@@ -9,9 +9,8 @@ return array(
 	'Ajax communication error' => 'An error occurred with server communication!',
 	'Ajax communication error. retry?' => 'An error occurred with server communication. Will you retry?',
 //	'Are you sure?' => 'Are you sure?',
+//	'Are you sure to delete it?' => 'Are you sure to delete it?',
 	#
-	'The {attribute} {value} is not unique' => '{attribute} "{value}" has been used previously. It must be unique.',
-//	'The {attribute} {value} doesn't exist' => 'The {attribute} {value} doesn't exist',
-	#
+//	'404 Not found' => '404 Not found',	//page title
 //	'Sorry , The page is Not found' => 'Sorry , The page is Not found',
 );

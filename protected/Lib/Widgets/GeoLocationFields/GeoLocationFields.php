@@ -2,7 +2,7 @@
 
 namespace Widgets\GeoLocationFields;
 
-use Tools as T;
+use \Tools as T;
 
 /**
  * Description of GeoLocationFields
@@ -102,7 +102,7 @@ class GeoLocationFields extends \Base\Widget {
 		if (!$Post)
 			return array();
 		$Country = isset($Post[$this->ddlCountryAttr]) || isset($Post[$this->txtCountryAttr]) ?
-				isset($Post[$this->ddlCountryAttr]) ? $Post[$this->ddlCountryAttr] : $Post[$this->txtCountryAttr]  :
+				(isset($Post[$this->ddlCountryAttr]) ? $Post[$this->ddlCountryAttr] : $Post[$this->txtCountryAttr])  :
 				null;
 		static $ddlarr = array();
 		if (!count($ddlarr) && $Country) {
@@ -137,7 +137,7 @@ class GeoLocationFields extends \Base\Widget {
 		if (!$Post)
 			return array();
 		$Division = isset($Post[$this->ddlDivisionAttr]) || isseT($Post[$this->txtDivisionAttr]) ?
-				isset($Post[$this->ddlDivisionAttr]) ? $Post[$this->ddlDivisionAttr] : $Post[$this->txtDivisionAttr]  :
+				(isset($Post[$this->ddlDivisionAttr]) ? $Post[$this->ddlDivisionAttr] : $Post[$this->txtDivisionAttr])  :
 				null;
 		static $ddlarr = array();
 		if (!count($ddlarr) && $Division) {
@@ -175,11 +175,9 @@ class GeoLocationFields extends \Base\Widget {
 
 		$Model = &$this->_Model;
 		if (!$Model || !is_object($Model) || !is_a($Model, '\CModel'))
-			\Err::ErrMsg_Method(__METHOD__, 'No valid Model has been passed to ' . __CLASS__ . ' widget');
-//			throw new \CException('No valid Model has been passed to ' . __CLASS__ . ' widget');
+			throw new \Err(__METHOD__, 'No valid Model has been passed to ' . __CLASS__ . ' widget');
 		if (!$this->ddlCountryAttr)
-			\Err::ErrMsg_Method(__METHOD__, 'At least the Country attr must be passed into ' . __CLASS__ . ' widget');
-//			throw new \CException('At least the Country attr must be passed into ' . __CLASS__ . ' widget');
+			throw new \Err(__METHOD__, 'At least the Country attr must be passed into ' . __CLASS__ . ' widget');
 
 		$_this = &$this;
 		\Output::AddIn_AjaxOutput(function()use($Model, $_this) {
@@ -244,7 +242,7 @@ class GeoLocationFields extends \Base\Widget {
 								)
 								, null
 								, null
-								//ddlComno with user input ability
+								//ddlCombo with user input ability
 								, $_this->txtCityAttr ? array(
 									'attribute' => $_this->txtCityAttr,
 										) : null

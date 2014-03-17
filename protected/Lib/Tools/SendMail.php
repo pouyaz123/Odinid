@@ -75,20 +75,23 @@ class SendMail extends PHPMailer\PHPMailer {
 			$Lang = \t2::GetDefaultLang()->LangCode;
 		$TemplateFilePath = "Site.views.layouts.email_templates.$Lang.$TemplateName";
 		if (!is_file(\Yii::getPathOfAlias($TemplateFilePath) . '.php'))
-			\Err::ErrMsg_Method(__METHOD__, "The email template doesn't exist", array($TemplateFilePath, func_get_args()));
+			throw new \Err(__METHOD__, "The email template doesn't exist", array($TemplateFilePath, func_get_args()));
 		return \Yii::app()->controller->renderPartial($TemplateFilePath, $Data, true);
 	}
 
 	/**
-	 * This method forces you to set the Subject in the side of content
-	 * uses ->Subject and ->MsgHTML($HTMLBody) and ->Send() sequentially
+	 * This method forces you to set the Subject in the side of content<br/>
+	 * Uses ->Subject and ->MsgHTML($HTMLBody) and ->Send() sequentially<br/>
+	 * Also HTMLBody will be XSSPurified(HTMLPurifier) automatically
 	 * @param type $Subject required email subject
 	 * @param type $HTMLBody Text to be HTML modified
 	 * @param string $basedir baseline directory for path
 	 * @return bool result of ->Send()
 	 */
-	function Send2($Subject, $HTMLBody, $basedir = '') {
+	function Send2($Subject, $HTMLBody, $basedir = '', $HtmlPurify = true) {
 		$this->Subject = $Subject;
+		if ($HtmlPurify)
+			$HTMLBody = T\Security::XSSPurify($HTMLBody);
 		$this->MsgHTML($HTMLBody, $basedir);
 		return $this->Send();
 	}

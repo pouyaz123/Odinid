@@ -58,8 +58,7 @@ class HTTP {
 			}
 			$mixedModel = is_object($mixedModel) ? get_class($mixedModel) : strval($mixedModel);
 			if (!$mixedModel)
-				\Err::ErrMsg_Method(__METHOD__, "No valid model has been passed into Converter", array($ReplaceSentence, func_get_args()));
-//				throw new \CException("No valid model has been passed into Converter");
+				throw new \Err(__METHOD__, "No valid model has been passed into Converter", array($ReplaceSentence, func_get_args()));
 			if ($ReplaceSentence)
 				return trim(str_replace(array($ReplaceSentence, '\\'), array('', '_'), $mixedModel), '_');
 			else
@@ -74,73 +73,73 @@ class HTTP {
 //	}
 	#----------------- About URL -----------------#
 
-	static function URLSection($URL = NULL, $intSectionNo = 2, $strDelimiter = '/') {
-		if (!$URL)
-			$URL = $_SERVER['REQUEST_URI'];
-		$Sections = explode($strDelimiter, $URL);
-		return isset($Sections[2]) ? strtoupper($Sections[$intSectionNo]) : '';
-	}
+//	static function URLSection($URL = NULL, $intSectionNo = 2, $strDelimiter = '/') {
+//		if (!$URL)
+//			$URL = $_SERVER['REQUEST_URI'];
+//		$Sections = explode($strDelimiter, $URL);
+//		return isset($Sections[$intSectionNo]) ? strtoupper($Sections[$intSectionNo]) : '';
+//	}
 
 	//protocol
 
-	public static function GetProtocol() {
-		return \GPCS::SERVER('HTTPS') ? 'https' : 'http';
-	}
+//	public static function GetCurrentProtocol() {
+//		return \GPCS::SERVER('HTTPS') ? 'https' : 'http';
+//	}
 
-	static function DomainName() {
-		static $SN;
-		if ($SN)
-			return $SN;
-		$SN = $_SERVER['SERVER_NAME'];
-		$SN = stripos($SN, 'www.') === 0 ? substr($SN, 4) : $SN;
-		return $SN;
-	}
+//	static function DomainName() {
+//		static $SN;
+//		if ($SN)
+//			return $SN;
+//		$SN = $_SERVER['SERVER_NAME'];
+//		$SN = stripos($SN, 'www.') === 0 ? substr($SN, 4) : $SN;
+//		return $SN;
+//	}
 
 	//Domain
-	public static function Get3WDomain($Protocol = null, $Domain = NULL) {
-		$CurrentProtocol = strtolower(self::GetProtocol());
-		if (!$Protocol)
-			$Protocol = $CurrentProtocol;
-		$Protocol = strtolower($Protocol);
+//	public static function Get3WDomain($Protocol = null, $Domain = NULL) {
+//		$CurrentProtocol = strtolower(self::GetCurrentProtocol());
+//		if (!$Protocol)
+//			$Protocol = $CurrentProtocol;
+//		$Protocol = strtolower($Protocol);
+//
+//		$W3Domain = $Protocol . '://';
+//
+//		if (!T\HTTP::IsLocal()) {
+//			$Domain = ($Domain ? $Domain : T\HTTP::DomainName());
+//			$W3Domain .= (stripos($Domain, 'www.') !== 0 ? 'www.' : '') . $Domain;
+//		} else {//Just for my local http/https port mechanism
+//			$LocalPort = $_SERVER["SERVER_PORT"];
+//			if ($CurrentProtocol == 'http' && $Protocol == 'https')
+//				$LocalPort++;
+//			elseif ($CurrentProtocol == 'https' && $Protocol == 'http')
+//				$LocalPort--;
+//			$W3Domain.=(\Conf::LocalHostName ? \Conf::LocalHostName : (\Conf::LocalHostIP ? \Conf::LocalHostIP : 'localhost')) . ':' . $LocalPort;
+//		}
+//		return $W3Domain;
+//	}
 
-		$W3Domain = $Protocol . '://';
-
-		if (!T\HTTP::IsLocal()) {
-			$Domain = ($Domain ? $Domain : T\HTTP::DomainName());
-			$W3Domain .= (stripos($Domain, 'www.') !== 0 ? 'www.' : '') . $Domain;
-		} else {//Just for my local http/https port mechanism
-			$LocalPort = $_SERVER["SERVER_PORT"];
-			if ($CurrentProtocol == 'http' && $Protocol == 'https')
-				$LocalPort++;
-			elseif ($CurrentProtocol == 'https' && $Protocol == 'http')
-				$LocalPort--;
-			$W3Domain.=(\Conf::LocalHostName ? \Conf::LocalHostName : (\Conf::LocalHostIP ? \Conf::LocalHostIP : 'localhost')) . ':' . $LocalPort;
-		}
-		return $W3Domain;
-	}
-
-	//URL+URI
-	public static function GetAbsoluteURL($URI = null, $Protocol = null) {
-		if (!$Protocol)
-			$Protocol = self::GetProtocol();
-		if (!$URI)
-			$URI = $_SERVER["REQUEST_URI"];
-		$URI = trim(str_replace("\\", '/', $URI), "/ ");
-		return self::Get3WDomain($Protocol) . '/' . $URI;
-	}
-
-	public static function GetCurrentURL($Protocol = null) {
-		return self::GetAbsoluteURL(null, $Protocol);
-	}
-
-	public static function GetCurrentURI() {
-		return $_SERVER["REQUEST_URI"];
-	}
-
-	public static function Is_ValidURL($URL) {
-		$Regexp = T\HTTP::IsLocal() ? C\Regexp::$URL_Local : C\Regexp::$URL;
-		return preg_match($Regexp, $URL);
-	}
+//	//URL+URI
+//	public static function GetAbsoluteURL($URI = null, $Protocol = null) {
+//		if (!$Protocol)
+//			$Protocol = self::GetCurrentProtocol();
+//		if (!$URI)
+//			$URI = $_SERVER["REQUEST_URI"];
+//		$URI = trim(str_replace("\\", '/', $URI), "/ ");
+//		return self::Get3WDomain($Protocol) . '/' . $URI;
+//	}
+//
+//	public static function GetCurrentURL($Protocol = null) {
+//		return self::GetAbsoluteURL(null, $Protocol);
+//	}
+//
+//	public static function GetCurrentURI() {
+//		return $_SERVER["REQUEST_URI"];
+//	}
+//
+//	public static function Is_ValidURL($URL) {
+//		$Regexp = T\HTTP::IsLocal() ? C\Regexp::$URL_Local : C\Regexp::$URL;
+//		return preg_match($Regexp, $URL);
+//	}
 
 	/**
 	 * 

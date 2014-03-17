@@ -10,13 +10,32 @@ use \Consts as C;
  *
  * @author Abbas Hashemian <tondarweb@gmail.com>
  */
-class ConfigArray {
+class ConfigArray implements \ArrayAccess {
 
 	function __construct($arrInitialArray = NULL) {
 		if (isset($arrInitialArray) && !is_array($arrInitialArray))
-			\Err::ErrMsg_Method(__METHOD__, '$arrInitialArray should be an array!', func_get_args());
+			throw new \Err(__METHOD__, '$arrInitialArray should be an array!', func_get_args());
 		if (isset($arrInitialArray))
 			$this->Array = $arrInitialArray;
+	}
+
+	//------ array implementation
+	/** not ready yet */
+	public function offsetUnset($offset) {
+		
+	}
+
+	/** not ready yet */
+	public function offsetSet($offset, $value) {
+		
+	}
+
+	public function offsetGet($offset) {
+		return $this->$offset;
+	}
+
+	public function offsetExists($offset) {
+		return isset($this->$offset);
 	}
 
 	/**
@@ -24,7 +43,7 @@ class ConfigArray {
 	 */
 	function SetBaseConfig($arrBaseConfig) {
 		if (!is_array($arrBaseConfig))
-			\Err::ErrMsg_Method(__METHOD__, '$arrBaseArray should be an array!', func_get_args());
+			throw new \Err(__METHOD__, '$arrBaseArray should be an array!', func_get_args());
 		$this->Array = T\Basics::Merge_MultiDimension($arrBaseConfig, $this->Array);
 		return $this;
 	}
@@ -35,7 +54,7 @@ class ConfigArray {
 	 */
 	function MergeWith($arrNewConfigs) {
 		if (!is_array($arrNewConfigs))
-			\Err::ErrMsg_Method(__METHOD__, '$arrNewConfigs should be an array!', func_get_args());
+			throw new \Err(__METHOD__, '$arrNewConfigs should be an array!', func_get_args());
 		$this->Array = T\Basics::Merge_MultiDimension($this->Array, $arrNewConfigs);
 		return $this;
 	}
@@ -76,7 +95,7 @@ class ConfigArray {
 	}
 
 	function __set($PropName, $Value) {
-		$this->__call($PropName, $Value);
+		$this->__call($PropName, array($Value));
 	}
 
 	function _getArray($arrBaseConfig = NULL) {

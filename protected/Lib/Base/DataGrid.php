@@ -249,7 +249,7 @@ class DataGrid extends Container {
 		foreach ($multi_jQGridColumn as $NewColumn) {
 			/* @var $NewColumn DataGridColumn */
 			if (!is_object($NewColumn) || !is_a($NewColumn, '\Base\DataGridColumn') || !$NewColumn->index()) {
-				\Err::ErrMsg_Method(__METHOD__, 'Invalid column passed! A column shoud be an instance of "\Base\DataGridColumn" and "index" specified at least'
+				throw new \Err(__METHOD__, 'Invalid column passed! A column shoud be an instance of "\Base\DataGridColumn" and "index" specified at least'
 						, array('func_get_args' => func_get_args(), '$this' => $this));
 			}
 
@@ -642,7 +642,7 @@ function(id){
 										(empty($Column['search']) && empty($dg->Options->cmTemplate['search']))
 								) {//Validating and FASTENING Rule
 									$dgp->HasFilter = false;
-									\Err::ErrMsg_Method(__METHOD__, 'This field is not specified for filtering(search)! Hacking attempt?!', "rule:" . print_r($Rule));
+									throw new \Err(__METHOD__, 'This field is not specified for filtering(search)! Hacking attempt?!', "rule:" . print_r($Rule));
 									exit;
 								}
 								$ColName = isset($Column['whereclause_leftside']) ? $Column['whereclause_leftside'] : null;
@@ -715,7 +715,7 @@ function(id){
 							if ($DataKeys) {
 								$DatarowID = array_intersect_key($dr, $DataKeys);
 								if (count($DatarowID) != count($DataKeys))
-									\Err::ErrMsg_Method(__METHOD__, 'Specified Data Keys doesn`t match on SQL Datarow (Probably Query doesn`t contain the DataKey)', array($DataKeys, $dr));
+									throw new \Err(__METHOD__, 'Specified Data Keys doesn`t match on SQL Datarow (Probably Query doesn`t contain the DataKey)', array($DataKeys, $dr));
 								$DatarowID = implode('_', $DatarowID);
 							}
 							//filter and sort data row fields based on grid columns

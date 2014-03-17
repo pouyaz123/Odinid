@@ -112,20 +112,16 @@ class GPCS {
 	const UPLOAD_ERR_UPLOADERROR = 4;
 
 	/**
-	 *
+	 * IS NOT READY YET (incomplete migration)
 	 * @param type $FieldName
 	 * @param type $Path_withoutExt
 	 * @param type $MaxSize_Bytes
-	 * mytodo 3: $MaxSize_Bytes default max size should be from a var of Conf to secure
 	 * @param type $PCREPattern_FileName
 	 * @param type $PCREPattern_FileType
 	 * @param type $arr_GPCSConstants_ErrorCode
 	 * @return null|boolean (true:uploaded/false:failed/null:no file uploaded)
-	 */
-
-	/**
-	 * IS NOT READY YET (incomplete migration)
-	 * mytodo 2: Error Msgs in GPCS::Upload are by F3::get
+	 * mytodo 2: Upload system (cloudinary and other uploads)
+	 * mytodo 3: $MaxSize_Bytes default max size should be from a var of Conf to secure
 	 */
 	public static function UploadFile($FieldName, $Path_withoutExt, $MaxSize_Bytes = -1, $PCREPattern_FileName = NULL, $PCREPattern_FileType = NULL, &$arr_GPCSConstants_ErrorCode = array()) {
 		$File = GPCS::FILES($FieldName);

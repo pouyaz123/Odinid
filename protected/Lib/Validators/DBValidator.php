@@ -1,5 +1,5 @@
 <?php
-//mytodo 1: \Validators\DBValidator db transactions : can perform multiple SQL validation rules of one model through one transaction (->onAfterValidate)
+//mytodo x: \Validators\DBValidator db transactions : can perform multiple SQL validation rules of one model through one transaction (->onAfterValidate)
 namespace Validators;
 
 use \Tools as T;
@@ -13,6 +13,7 @@ use \Tools as T;
  * @copyright (c) Odinid
  * @access public
  * @property-read string $CheckType
+ * @property-write string $SQL
  */
 abstract class DBValidator extends \CValidator {
 
@@ -44,7 +45,7 @@ abstract class DBValidator extends \CValidator {
 	 */
 	protected function validateAttribute($object, $attribute) {
 		if (!isset($this->_SQL))
-			\Err::ErrMsg_Method(__METHOD__, 'Unique SQL has not been set', func_get_args());
+			throw new \Err(__METHOD__, 'Unique SQL has not been set', func_get_args());
 
 		$value = $object->$attribute;
 		if ($this->allowEmpty && $this->isEmpty($value))
@@ -71,10 +72,10 @@ abstract class DBValidator extends \CValidator {
 		if (!$message) {
 			switch ($CheckType) {
 				case self::UniqueCheck:
-					$message = \t2::General('The {attribute} {value} is not unique');
+					$message = \Yii::t('yii','{attribute} "{value}" has already been taken.');
 					break;
 				case self::ExistCheck:
-					$message = \t2::General("The {attribute} {value} doesn't exist");
+					$message = \Yii::t('yii','{attribute} "{value}" is invalid.');
 					break;
 			}
 			$message = str_replace(

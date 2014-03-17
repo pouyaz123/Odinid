@@ -1,5 +1,5 @@
-body	{color: #445; line-height: 18px}
-body, input{font-family: Tahoma; font-size: 11px;}
+body	{line-height: 20px; background:#ececec;}
+body, input{font-family: Tahoma; font-size: 12px;}
 
 a{color: #06c; text-decoration: none;}
 a:hover{color: #f00; text-decoration: underline;}
@@ -16,3 +16,53 @@ a.Btn, a.Btn input{color: #fff}
 
 h1, h2, h3{margin:0px; font-weight: normal}
 .HTitle {font-size: 12px}
+.CntrCol{width:995px; margin: 0px auto}
+
+.LeftCol, .RightCol{display: inline-block}
+.LeftCol{width:72.36%; padding-right: 2%}
+.RightCol{width: 21.0%; padding: 0px 2%}
+#Hdr{background:#626262}
+#Hdr .LeftCol, #Hdr .RightCol{height:45px; line-height: 45px}
+#Hdr .LeftCol, #Hdr .RightCol, #Logo{vertical-align: middle}
+
+#HNav{display: inline-block; width: 95%}
+#Logo{width: 4.02%}
+#Logo img{width: 86.66%; margin-left: 10%; height: auto}
+#HNav ul{margin-left:1.44%; padding:0px}
+#HNav ul, #HNav ul li{display: inline-block}
+#HNav li a{color:#c6c6c6; padding: 0px 5px; text-align: center}
+#HNav li a:hover{background: #c6c6c6; color: #626262; text-decoration: none}
+#HNav #mnuUsrPanel{float: right}
+#UsrHead{height: 133px}
+.UsrAvatar{height: 50px; width: 50px}
+.UsrName{font-size: 20px}
+#UsrNav{height: 32px; line-height: 32px; vertical-align: middle}
+#Hdr input{background: #7e7e7e; color: #c6c6c6; border: 0px; padding: 2px 3px; width: 97.2%; margin: 12px 0px}
+
+#divContent{margin-bottom: 18px}
+#divContent .LeftCol{vertical-align: top}
+
+#Footer {
+	position: fixed; bottom: 0px; width: 100%; height: 18px; line-height: 18px;
+	text-align: center; font-size: 10px;
+	color: #777; background:#ececec;}
+@media screen and (max-width:1024px){
+	.CntrCol{width:100%;}
+}
+@media screen and (max-width:640px){
+	#Hdr .LeftCol, #Hdr .RightCol{height:auto; line-height: 25px}
+	#Logo{vertical-align: top}
+	#HNav #mnuHdrNav{width:72.9%}
+	#HNav #mnuHdrNav li{width:32%}
+	#HNav #mnuUsrPanel{width:23%; float: none;}
+	#HNav #mnuUsrPanel li{display: block}
+	#HNav li a{display: block}
+	.LeftCol{display: block; width:100%; padding-right: 0px}
+	.RightCol{float: none; display: block; width: auto}
+	#Hdr {text-align: center}
+	#Hdr input{margin:0px; margin-bottom: 3px}
+}
+
+.OLst {}
+.OLst td {width: 1%}
+.OLst .LstHdr td {background: #7E7E7E; text-align: center; color: #C6C6C6; border: 1px solid #C6C6C6}

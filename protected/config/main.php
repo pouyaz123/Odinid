@@ -1,5 +1,5 @@
 <?php
-
+require_once 'Conf.php';
 // uncomment the following to define a path alias
 // Yii::setPathOfAlias('local','path/to/local-folder');
 // This is the main Web application configuration. Any writable
@@ -28,23 +28,20 @@ return array(
 		'Tools' => 'application.Lib.Tools',
 		'Widgets' => 'application.Lib.Widgets',
 		'Validators' => 'application.Lib.Validators',
+		'ValidationLimits' => 'application.Lib.ValidationLimits',
 	),
 	'modules' => array(
 //		'Admin' => array('class' => '\Admin\AdminModule'),
 		'admin' => array('class' => '\Admin\AdminModule'),
 //		'Site' => array('class' => '\Site\SiteModule'),
 		'site' => array('class' => '\Site\SiteModule'),
-		'gii' => array(
-			'class' => 'system.gii.GiiModule',
-			'password' => "vlc'd]di?",
-			// If removed, Gii defaults to localhost only. Edit carefully to taste.
-			'ipFilters' => array('127.0.0.1'),
-		),
+//		'gii' => require_once 'main/gii.php',
 	),
 	#
 	'onBeginRequest' => function() {
 		if (!\Conf::YiiErrsOn)
 			\Err::Initialize();
+		
 		#tondarweb output system
 		\Output::Initialize();
 		$cs=Yii::app()->clientScript;
@@ -52,52 +49,42 @@ return array(
 			'jquery.js'=>false,
 			'jquery-ui.min.js'=>false,
 		);
-		//site/admin lang initiation is inside module classes
+		
+		#site|admin lang initiation is inside module classes
+		
 		#rabbit cache engine (local/online) : like a rabbit is fast but not persistent
-		if(extension_loaded('apc')) //mytodo x: no local ApcCache : i'm on win7 & PHP5.5.6 and now Dec2013 there is no Apc ext dll for me. Also i don't know how to work with opcache. For rabbitCache , i have used File cache instead in \Tools\Cache
+		if(extension_loaded('apc'))
 			\Yii::app()->components['rabbitCache'] = array(
 				'class' => 'CApcCache'	//Sync this rabbitCache type with the return types in the phpDocs of the \Tools\Cache class
 			);
+		
+		#common required fields mark
 		\CHtml::$afterRequiredLabel = ' *';
+		
+		#common PushStateScript (ajax url in HTML5 support)
 		if(\Tools\HTTP::IsAsync())
-			\html::PushStateScript($_SERVER['REQUEST_URI']);
+			\html::PushStateScript();
+		
 	},
 	#
 //	'controllerPath' => YiiBase::getPathOfAlias('application.modules.Site.controllers'),
 //	'controllerNamespace' => 'Site\controllers',
 //	'defaultController' => 'site',	//this is the Site module here has been set for default controller
-	'controllerMap' => array(
-	),
+//	'controllerMap' => array(	#controller maps inside each module separately
+//	),
 	// application components
 	'components' => array(
-		'urlManager' => array(
-			'urlFormat' => 'path',
-			'showScriptName' => false,
-			'rules' => array(
-				'admin/<_c:[A-z][0-z_]+>' => 'admin/<_c>',
-//				'admin/<_c:[A-z][0-z_]+>/<_a:[A-z][0-z_]+>' => 'admin/<_c>/<_a>',
-//				'admin' => 'Admin',
-				'/' => 'site/default',
-				'<_c:[A-z][0-z_]+>/<_a:[A-z][0-z_]+>' => 'site/<_c>/<_a>',
-//				'<_c:[A-z][0-z_]+>/<_a:[A-z][0-z_]+>/<lang:[a-z]{2}(_[a-z]{2})? >' => 'site/<_c>/<_a>',
-			),
-		),
+		'urlManager' => require_once 'main/urlManager.php',
 		'fileCache' => array(
 			'class' => 'CFileCache',
 			'embedExpiry' => true,
 		),
-		'db' => array(
-			'connectionString' => 'mysql:host=localhost;dbname=odinid_db',
-			'emulatePrepare' => true,
-			'username' => 'FreeUN',
-			'password' => 'FreePWS',
-			'charset' => 'utf8',
-			'tablePrefix' => '_'
-		),
-		'errorHandler' => array(
-			// use 'site/error' action to display errors
-			'errorAction' => 'site/_errors/Error',
-		),
+		'db' => require_once 'main/db.php',
+		//error views will be read from active theme views and protected/views/system automatically
+//		'errorHandler' => array(
+//			// use 'site/error' action to display errors
+//			'errorAction' => 'site/_errors/Error',
+//		),
 		'session' => array(
 			'autoStart' => false
 		),
@@ -128,7 +115,5 @@ return array(
 	// application-level parameters that can be accessed
 	// using Yii::app()->params['paramName']
 	'params' => array(
-	// this is used in contact page
-//		'adminEmail' => 'webmaster@example.com',
 	),
 );

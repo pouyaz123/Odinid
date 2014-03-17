@@ -4,6 +4,7 @@
  * rel="AjaxPanel:#TargetID DefaultButton:#ID"
  * rel="AjaxElement:#TargetID:replace"	//:replace :insert
  * rel="AjaxExcept"
+ * rel="SimpleAjaxPanel"
  * 
  * rel="__AjaxPostKW:A_SpecialKW"
  * rel="AsyncURL:http://x.x/x"
@@ -169,7 +170,8 @@ var PostBack = new function()
 		success: function(data, s, XHR) {
 			OfflineErrorCounts = 0
 		}, //jQuery ajax success doesn't work properly so it will be triggered by complete
-		error: AJAX_Err
+		error: AJAX_Err,
+		cache: true
 	})
 	var currentRequests = {}
 	function AbortAjax(URL) {
@@ -383,6 +385,7 @@ var PostBack = new function()
 			AjaxKW = ThisRel.find2find_substr(AjaxKeyword_PostParamName + ':', ' ')
 			RelPostParams = ThisRel.find2find_substr(AjaxPostParamsPrefix + ':', ' ')
 		}
+		PanelAsSimpleTarget = PanelAsSimpleTarget || PanelRel.indexOf('SimpleAjaxPanel')>-1
 		if (PanelRel && !PanelAsSimpleTarget) {
 			if (!TargetSelector)
 				TargetSelector = PanelRel.find2find_substr(AjaxPnlPrefix + ':', ' ')
@@ -512,9 +515,9 @@ var PostBack = new function()
 					url: URL,
 					data: arrNewParams,
 					success: function(result) {
-						if (result && result.Contains('<!-##--ERROR--##->'))
+						if (result && result.Contains('<!--##--ERROR--##-->'))
 							AJAX_Err({
-								responseText: result.replaceAll('<!-##--ERROR--##->', '')
+								responseText: result.replaceAll('<!--##--ERROR--##-->', '')
 							})
 						else
 							OnSuccessHandler(result)

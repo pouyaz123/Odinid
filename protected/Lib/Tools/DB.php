@@ -52,11 +52,12 @@ class DB {
 	const LikeEscapeChar = '=';
 
 	/**
-	 * escape the LIKE(not RLIKE or REGEXP) chars. Concurrent usage with ::EscapeLike_QueryPart
+	 * Escapes the LIKE(not RLIKE or REGEXP) chars.<br/>
+	 * Simply use the result as a param and don't forget the "ESCAPE '='" :<br/>
+	 *  "col LIKE CONCAT('%', :param, ...) ESCAPE '" . T\DB::LikeEscapeChar . "'"
 	 * @param string $val
 	 * @param string $escapeChar  = self::LikeEscapeChar "="
 	 * @return string escaped value
-	 * Use the value as param in the query : col LIKE CONCAT('%', :param, ...)
 	 */
 	static function EscapeLikeWildCards($val, $escapeChar = self::LikeEscapeChar) {
 		return str_replace(
@@ -107,7 +108,7 @@ class DB {
 	 *  boolean : true to use the default failure msg and false for no failure msg
 	 * @return \CDbTransaction|boolean //\Yii::app()->db->beginTransaction() [->commit ->rollback] or false on failure
 	 */
-	public static function Transaction($arrQueries, $arrCommonParams = NULL, $mixedFailureMsg = false) {
+	public static function Transaction($arrQueries, $arrCommonParams = NULL, $mixedFailureMsg = true) {
 		$DB = \Yii::app()->db;
 		$Transaction = $DB->beginTransaction();
 		try {
@@ -125,10 +126,18 @@ class DB {
 			$Transaction->commit();
 		} catch (\Exception $ex) {
 			$Transaction->rollback();
-			if ($mixedFailureMsg)
-				is_bool($mixedFailureMsg) ?
-								\Err::ErrMsg_Method(__METHOD__, 'Query transaction failed', func_get_args()) :
-								$mixedFailureMsg($ex, func_get_args(), $Transaction);
+			if ($mixedFailureMsg) {
+				$arrDetails = array(
+					'func_get_args' => func_get_args(),
+					'\Exception $ex' => $ex
+				);
+				if (is_bool($mixedFailureMsg))
+					throw new \Err(__METHOD__, 'Query transaction failed', $arrDetails);
+				elseif (is_callable($mixedFailureMsg)) {
+					\Err::TraceMsg_Method(__METHOD__, 'Query transaction failed', $arrDetails);
+					$mixedFailureMsg($ex, func_get_args(), $Transaction);
+				}
+			}
 			return false;
 		}
 		return $Transaction;
@@ -161,7 +170,7 @@ class DB {
 	 * Using the PDO ::Query method we are returning and working with the reference of the data object
 	 * @param string $strQuery
 	 * @param array $arrParams
-	 * @return array | NULL
+	 * @return array|NULL
 	 */
 	public static function GetTable($strQuery, $arrParams = NULL, &$objCDbDataReader = NULL, &$objCDbCommand = NULL) {
 		$objCDbDataReader = self::Query($strQuery, $arrParams, $objCDbCommand);
@@ -171,7 +180,7 @@ class DB {
 	/**
 	 * @param string $strQuery
 	 * @param array $arrParams
-	 * @return array | NULL
+	 * @return array|NULL
 	 */
 	public static function GetRow($strQuery, $arrParams = NULL, &$objCDbDataReader = NULL, &$objCDbCommand = NULL) {
 		$objCDbDataReader = self::Query($strQuery, $arrParams, $objCDbCommand);

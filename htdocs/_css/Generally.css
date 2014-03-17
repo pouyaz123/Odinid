@@ -88,6 +88,7 @@ p{margin: 0px;}
 	   -khtml-border-radius: 4px;
 	   -moz-border-radius: 4px;}
 
+.Fld, .Fld textarea, .Fld label {vertical-align: top}
 .rtl .Fld input.ltr
 , .rtl .Fld select.ltr
 , .rtl .Fld div.MyDDL
@@ -137,7 +138,6 @@ p{margin: 0px;}
 .File input{height: auto !important; border: 0px none #fff}
 
 
-/*mytodo 3: Totally Prepare Error Pages*/
 /*--------- Msgs ---------*/
 .AltRow{background: #eef}
 

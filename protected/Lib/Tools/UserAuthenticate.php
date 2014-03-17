@@ -44,7 +44,7 @@ class UserAuthenticate {
 					, $UserID, $Expire, '/', null, $boolSecure, true);
 			\GPCS::COOKIE($CookieName . "[$CookieHashKey]"
 					, $Hash, $Expire, '/', null, $boolSecure, true);
-			//set the vhash
+			//set the vhash : vhash is to validate against user id to prevent invalid user login posts from creating overload SQL communication
 			\GPCS::COOKIE($CookieName . "[$CookieVHashKey]"
 					, T\Security::Hash($UserID), $Expire, '/', null, $boolSecure, true);
 		}
@@ -70,6 +70,10 @@ class UserAuthenticate {
 		\GPCS::COOKIE($CookieName . "." . $CookieIDKey, NULL, NULL, '/');
 		\GPCS::COOKIE($CookieName . "." . $CookieHashKey, NULL, NULL, '/');
 		\GPCS::COOKIE($CookieName . "." . $CookieVHashKey, NULL, NULL, '/');
+	}
+
+	static function Crypt($str, $raw_output = false) {
+		return T\Security::Crypt($str, $raw_output);
 	}
 
 }

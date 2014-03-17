@@ -2,7 +2,7 @@
 
 namespace Admin\Components;
 
-use Admin\Consts\Routes as Routes;
+use \Admin\Consts\Routes as Routes;
 use \Tools as T;
 
 /**
@@ -15,9 +15,8 @@ class BaseController extends \CController {
 
 	/**
 	 * @var string the default layout for the controller view.
-	 * meaning the layout for logged in admins in the internal pages
 	 */
-	public $layout = 'innerpages';
+	public $layout = 'outerpages';
 
 	/**
 	 * @var array context menu items. This property will be assigned to {@link CMenu::items}.
@@ -25,9 +24,16 @@ class BaseController extends \CController {
 	public $menu = array();
 
 	/**
-	 * sets the admin internal environment such as the context menu or required scripts
+	 * @var array the breadcrumbs of the current page. The value of this property will
+	 * be assigned to {@link CBreadcrumbs::links}. Please refer to {@link CBreadcrumbs::links}
+	 * for more details on how to specify this property.
 	 */
-	function SetInternalEnv() {
+	public $breadcrumbs = array(); //breadcrumbs is used in main layout to build path links
+
+	/**
+	 * sets the admin internal(loggedin) environment such as default layout or the context menu or ...
+	 */
+	private function SetInternalEnv() {
 		//side menu
 		\Output::AddIn_GeneralOutput(function($obj) {
 			\Base\DataGrid::LoadFiles();
@@ -56,6 +62,29 @@ class BaseController extends \CController {
 			$URL = $URL[0];
 			\html::InlineJS("$('#widMenu .selected').removeClass('selected');$('#widMenu a[href|=\"$URL\"]').addClass('selected')", 'SideMenuUpdate', '');
 		}
+	}
+
+	/**
+	 * set appropriate environment such as layer for internal loggedin versus external admin not-loggedin
+	 */
+	function SetEnv() {
+		if (\Admin\models\AdminLogin::IsLoggedIn()) {
+			$this->layout = 'innerpages';
+			$this->SetInternalEnv();
+		} else
+			$this->layout = 'outerpages';
+	}
+
+	/**
+	 * admin panel needs authentication and authorization by default. Handled by this filter.
+	 * @return array
+	 */
+	public function filters() {
+		return array(
+			array(
+				'\Admin\filters\AdminAuth',
+			)
+		);
 	}
 
 }

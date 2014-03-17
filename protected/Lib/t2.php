@@ -15,7 +15,7 @@ class t2 {
 
 	private static $_SiteLoaded = false;
 	private static $_AdminLoaded = false;
-	private static $Err_ConflictUsage = 'Conflict in usage of both of Site and Admin translation resources';
+	private static $Err_ConflictUsage = 'Conflict in usage of both of Site and Admin translation resources (\t2::Site & \t2::Admin)';
 
 	/**
 	 * improved Yii::t to support modular base
@@ -37,15 +37,29 @@ class t2 {
 		}
 	}
 
+//	 * The module name will come from ucwords(\Yii::app()->controller->module->id) and category by the name of called magic method<br/>
+//	 * If there was no \Yii::app()->controller->module you should use \t2::ModuleName_CatName('msg')<br/>
+//	 * For example in module's init , no module exists yet
 	/**
-	 * PHPDoc doesn't support magic static methods to have autocomplete so we have a fake Lng class too here : Lng_StaticMethodPHPDoc
+	 * PHPDoc doesn't support magic static methods to have autocomplete so we have a fake Lng class too here : Lng_StaticMethodPHPDoc<br/>
 	 * @param type $name
 	 * @param type $arguments
-	 * @access private
+	 * @return string 
+	 * mytodo 1: make translator sweeter by \Yii::app()->controller->module->id
 	 */
 	public static function __callStatic($name, $arguments) {
+//		static $objModule = null;
+//		if (!$objModule) {
+//			$ctrl = \Yii::app()->controller;
+//			$objModule = $ctrl?$ctrl->module:null;
+//		}
+//		if ($objModule) {
+//			$Module = ucwords($objModule->id);
+//			$Category = $name;
+//		} else {
 		$Module = trim(strstr($name, '_', true), '_');
 		$Category = trim(strstr($name, '_'), '_');
+//		}
 		$Category = strtolower('tr_' . $Category);
 		array_unshift($arguments, $Category);
 		return call_user_func_array(array(__CLASS__, $Module), $arguments);
@@ -77,7 +91,7 @@ class t2 {
 	static function AdminPageTitle($category, $message, $params = array(), $source = null, $language = null) {
 		self::$_AdminLoaded = true;
 		if (self::$_SiteLoaded)
-			\Err::ErrMsg_Method(__METHOD__, self::$Err_ConflictUsage, func_get_args());
+			throw new \Err(__METHOD__, self::$Err_ConflictUsage, func_get_args());
 		return self::PageTitle('Admin', $category, $message, $params, $source, $language);
 	}
 
@@ -93,7 +107,7 @@ class t2 {
 	static function SitePageTitle($category, $message, $params = array(), $source = null, $language = null) {
 		self::$_SiteLoaded = true;
 		if (self::$_AdminLoaded)
-			\Err::ErrMsg_Method(__METHOD__, self::$Err_ConflictUsage, func_get_args());
+			throw new \Err(__METHOD__, self::$Err_ConflictUsage, func_get_args());
 		return self::PageTitle('Site', $category, $message, $params, $source, $language);
 	}
 
@@ -125,7 +139,7 @@ class t2 {
 	static function Site($category, $message, $params = array(), $source = null, $language = null) {
 		self::$_SiteLoaded = true;
 		if (self::$_AdminLoaded)
-			\Err::ErrMsg_Method(__METHOD__, self::$Err_ConflictUsage, func_get_args());
+			throw new \Err(__METHOD__, self::$Err_ConflictUsage, func_get_args());
 		return self::t('Site', $category, $message, $params, $source, $language);
 	}
 
@@ -157,7 +171,7 @@ class t2 {
 	static function Admin($category, $message, $params = array(), $source = null, $language = null) {
 		self::$_AdminLoaded = true;
 		if (self::$_SiteLoaded)
-			\Err::ErrMsg_Method(__METHOD__, self::$Err_ConflictUsage, func_get_args());
+			throw new \Err(__METHOD__, self::$Err_ConflictUsage, func_get_args());
 		return self::t('Admin', $category, $message, $params, $source, $language);
 	}
 
@@ -207,8 +221,10 @@ class t2 {
 		$lang = \GPCS::GET('lang');
 		if ($lang && in_array($lang, $Langs))
 			\Yii::app()->language = $lang;
-		else //en -> en translate : to change a msg in one file and affect everywhere
+		else { //en -> en translate : to change a msg in one file and affect everywhere
+//			\Yii::app()->sourceLanguage = '00';
 			\Yii::app()->language = $Langs[0];
+		}
 	}
 
 	/**
@@ -232,6 +248,8 @@ class t2 {
 		if (!$Lng) {
 			$Lng = new Lng_LangObj();
 			$Lng->LocaleID = \Yii::app()->sourceLanguage;
+//			if ($Lng->LocaleID === '00')
+//				$Lng->LocaleID = \Yii::app()->language;
 			if (!$Lng->LocaleID)
 				$Lng->LocaleID = \Conf::$SiteModuleLangs[0];
 			$Lng->LangCode = strstr($Lng->LocaleID, '_', true);

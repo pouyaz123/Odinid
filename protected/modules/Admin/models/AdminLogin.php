@@ -6,30 +6,29 @@ use \Consts as C;
 use \Tools as T;
 
 /**
- * model for _users
- * NOTE : scenario name has been used as the post name in ->getPostName()
- * register, activation, login
+ * @method boolean|array Login() callLogin + events
  */
 class AdminLogin extends \Base\FormModel {
 
 	public function getPostName() {
-		return $this->scenario;
+		return 'Login';
 	}
 
-	protected $XSSPurification = false;
+	public function getXSSPurification() {
+		return false;
+	}
 
-	const SessionName = 'adms';
-	const CookieName = 'admc';
+	const SessionName = C\SessCookNames::AdminLogin_SessionName;
+	const CookieName = C\SessCookNames::AdminLogin_CookieName;
 	const RememberHours = 8760; //365days
 
 	public $txtUsername;
 	public $txtPassword;
-	public $chkRemember;
+	public $chkRemember = false;
 	public $txtCaptcha;
 
 	protected function CleanViewStateOfSpecialAttrs() {
 		$this->txtCaptcha = $this->txtPassword = null;
-		parent::CleanViewStateOfSpecialAttrs();
 	}
 
 	/**
@@ -37,13 +36,10 @@ class AdminLogin extends \Base\FormModel {
 	 */
 	public function rules() {
 		return array(
-			array('txtUsername, txtPassword, txtCaptcha', 'required',
-				'on' => 'Login'),
+			array('txtUsername, txtPassword, txtCaptcha', 'required'),
 			#
-			array('chkRemember', 'boolean',
-				'on' => 'Login'),
-			array('txtCaptcha', 'MyCaptcha',
-				'on' => 'Login'),
+			array('chkRemember', 'boolean'),
+			array('txtCaptcha', 'MyCaptcha'),
 		);
 	}
 
@@ -59,15 +55,19 @@ class AdminLogin extends \Base\FormModel {
 		);
 	}
 
-	function Login() {
+	function onAfterLogin() {
+		$this->CleanViewStateOfSpecialAttrs();
+	}
+
+	function callLogin() {
 		$drUser = null;
 		if ($this->validate()) {
 			$drUser = T\DB::GetRow(
-							'SELECT `ID`, `Username`, `LastLoginIP`, `LastLoginTimeStamp`'
+							'SELECT `ID`, `Username`, `LastLoginIP`, `LastLoginTStamp`'
 							. ' FROM `_admins`'
 							. ' WHERE `Username`=:un AND `Status`=:active AND `Password`=:pw', array(
 						':un' => $this->txtUsername,
-						':pw' => md5($this->txtPassword),
+						':pw' => T\UserAuthenticate::Crypt($this->txtPassword),
 						':active' => C\User::Status_Active,
 			));
 			if ($drUser) {
@@ -75,7 +75,7 @@ class AdminLogin extends \Base\FormModel {
 				$LoginTime = time();
 				T\DB::Execute(
 						'UPDATE `_admins`'
-						. ' SET `LastLoginIP`=:ip, `LastLoginTimeStamp`=:time'
+						. ' SET `LastLoginIP`=:ip, `LastLoginTStamp`=:time'
 						. ' WHERE `ID`=:id', array(
 					':id' => $drUser['ID'],
 					':ip' => $LoginIP,
@@ -85,7 +85,6 @@ class AdminLogin extends \Base\FormModel {
 			} else
 				$this->addError('', \t2::Admin_User('Invalid username or password'));
 		}
-		$this->CleanViewStateOfSpecialAttrs();
 		return $drUser? : false;
 	}
 
@@ -129,7 +128,7 @@ class AdminLogin extends \Base\FormModel {
 		$Hash = \GPCS::COOKIE("$CookieName." . T\UserAuthenticate::CookieHashKey);
 		if (isset($ID) && $Hash && T\UserAuthenticate::IsValidHash($CookieName, $ID)) {
 			$drUser = T\DB::GetRow(
-							'SELECT `ID`, `Username`, `LastLoginIP`, `LastLoginTimeStamp`'
+							'SELECT `ID`, `Username`, `LastLoginIP`, `LastLoginTStamp`'
 							. ' FROM `_admins`'
 							. ' WHERE `ID`=:id AND `Status`=:active', array(
 						':id' => $ID,
@@ -137,10 +136,10 @@ class AdminLogin extends \Base\FormModel {
 			));
 
 			if ($drUser) {
-				//mytodo 3:REMOTE_ADDR OR LastLoginIP to validate user remember cookie
+				//mytodo 3:REMOTE_ADDR OR LastLoginIP to validate admin user remember cookie (more security)
 				$LoginIP = $_SERVER['REMOTE_ADDR'];
 //				$LoginIP = $drUser['LastLoginIP'];
-				$LoginTime = $drUser['LastLoginTimeStamp'];
+				$LoginTime = $drUser['LastLoginTStamp'];
 				if ($Hash === T\UserAuthenticate::GetHash($drUser['Username'], $LoginTime, $LoginIP)) {
 					self::MakeItLoggedIn($drUser, false, $LoginTime, $LoginIP);
 					return true;

@@ -10,20 +10,47 @@ namespace Consts;
  */
 final class Regexp {
 
-	const URL = '/^http(s)?\:\/\/\w+(\.\w+)*(\.\w{2,})+[^\s]$/' #	http://asd.c is wrong but http://asd.co is ok
-			, URL_Local = '/^http(s)\?:\/\/\w+(\.\w+)*[^\s]?$/';
+	const URL = '/^http(s)?\:\/\/\w+(\.\w+)*(\.\w{2,})+[^\s]$/'; #	http://asd.c is wrong but http://asd.co is ok
+	const URL_Local = '/^http(s)\?:\/\/\w+(\.\w+)*[^\s]?$/';
 #	
+	/** Force the first username character to be alphabet. Someone may choose .htaccess or other things */
 	const Username = '/^[A-Za-z][\w\.]*$/';
-	const Username_InvalidCases = '/^(_css|_js|_img|assets|index\.php)$/';
+	static function Username_InvalidCases() {
+		return '/^('
+				//htdocs directories
+				. '_css|_js|_img|assets|me'
+				//htdocs files
+				. '|.*\.php|.*\.htaccess'
+				//module names has been used in urlManager or may be used there
+				. '|admin|site'
+				//site module controllers have been set in \Conf::SiteModuleControllers
+				. (\Conf::SiteModuleControllers ? '|' . \Conf::SiteModuleControllers : '')
+				. ')$/i';
+	}
+	#
 	const Email = '/^\w+([\.\-]\w+)*@\w+([\.\-]\w+)*\.\w{2,}$/';
+	static function CompanyURLDomain($Domain_PregEscaped) {
+		return "/^([\w\-]+\.)?$Domain_PregEscaped$/";
+	}
+	#
 	const LogicName = '/^\w*$/';
-//	const Password = '/^.{4,}$/';
-	const Password_MinLength = 4;
-	const Number = '/^(\-?\d+(\.\d+)?)?$/';
-	const Integer = '/^(\-\d)?\d*$/';
+	/**
+	 * SimpleWords has been used for :
+	 * <ol>
+	 *	<li>geo items in register, locations, residencies</li>
+	 *	<li>...</li>
+	 * </ol>
+	 */
+	const SimpleWords = '/^[\w\s\-\,\.\'\`\(\)]+$/';
+	const ASCIIChars_Simple = '/^[\w\s\-\,\.\:\"\'\`\~\?\/\\\(\)\[\]\{\}\=\+\*\!\@\#\$\%\^\&\<\>]+$/';
+	#
+//	const Number = '/^(\-?\d+(\.\d+)?)?$/';
+//	const Integer = '/^(\-\d)?\d*$/';
 	const Phone = '/^[\d\+]?[\d\s\-]*$/';
-	const DateTime = '/^\d\d\d\d\-\d\d\-\d\d\s\d\d:\d\d:\d\d$/';
+	#
+//	const DateTime = '/^\d\d\d\d\-\d\d\-\d\d\s\d\d:\d\d:\d\d$/';
 	const DateFormat_Yii_FullDigit = 'yyyy-MM-dd';
+	#
 //	const HttpRequestHeader_ModifiedSince = '/^[\w\,\s:\+\-]+$/';
 //	const Language = '/^[\w\-\s]*$/';
 //	const Languages = '/^[\w\-\s\,]*$/';
@@ -31,39 +58,8 @@ final class Regexp {
 //	const Location = '/^[\w\s\-\/\.\)\(\'\"]*$/';
 //	const Locations = '/^[\w\s\-\,\/\.\)\(\'\"]*$/';
 //	const Location_Label = "<span dir=\"ltr\">Characters : A-z 0-9 _ - / . ) ( &apos; &quot; [space]</span>";
-	const CurrecyAbbr = '/^[\w\s\,]+$/';
-	const ASCIIChars_Simple = '/^[\w\s\-\,\.\:\"\'\`\~\?\/\\\(\)\[\]\{\}\=\+\*\!\@\#\$\%\^\&\<\>]+$/';
+//	const CurrecyAbbr = '/^[\w\s\,]+$/';
 
-	static function CompanyURLDomain($Domain_PregEscaped) {
-		return "/^([\w\-]+\.)?$Domain_PregEscaped$/";
-	}
-
-//KASP
-//	const NoComma = '/^[^,]*$/';
-//	const NoComma_Req = '/^[^,]+$/';
-//	const AuctionItemSpecifications='/^[\w\s\;\:\(\)\.\-]*$/';
-//	const AuctionItemSpecifications_Label = '<span dir="ltr">Characters : A-z 0-9 _ - : ; ) ( . [space]</span>';
-#
-	const Username_MinLen = 4;
-	const Username_MaxLen = 32;
-	#
-	const Location_EachMaxChars = 100;
-	const Location_MaxChars = 300;
-	#
-	const Currency_MaxChars = 30;
-	#
-	const Language_EachMaxChars = 25;
-	const Language_MaxChars = 125;
-	#
-//KASP
-	const Branch_EachMaxChars = 100;
-	const Branch_MaxChars = 300;
-	const Skill_EachMaxChars = 30;
-	const Skill_MaxChars = 150;
-	const AuctionItemSpecifications_MaxChars = 50;
-	#msging
-	const MsgingDepr_MaxChance = 30;
-	const MsgingDepr_LockHours = 168;
 	#
 	const SecureFileExt = 'txt|csv|htm|html|xml|css|doc|docx|xls|rtf|ppt|pdf|swf|flv|avi|wmv|mov|mpg|mpeg|webm|mp4|mov|f4v|mp3|ogg|wav|jpg|jpeg|gif|png|tiff|tif|psd|zip|rar|tar|gzip';
 //			'txt|csv|htm|html|xml|css|doc|docx|xls|rtf|ppt|pdf
@@ -78,7 +74,6 @@ final class Regexp {
 //	txt|csv|css|doc|xls|rtf|ppt|pdf|swf|flv|avi|wmv|mov|jpg|jpeg|gif|png|dwg
 	const PictureExt = 'jpg|jpeg|png|gif|ico'; //used for html::PictureUpload
 	const VideoExt = 'swf|flv|avi|wmv|mov|mpg|mpeg|webm|mp4|mov|f4v';
-
 	static function FileNameRegexp($Ext = self::SecureFileExt) {
 		return '/^.*\.(' . $Ext . ')$/';
 	}

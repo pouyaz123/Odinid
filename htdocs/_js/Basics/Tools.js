@@ -1,4 +1,4 @@
-/** By Abbas Ali Hashemian<tondarweb@gmail.com> - webdesignir.com*/ 
+/** By Abbas Ali Hashemian<tondarweb@gmail.com> - webdesignir.com*/
 //+synced height
 PBDocComplete = new Array()
 MyAutoCompleteFNCs = new Array()
@@ -86,9 +86,38 @@ String.prototype.replaceAll = function(oldS, newS) { //some backups
 	return str
 }
 
-function htmlTagDecode(val){if(!val)return val;return val.replace(/&gt;/gm, '>').replace(/&lt;/gm, '<').replace(/\\\//gm, '/')}
+function htmlTagDecode(val) {
+	if (!val)
+		return val;
+	return val.replace(/&gt;/gm, '>').replace(/&lt;/gm, '<').replace(/\\\//gm, '/')
+}
 
 
+/**
+ *<ul>
+ * <li>_t.loadJS = _t.LoadJS //camel mode naming</li>
+ * <li>_t.LoadJS = function(src, dontUnique)</li>
+ * <li>
+ *	_t.RunScriptAfterLoad = function(jssrc, fnc)
+ *	_t.RunScriptAfterLoad("myCode", function(){do this when it is loaded})
+ * </li>
+ * <li>
+ *	_t.AddToDependencies = function(src, arrDs)
+ *	_t.AddToDependencies('MyJuiAutoComplete/MyComboBox', ['jqUI/jquery.ui.core.min', ...])
+ * </li>
+ * <li>_t.PushState(url)</li>
+ * <li>_t.SetCookie = function(Name, Value)</li>
+ * <li>_t.GetCookie = function(Name)</li>
+ * <li>_t.loadCSS = _t.LoadCSS //camel mode naming</li>
+ * <li>_t.LoadCSS = function(href, dontUnique)</li>
+ * <li>DocumentTitle = documen_t.title//global</li>
+ * <li>_t.DocTitle = function(Title)</li>
+ * <li>_t.PushState = function(URL)</li>
+ * <li>_t.Wrt = function(str)</li>
+ * </ul>
+ * @author "Abbas Ali Hashemian"<tondarweb@gmail.com> webdesignir.com
+ * @type @new;_L118
+ */
 _t = new function() {
 	var JSRootURL = '/_js',
 			JSExt = '.js',
@@ -113,28 +142,43 @@ _t = new function() {
 		if (history.replaceState)
 			history.replaceState(PageURLState, '', URL);
 	}
-	
-	DocumentTitle=document.title
-	t.DocTitle=function(Title){
-		DocumentTitle=document.title=Title
+
+	DocumentTitle = document.title//global
+	t.DocTitle = function(Title) {
+		DocumentTitle = document.title = Title
 	}
 
 	var LoadCount = 0
 	var LoadingCoverIsOn = false
-	var arrURLs = new Array()
-	t.RunScriptAfterLoad = function(jssrc, fnc) {//mytodo 2: complete ajax script loading system (one of other required one)
-		jssrc = GetSrcURL(jssrc)
-		if (!arrURLs[jssrc])
-			fnc()
-		else
-			arrURLs[jssrc].push(fnc)
-	}
+	var arrOnLoadFncs = new Array()
 	function GetSrcURL(src) {
 		if (src.indexOf(AbsURL_Sign) !== 0)
 			src = JSRootURL + '/' + src + JSExt
 		else
 			src = src.substr(1)
 		return src
+	}
+	t.RunScriptAfterLoad = function(jssrc, fnc) {
+		jssrc = GetSrcURL(jssrc)
+		if (!arrOnLoadFncs[jssrc])
+			fnc()
+		else
+			arrOnLoadFncs[jssrc].push(fnc)
+	}
+	/**
+	 * @param {String} src the source code requires this dependencies
+	 * @param {Array} arrDs dependencies
+	 */
+	t.AddToDependencies = function(src, arrDs) {
+		t.LoadJS(src)
+		src = GetSrcURL(src)
+		var eachD
+		for (eachD in arrDs) {
+			var eachDurl = GetSrcURL(arrDs[eachD])
+			if (!arrLoadedJS[eachDurl] && arrOnLoadFncs[src])
+				arrOnLoadFncs[src].dependencies[eachDurl] = 1
+			t.LoadJS(arrDs[eachD])
+		}
 	}
 	t.LoadJS = function(src, dontUnique) {
 		src = GetSrcURL(src)
@@ -144,26 +188,50 @@ _t = new function() {
 		if (!document.body || !document.body.Completed)
 			t.Wrt('<script type="text/javascript" language="javascript" src="' + src + '"></script>')
 		else if ($) {
-			var PBExists = typeof(PostBack) != 'undefined'
+			var PBExists = typeof (PostBack) != 'undefined'
 			LoadCount++
-			arrURLs[src] = new Array()
+			arrOnLoadFncs[src] = new Array()
+			arrOnLoadFncs[src].dependencies = new Array()
 			if (PBExists && !LoadingCoverIsOn) {
 				LoadingCoverIsOn = 1
 				PostBack.LoadingCover(document.body, 1)
 			}
-			$.ajax({url: src, dataType: 'script', type: 'get', cache: true
-						, success: function() {
-					LoadCount--
-					var fnc
-					for (fnc in arrURLs[src]) {
-						arrURLs[src][fnc]()
+			function HandleOnloadFncs(src) {
+				var i
+				for (i = 0; i < arrOnLoadFncs[src].length; i++) {
+					arrOnLoadFncs[src][i]()
+				}
+				arrOnLoadFncs[src] = null
+				delete arrOnLoadFncs[src]
+				LoadCount--
+			}
+			function SuccessHandler() {
+					var eachD
+					for (eachD in arrOnLoadFncs[src].dependencies)
+						return//so there is atleast a D
+					var eachSrc, arrEachSrc, anyD = false
+					for (eachSrc in arrOnLoadFncs) {
+						arrEachSrc = arrOnLoadFncs[eachSrc]
+						if (arrEachSrc.dependencies[src]) {
+							arrEachSrc.dependencies[src] = null
+							delete arrEachSrc.dependencies[src]
+							for (eachD in arrEachSrc.dependencies)
+								anyD = true
+							if (!anyD) {
+								delete arrEachSrc.dependencies
+								HandleOnloadFncs(eachSrc)
+							}
+						}
 					}
-					arrURLs[src] = null
-					delete arrURLs[src]
+					HandleOnloadFncs(src)
 					if (!LoadCount && PBExists && LoadingCoverIsOn) {
 						LoadingCoverIsOn = 0
 						PostBack.LoadingCover(document.body, 0)
 					}
+				}
+			$.ajax({url: src, dataType: 'script', type: 'get', cache: true
+				, success: function(){
+					setTimeout(SuccessHandler, 100)
 				}
 			})
 		}
@@ -177,7 +245,7 @@ _t = new function() {
 			$('head link[rel="stylesheet"][type="text/css"]').each(function(idx, elm) {
 				arrLoadedCSS[$(elm).attr('href')] = 1
 			})
-			DefaultsAreChecked = (typeof(PostBack) != 'undefined')
+			DefaultsAreChecked = (typeof (PostBack) != 'undefined')
 		}
 		if (href.indexOf(AbsURL_Sign) !== 0)
 			href = CSSRootURL + '/' + href + CSSExt
@@ -186,7 +254,7 @@ _t = new function() {
 		if (arrLoadedCSS[href] && !dontUnique)
 			return false;
 		arrLoadedCSS[href] = 1;
-		if (typeof($) == 'undefined')
+		if (typeof ($) == 'undefined')
 			t.Wrt('<link rel="stylesheet" type="text/css" href="' + href + '" />')
 		else {
 			var $Link = $('<link />')
@@ -219,17 +287,17 @@ function SyncTDDivHeight() {
 	})
 }
 
-if (typeof($) == 'undefined') {
-	if (typeof(window.top.$) != 'undefined')
+if (typeof ($) == 'undefined') {
+	if (typeof (window.top.$) != 'undefined')
 		var $ = window.top.$
 	else
 		_t.LoadJS('Basics/jquery-1.8.0.min')
-	PBDocComplete.push(function() {
-		document.body.Completed = 1
-		SyncTDDivHeight()
-		PostBack.AddInAjaxComplete('SyncedH', SyncTDDivHeight)
-	})
 }
+PBDocComplete.push(function() {
+	document.body.Completed = 1
+	SyncTDDivHeight()
+	PostBack.AddInAjaxComplete('SyncedH', SyncTDDivHeight)
+})
 
 function TinyMCE_destroyer($Target) {
 	if (window.tinyMCE) {

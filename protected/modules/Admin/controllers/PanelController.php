@@ -18,13 +18,12 @@ class PanelController extends \Admin\Components\BaseController {
 				'maxLength' => 4,
 			)
 		);
-//		new \CCaptchaAction;
 	}
 
 	public function filters() {
 		return array(
 			array(
-				'\Admin\filters\AdminAuthFilter - Login, Logout, captcha',
+				'\Admin\filters\AdminAuth - Login, Logout, captcha',
 			)
 		);
 	}
@@ -32,22 +31,22 @@ class PanelController extends \Admin\Components\BaseController {
 	public function actionLogin() {
 		if (\Admin\models\AdminLogin::IsLoggedIn())
 			T\HTTP::Redirect_Immediately(
-					$this->createUrl(\Conf::AdminHomeRoute)
+					$this->createAbsoluteUrl(\Conf::AdminHomeRoute)
 					, \t2::Admin_User("Logged in successfully"));
 
 		$this->pageTitle = \t2::AdminPageTitle('tr_common', 'Login');
 
-		$LoginForm = new \Admin\models\AdminLogin('Login');
-		if ($LoginPost = \GPCS::POST('Login')) {
-			$LoginForm->attributes = $LoginPost;
-			if ($LoginForm->Login()) {
+		$Model = new \Admin\models\AdminLogin('Login');
+		$Post = \GPCS::POST('Login');
+		if (\GPCS::POST('btnLogin') && $Post) {
+			$Model->attributes = $Post;
+			if ($Model->Login()) {
 				T\HTTP::Redirect_Immediately(
-						$this->createUrl(\Conf::AdminHomeRoute)
+						$this->createAbsoluteUrl(\Conf::AdminHomeRoute)
 						, \t2::Admin_User("Logged in successfully"));
 			}
 		}
-		$this->layout = 'outerpages';
-		\Output::Render($this, 'login', array('Model' => $LoginForm), 'formLogin');
+		\Output::Render($this, 'login', array('Model' => $Model), 'formLogin');
 	}
 
 	public function actionLogout() {
@@ -57,13 +56,12 @@ class PanelController extends \Admin\Components\BaseController {
 
 	public function actionCartable() {
 		$this->pageTitle = \t2::AdminPageTitle('tr_common', 'Cartable');
-		$this->SetInternalEnv();
 		\html::PushStateScript();
-		$LastLoginTimeStamp = \Admin\models\AdminLogin::GetSessionDR('LastLoginTimeStamp');
-		if ($LastLoginTimeStamp)
-			$LastLoginTimeStamp = gmdate('r', $LastLoginTimeStamp);
+		$LastLoginTStamp = \Admin\models\AdminLogin::GetSessionDR('LastLoginTStamp');
+		if ($LastLoginTStamp)
+			$LastLoginTStamp = gmdate('r', $LastLoginTStamp);
 		\Output::Render($this, 'cartable', array(
-			'LastLoginTime' => $LastLoginTimeStamp,
+			'LastLoginTime' => $LastLoginTStamp,
 			'LastLoginIP' => \Admin\models\AdminLogin::GetSessionDR('LastLoginIP'),
 		));
 	}

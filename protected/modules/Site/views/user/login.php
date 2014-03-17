@@ -1,17 +1,57 @@
-<?
-/* @var $this DefaultController */
-
-$this->breadcrumbs=array(		//breadcrumbs is used in main layout to build path links
-	$this->module->id,
-);
+<?php
+/* @var $this Site\controllers\UserController */
+/* @var $Model \Site\models\User\Login */
 ?>
-<h1><?=$this->uniqueId . '/' . $this->action->id; ?></h1>
-
-<p>
-This is the view content for action "<?=$this->action->id; ?>".
-The action belongs to the controller "<?=get_class($this); ?>"
-in the "<?=$this->module->id; ?>" module.
-</p>
-<p>
-You may customize this page by editing <tt><?=__FILE__; ?></tt>
-</p>
+<div id="divLoginForm" class="form">
+	<? $this->beginContent('Site.views.user.layout') ?>
+	<?
+	if ($form = $this->beginWidget('Widgets\ActiveForm', array(
+		'id' => 'formLogin',
+		'method' => 'POST',
+		'enableClientValidation' => true,
+		'clientOptions' => array(
+			'validateOnSubmit' => true,
+		),
+		'focus' => array($Model, 'txtUsername'),
+			))):
+		/* @var $form Widgets\ActiveForm */
+		?>
+		<?=
+		html::FieldContainer(
+				$form->textField($Model, 'txtUsername', array('autocomplete' => 'off'))
+				, $form->labelEx($Model, 'txtUsername')
+				, $form->error($Model, 'txtUsername'))
+		?>
+		<?=
+		html::FieldContainer(
+				$form->passwordField($Model, 'txtPassword')
+				, $form->labelEx($Model, 'txtPassword')
+				, $form->error($Model, 'txtPassword'))
+		?>
+		<?=
+		html::FieldContainer(
+				$form->checkBox($Model, 'chkRemember')
+				, $form->labelEx($Model, 'chkRemember')
+				, $form->error($Model, 'chkRemember'))
+		?>
+		<?=
+		html::CaptchaFieldContainer(
+				html::CaptchaImage($form)
+				, $form->textField($Model, 'txtCaptcha', array('autocomplete' => 'off'))
+				, $form->labelEx($Model, 'txtCaptcha')
+				, $form->error($Model, 'txtCaptcha'))
+		?>
+		<?=
+		html::ButtonContainer(
+				CHtml::submitButton(\t2::Site_Common('Login')
+						, array(
+					'name' => 'btnLogin',
+					'rel' => \html::AjaxElement('#divLoginForm')
+						)
+		))
+		?>
+		<?= $form->errorSummary($Model); ?>
+	<? endif; ?>
+	<? $this->endWidget(); ?>
+	<? $this->endContent(); ?>
+</div>

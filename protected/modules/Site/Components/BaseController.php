@@ -11,10 +11,10 @@ class BaseController extends \CController {
 	public $defaultAction = 'default';
 
 	/**
-	 * @var string the default layout for the controller view. Defaults to '//layouts/column1',
-	 * meaning using a single column layout. See 'protected/views/layouts/column1.php'.
+	 * WARNING ! has been changed in SetEnv
+	 * @var string 
 	 */
-	public $layout = 'main';
+	public $layout = 'visitors';
 
 	/**
 	 * @var array context menu items. This property will be assigned to {@link CMenu::items}.
@@ -27,5 +27,15 @@ class BaseController extends \CController {
 	 * for more details on how to specify this property.
 	 */
 	public $breadcrumbs = array(); //breadcrumbs is used in main layout to build path links
+
+	/**
+	 * set appropriate environment such as layer for users versus visitors
+	 */
+	public function SetEnv() {
+		if (\Site\models\User\Login::IsLoggedIn())
+			$this->layout = 'users';
+		else
+			$this->layout = 'visitors';
+	}
 
 }

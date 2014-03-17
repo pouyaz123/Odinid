@@ -2,11 +2,9 @@
 
 namespace Site\controllers\User;
 
-use Tools as T;
+use \Tools as T;
 
 /**
- * Description of ResendActivation
- *
  * @author Abbas Hashemian <tondarweb@gmail.com>
  */
 class ResendActivation extends \CAction {

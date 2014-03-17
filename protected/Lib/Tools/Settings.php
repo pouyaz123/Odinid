@@ -2,7 +2,7 @@
 
 namespace Tools;
 
-use Tools as T;
+use \Tools as T;
 
 /**
  * Description of Cache

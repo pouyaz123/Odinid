@@ -11,7 +11,6 @@ class Invitation extends \Base\FormModel {
 		return $this->scenario;
 	}
 
-	const CodeMaxLen = 50;
 	const DescriptionMaxLen = 150;
 
 	private $_RowID = -1;
@@ -29,12 +28,11 @@ class Invitation extends \Base\FormModel {
 			array('txtCode, ddlUserTypeID', 'required',
 				'on' => 'insert, update'),
 			#
-			array('txtCode', 'length',
-				'max' => self::CodeMaxLen,
-				'on' => 'insert, update'),
+			array_merge(array('txtCode', 'length', 'on' => 'insert, update')
+					, \ValidationLimits\User::GetInstance()->InvitationCode),
 			array('txtCode', 'IsUnique',
 				'SQL' => 'SELECT COUNT(*) FROM `_user_invitations` WHERE `Code`=:val AND `ID`!=:pk LIMIT 1',
-				'SQLParams' => array(':pk' => &$this->_RowID),
+				'SQLParams' => array(':pk' => $this->_RowID),
 				'on' => 'insert, update'),
 			array('txtUserTypeExpDate', 'date',
 				'format' => C\Regexp::DateFormat_Yii_FullDigit,

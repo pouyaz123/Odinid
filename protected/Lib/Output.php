@@ -45,7 +45,7 @@ class Output {
 		/* @var $objController CController */
 		if ($objController) {
 			if (!$view)
-				\Err::ErrMsg_Method(__METHOD__, 'There is a controller but no view passed to the output renderer', func_get_args());
+				throw new \Err(__METHOD__, 'There is a controller but no view passed to the output renderer', func_get_args());
 			if ($IsAjax) {
 				if (!GPCS::REQUEST(self::AjaxKeyword_PostParamName))
 					self::$cntAjax->AddContent(function()use($objController, $ActiveFormID, $view, $data) {
@@ -56,7 +56,8 @@ class Output {
 						$output = $objController->renderPartial($view, $data, true);
 						$cs = \Yii::app()->getClientScript();
 						/* @var $cs \CClientScript */
-						$cs->renderBodyEnd($output);
+//						$cs->renderBodyEnd($output);
+						$cs->render($output);
 						echo $output;
 					});
 			} else {

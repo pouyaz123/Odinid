@@ -7,46 +7,46 @@ use \Consts as C;
 
 class Basics {
 	#----------------- Basic Tools -----------------#
-	/**
-	 * @param mixed $multi_mixed (multi number of arguments)
-	 * @return mixed (first valued var / null)
-	 */
-
-	public static function GetValuedVar($multi_mixed = null) {
-		foreach (func_get_args() as $arg)
-			if (isset($arg))
-				return $arg;
-		return null;
-	}
-
-	/**
-	 * @param fun[] $multi_Func
-	 * @param arr $arrParams
-	 * @return nothing
-	 */
-	public static function GetCallableFun($multi_Func = null, $arrParams = null) {
-		$multi_Func = self::MultiArgs($multi_Func, func_get_args(), 0, ( func_num_args() > 1 ? -1 : 0));
-		if (!$multi_Func)
-			return null;
-		foreach ($multi_Func as $Func) {
-			if (!is_callable($Func))
-				continue;
-			$cmd = '$Func(';
-			if (is_array($arrParams))
-				foreach ($arrParams as $PIdx => $Param)
-					$cmd .= ( $PIdx > 0 ? ', ' : '' ) . '$arrParams[' . $PIdx . ']';
-			$cmd .= ');';
-			eval($cmd);
-			return;
-		}
-	}
-
-	/** same as GetCallableFun */
-	public static function CallCallableFun($multi_Func = null, $arrParams = null) {
-		$multi_Func = self::MultiArgs($multi_Func, func_get_args(), 0, -1);
-		self::GetCallableFun($multi_Func, $arrParams);
-	}
-
+//	/**
+//	 * @param mixed $multi_mixed (multi number of arguments)
+//	 * @return mixed (first valued var / null)
+//	 */
+//
+//	public static function GetValuedVar($multi_mixed = null) {
+//		foreach (func_get_args() as $arg)
+//			if (isset($arg))
+//				return $arg;
+//		return null;
+//	}
+//
+//	/**
+//	 * @param fun[] $multi_Func
+//	 * @param arr $arrParams
+//	 * @return nothing
+//	 */
+//	public static function GetCallableFun($multi_Func = null, $arrParams = null) {
+//		$multi_Func = self::MultiArgs($multi_Func, func_get_args(), 0, ( func_num_args() > 1 ? -1 : 0));
+//		if (!$multi_Func)
+//			return null;
+//		foreach ($multi_Func as $Func) {
+//			if (!is_callable($Func))
+//				continue;
+//			$cmd = '$Func(';
+//			if (is_array($arrParams))
+//				foreach ($arrParams as $PIdx => $Param)
+//					$cmd .= ( $PIdx > 0 ? ', ' : '' ) . '$arrParams[' . $PIdx . ']';
+//			$cmd .= ');';
+//			eval($cmd);
+//			return;
+//		}
+//	}
+//
+//	/** same as GetCallableFun */
+//	public static function CallCallableFun($multi_Func = null, $arrParams = null) {
+//		$multi_Func = self::MultiArgs($multi_Func, func_get_args(), 0, -1);
+//		self::GetCallableFun($multi_Func, $arrParams);
+//	}
+//	
 	#----------------- Arrays -----------------#
 //	static function is_associativeArray($arr) {
 //		foreach (array_keys($arr) as $Key) {
@@ -58,38 +58,52 @@ class Basics {
 //	static function is_numericArray($arr) {
 //		return !self::is_associativeArray($arr);
 //	}
+//	private static function Descending_Recursive(&$arrMain, &$arrSubs, $ParentIDField, $IDField, $OpenKW, $CloseKW, $MaxDepth, $Depth = 1) {
+//		$arrResult = array();
+//		foreach ($arrMain as $drMain) {
+//			$arrResult[] = $drMain;
+//			if (($Depth < $MaxDepth || $MaxDepth < 1) &&
+//					(isset($drMain[$IDField]) && isset($arrSubs[$drMain[$IDField]]) && $arrSubs[$drMain[$IDField]]) &&
+//					count($arrSubs[$drMain[$IDField]])
+//			) {
+//				$Depth++;
+//				$arrResult[] = $OpenKW;
+//				$arrResult = array_merge($arrResult, self::Descending_Recursive($arrSubs[$drMain[$IDField]], $arrSubs, $ParentIDField, $IDField, $OpenKW, $CloseKW, $MaxDepth, $Depth));
+//				$arrResult[] = $CloseKW;
+//				$Depth--;
+//			}
+//		}
+//		return $arrResult;
+//	}
+//
+//	/**
+//	 * Descending system useful for dropdown and links
+//	 */
+//	public static function Descending_GetArrangedArray($DataTable, $ParentIDField = 'ParentID', $IDField = 'ID', $OpenKW = 'GROUP', $CloseKW = '/GROUP', $MaxDepth = -1) {
+//		if (!$DataTable || !is_array($DataTable))
+//			return array();
+//		$Subs = array();
+//		foreach ($DataTable as $idx => $dr) {
+//			if (isset($dr[$ParentIDField]) && $dr[$ParentIDField] && $dr[$ParentIDField] != '0') {
+//				if (!(
+//						isset($dr[$ParentIDField]) &&
+//						isset($Subs[$dr[$ParentIDField]]) &&
+//						$Subs[$dr[$ParentIDField]]
+//						)
+//				)
+//					$Subs[$dr[$ParentIDField]] = array();
+//				$Subs[$dr[$ParentIDField]][] = $dr;
+//				unset($DataTable[$idx]);
+//			}
+//		}
+//		return self::Descending_Recursive($DataTable, $Subs, $ParentIDField, $IDField, $OpenKW, $CloseKW, $MaxDepth);
+//	}
 
-	private static function Descending_Recursive(&$arrMain, &$arrSubs, $ParentIDField, $IDField, $OpenKW, $CloseKW, $MaxDepth, $Depth = 1) {
-		$arrResult = array();
-		foreach ($arrMain as $drMain) {
-			$arrResult[] = $drMain;
-			if (($Depth < $MaxDepth || $MaxDepth < 1) && @$arrSubs[$drMain[$IDField]] && count($arrSubs[$drMain[$IDField]])) {
-				$Depth++;
-				$arrResult[] = $OpenKW;
-				$arrResult = array_merge($arrResult, self::Descending_Recursive($arrSubs[$drMain[$IDField]], $arrSubs, $ParentIDField, $IDField, $OpenKW, $CloseKW, $MaxDepth, $Depth));
-				$arrResult[] = $CloseKW;
-				$Depth--;
-			}
+	static function ConfigureObject($Obj, $arrConfig) {
+		if (is_array($arrConfig)) {
+			foreach ($arrConfig as $key => $value)
+				$Obj->$key = $value;
 		}
-		return $arrResult;
-	}
-
-	/**
-	 * Descending system useful for dropdown and links
-	 */
-	public static function Descending_GetArrangedArray($DataTable, $ParentIDField = 'ParentID', $IDField = 'ID', $OpenKW = 'GROUP', $CloseKW = '/GROUP', $MaxDepth = -1) {
-		if (!$DataTable || !is_array($DataTable))
-			return array();
-		$Subs = array();
-		foreach ($DataTable as $idx => $dr) {
-			if (@$dr[$ParentIDField] && $dr[$ParentIDField] != '0') {
-				if (!@$Subs[$dr[$ParentIDField]])
-					$Subs[$dr[$ParentIDField]] = array();
-				$Subs[$dr[$ParentIDField]][] = $dr;
-				unset($DataTable[$idx]);
-			}
-		}
-		return self::Descending_Recursive($DataTable, $Subs, $ParentIDField, $IDField, $OpenKW, $CloseKW, $MaxDepth);
 	}
 
 	/**
@@ -163,14 +177,13 @@ class Basics {
 
 	public static function Merge_MultiDimension($arr, $arr2, $multiArr = NULL) {
 		if (!is_array($arr) || !is_array($arr2))
-			\Err::ErrMsg_Method(__METHOD__, 'either of parameters should be array', func_get_args());
+			throw new \Err(__METHOD__, 'either of parameters should be array', func_get_args());
 		foreach ($arr2 as $Key => $Value) {
 			if (is_numeric($Key))
 				$arr[] = $Value;
 			elseif (isset($arr[$Key]) && is_array($arr[$Key]) && is_array($Value)) {
 				$arr[$Key] = self::Merge_MultiDimension($arr[$Key], $Value);
-			}
-			else
+			} else
 				$arr[$Key] = $Value;
 		}
 		if ($multiArr) {
@@ -182,7 +195,6 @@ class Basics {
 	}
 
 	#----------------- Strings -----------------#
-
 //	static function MyIndexOf($str, $find, $ofEnd = false) {
 //		return $ofEnd ? strpos($str, $find) : strrpos($str, $find);
 //	}

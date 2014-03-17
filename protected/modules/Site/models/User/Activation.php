@@ -7,14 +7,26 @@ use \Tools as T;
 
 /**
  * Tasks :
- * verifying emails (on changing primary email)
- * user activation (new registered users)
- * resend activation code to refresh expired activation links
+ * <ul>
+ * <li>verifying emails (on changing primary email)</li>
+ * <li>user activation (new registered users)</li>
+ * <li>resend activation code to refresh expired activation links</li>
+ * </ul>
+ * @author Abbas Ali Hashemian <info@namedin.com> <tondarweb@gmail.com> http://webdesignir.com
+ * @package Odinid
+ * @version 1
+ * @copyright (c) Odinid
+ * @access public
+ * @method boolean ResendActivationLink()	//callResendActivationLink + events
  */
 class Activation extends \Base\FormModel {
 
 	public function getPostName() {
 		return $this->scenario;
+	}
+
+	public function getXSSPurification() {
+		return false;
 	}
 
 	//----attrs
@@ -26,6 +38,10 @@ class Activation extends \Base\FormModel {
 	public $txtCaptcha;
 	#
 	private $_drActivationRow = null;
+
+	protected function CleanViewStateOfSpecialAttrs() {
+		$this->txtCaptcha = null;
+	}
 
 	/**
 	 * @return array validation rules for model attributes.
@@ -40,7 +56,8 @@ class Activation extends \Base\FormModel {
 			#resend activation
 			array('txtEmail, txtEmailRepeat, txtCaptcha', 'required',
 				'on' => 'ResendActivation'),
-			#
+			array('txtCaptcha', 'MyCaptcha',
+				'on' => 'ResendActivation'),
 			array('txtEmail', 'email',
 				'on' => 'ResendActivation'),
 			array('txtEmailRepeat', 'compare',
@@ -56,15 +73,9 @@ class Activation extends \Base\FormModel {
 					':activation' => C\User::Recovery_Activation,
 				),
 				'on' => 'ResendActivation'),
-			#
-			array('txtCaptcha', 'MyCaptcha',
-				'on' => 'ResendActivation'),
 		);
 	}
 
-	/**
-	 * @return array customized attribute labels (name=>label)
-	 */
 	public function attributeLabels() {
 		return array(
 			'txtActivationCode' => \t2::Site_User('Activation code'),
@@ -98,36 +109,61 @@ class Activation extends \Base\FormModel {
 		if (!$this->validate())
 			return false;
 
-		$drAR = &$this->_drActivationRow;
+		$drActvt = &$this->_drActivationRow;
 		$CommonParams = array(
-			':uid' => $drAR['UID'],
+			':uid' => $drActvt['UID'],
 		);
 		$Queries = array();
-		$Queries[] = array("UPDATE `_users` SET `Status`=:active, `PrimaryEmail`=:email"
-			. " WHERE `ID`=:uid AND `Status`!=:disabled"
+		if ($drActvt['Type'] == C\User::Recovery_Activation) {
+			$Queries[] = array("UPDATE `_users` SET `Status`=:active, `PrimaryEmail`=:email"
+				. " WHERE `ID`=:uid AND `Status`!=:disabled"
+				, array(
+					':active' => C\User::Status_Active,
+					':disabled' => C\User::Status_Disabled, //to prevent reactivating of blocked users
+					':email' => $drActvt['Email'],
+				)
+			);
+		}
+		$Queries[] = array(
+			"UPDATE `_user_contactbook` SET `Email`=:email AND `PendingEmail`=NULL"
+			. " WHERE `UID`=:uid AND `PendingEmail`=:email"
 			, array(
-				':active' => C\User::Status_Active,
-				':disabled' => C\User::Status_Disabled, //to prevent reactivating of blocked users
-				':email' => $drAR['Email'],
+				':email' => $drActvt['Email'],
 			)
 		);
-		if ($drAR['CompanyDomain']) {
-			$Queries[] = array("UPDATE `_company_info` SET `Domain`=:domain"
-				. " WHERE `OwnerUID`=:uid"
-				, array(':domain' => $drAR['CompanyDomain']));
-			//no double company domain
-			$Queries[] = array("UPDATE `_user_recoveries` SET `CompanyDomain`=NULL WHERE `CompanyDomain`=:domain"
-				, array(':domain' => $drAR['CompanyDomain']));
+		$Queries[] = array("UPDATE `_user_recoveries` SET `PendingEmail`=NULL WHERE `PendingEmail`=:email"
+			, array(
+				':email' => $drActvt['Email']
+			)
+		);
+		if ($drActvt['CompanyDomain']) {
+			$Queries[] = array(
+				"UPDATE `_company_info` SET `Domain`=:domain WHERE `OwnerUID`=:uid"
+				, array(':domain' => $drActvt['CompanyDomain'])
+			);
+			//no double company domain(there may be other activation records by other people)
+			$Queries[] = array(
+				"UPDATE `_user_recoveries` SET `CompanyDomain`=NULL WHERE `CompanyDomain`=:domain"
+				, array(':domain' => $drActvt['CompanyDomain'])
+			);
 		}
-		$Queries[] = array("DELETE FROM `_user_recoveries` WHERE `Code`=:code"
-			, array(':code' => $this->txtActivationCode));
+		$Queries[] = array("DELETE FROM `_user_recoveries` WHERE `Code`=:code OR `PendingEmail`=:email"
+			, array(':code' => $this->txtActivationCode, ':email' => $drActvt['Email']));
 		$Result = T\DB::Transaction($Queries, $CommonParams, function(\Exception $ex) {
 					\html::ErrMsg_Exit(\t2::Site_User('Activation failed!'));
 				});
 		return $Result ? true : false;
 	}
 
-	function ResendActivationLink() {
+	function onAfterResendActivationLink() {
+		$this->CleanViewStateOfSpecialAttrs();
+	}
+
+	/**
+	 * use ->ResendActivationLink() instead to trigger relative important events
+	 * @return boolean
+	 */
+	function callResendActivationLink() {
 		if (!$this->validate())
 			return false;
 

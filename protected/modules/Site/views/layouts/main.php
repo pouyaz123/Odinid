@@ -4,7 +4,9 @@
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<meta name="language" content="en" />
+		<? /* <meta name="viewport" content="width=device-width, initial-scale=1.0" /> */ ?>
 
+		<?= CHtml::linkTag('icon', 'image/ico', '/favicon.ico') ?>
 		<?= \html::JS_SrcTag('Basics/jquery-1.8.0.min', true, true, false) ?>
 		<?= \html::JS_SrcTag('jqUI/jquery.ui.core.min', true, true, false) ?>
 		<?= \html::JS_SrcTag('Basics/Tools', true, true, false) ?>
@@ -42,41 +44,38 @@
 
 	<body class="Titler">
 
-		<div class="container <?= \t2::General('LTR_RTL') ?>" id="page">
+		<div class="<?= \t2::General('LTR_RTL') ?>">
 
-			<div id="header">
-				<div id="logo"><?= CHtml::encode(Yii::app()->name); ?></div>
+			<div id="Hdr">
+				<div class="CntrCol">
+					<div class="LeftCol">
+						<a id="Logo" href="<?= $this->createAbsoluteUrl(Site\Consts\Routes::Home) ?>">
+							<img src="/_img/logo.png" alt="<?= Yii::app()->name ?>" title="<?= Yii::app()->name ?>" />
+						</a>
+						<div id="HNav">
+							<?= Site\Components\HeaderNav::GetInstance() ?>
+						</div>
+					</div>
+					<div class="RightCol">
+						<?= CHtml::textField('txtSearch', 'Search ...') ?>
+					</div>
+				</div>
 			</div>
-
-			<div id="mainmenu">
-				<? /*
-				  $this->widget('zii.widgets.CMenu', array(
-				  'items' => array(
-				  array('label' => 'Home', 'url' => array('/site/index')),
-				  array('label' => 'About', 'url' => array('/site/page', 'view' => 'about')),
-				  array('label' => 'Contact', 'url' => array('/site/contact')),
-				  array('label' => 'Login', 'url' => array('/site/login'), 'visible' => Yii::app()->user->isGuest),
-				  array('label' => 'Logout (' . Yii::app()->user->name . ')', 'url' => array('/site/logout'), 'visible' => !Yii::app()->user->isGuest)
-				  ),
-				  )); */
-				?>
-			</div>
-			<? if (isset($this->breadcrumbs)): ?>
-				<?
-				$this->widget('zii.widgets.CBreadcrumbs', array(
-					'links' => $this->breadcrumbs,
-				));
-				?>
-			<? endif ?>
-			<div id="divContent" rel="<?= \html::AjaxLinks("#divContent:insert") ?>">
-				<?= $content; ?>
-			</div>
-			<div class="clear"></div>
-
-			<div id="footer">
-				Copyright &copy; <?= date('Y'); ?> by Odinid.<br/>
-				All Rights Reserved.<br/>
-			</div>
+		</div>
+		<div id="divContent" class="CntrCol" rel="<?= \html::AjaxLinks("#divContent:insert") ?>">
+			<? /* if (isset($this->breadcrumbs)): ?>
+			  <?
+			  $this->widget('zii.widgets.CBreadcrumbs', array(
+			  'links' => $this->breadcrumbs,
+			  ));
+			  ?>
+			  <? endif */ ?>
+			<?= $content; ?>
+		</div>
+		<div id="Footer">
+			Copyright &copy; <?= date('Y'); ?> by
+			<?= \CHtml::link(\Yii::app()->name, $this->createAbsoluteUrl(Site\Consts\Routes::Home)) ?>. All Rights Reserved.
+		</div>
 
 		</div>
 		<?= \html::JS_SrcTag('Basics/PostBack') ?><? /** Contains Postback and AJAX Tools    , true, true, false */ ?>
