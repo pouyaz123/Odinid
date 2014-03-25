@@ -17,16 +17,16 @@ class About extends \CAction {
 
 		$Model = new \Site\models\Profile\Info('viewInfo');
 		$Model->Username = $Username;
-		$Model->AttachInfo_User();
-		$Model->AttachInfo_Contacts();
-		$Model->AttachInfo_WebAddresses();
-		$Model->AttachInfo_Locations();
+		$Model->Attach_User();
+		$Model->Attach_Contacts();
+		$Model->Attach_WebAddresses();
+		$Model->Attach_Locations();
 		switch ($Model->drUser->AccountType) {
 			case Register::UserAccountType_Artist:
-				$Model->AttachInfo_Artist();
+				$Model->Attach_Artist();
 				break;
 			case Register::UserAccountType_Company:
-				$Model->AttachInfo_Company();
+				$Model->Attach_Company();
 				break;
 		}
 		\Output::Render($this->controller

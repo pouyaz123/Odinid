@@ -83,7 +83,7 @@ class Info_Locations extends \Base\FormModelBehavior {
 		$dt = $this->dtLocations;
 		if (!$this->hdnLocationID) {//means in add mode not edit mode
 			if (count($dt) >= T\Settings::GetValue('MaxUserLocations'))
-				$this->owner->addError('', \t2::Site_User('You reached the maximum number of locations'));
+				$this->owner->addError('', \t2::Site_Common('You have reached the maximum'));
 			return false;
 		}
 		foreach ($dt as $dr) {
@@ -294,10 +294,10 @@ class Info_Locations extends \Base\FormModelBehavior {
 				':isbilling' => $this->chkIsBillingLocation? : null,
 			)
 		);
-		//Location Contact Cnn
+		//Location Phone Cnn
 		if ($owner->asa('Info_Contacts') && $owner->hdnContactID) {
 			$arrTransactions[] = array(
-				"INSERT IGNORE INTO `_user_loc_cntct_cnn`(`LocationsCombinedID`, `ContactCombinedID`)"
+				"INSERT IGNORE INTO `_user_loc_cntct_cnn`(`LocationID`, `ContactID`)"
 				. " VALUES(:locid, :cntctid)"
 				, array(
 					':locid' => $CombinedID,

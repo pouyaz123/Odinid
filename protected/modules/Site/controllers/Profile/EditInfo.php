@@ -14,18 +14,18 @@ class EditInfo extends \CAction {
 
 	public function run() {
 		$this->controller->pageTitle = \t2::SitePageTitle('tr_common'
-						, \t2::Site_User('Edit basic info'));
+						, \t2::Site_User('Basic info'));
 
 		$Model = new \Site\models\Profile\Info('Edit');
 		$Model->Username = Login::GetSessionDR('Username');
 
-		$Model->AttachInfo_User();
+		$Model->Attach_User();
 		switch ($Model->drUser['AccountType']) {
 			case Register::UserAccountType_Artist:
-				$Model->AttachInfo_Artist();
+				$Model->Attach_Artist();
 				break;
 			case Register::UserAccountType_Company:
-				$Model->AttachInfo_Company();
+				$Model->Attach_Company();
 				break;
 		}
 

@@ -40,21 +40,28 @@ use \Tools as T;
  * @property string $txtCompanyURL
  * @property string $ddlOperatingStatus
  * @property string $ddlHowManyStaffs
- * -----Contact Behavior
+ * -----Phones Behavior
  * @property integer $hdnContactID
- * @property-read array $arrPhoneTypes user contacts
+ * @property-read array $arrPhoneTypes
  * @property-read array $dtContacts user contacts
- * @ property-read string $PendingEmail
- * @method array getdtContacts(integer $ContactID = NULL)
- * @property-read boolean $IsPrimaryEmailEdit
- * @property-read string $ActivationCode
+ * @method array getdtContacts(string $ContactID = NULL, boolean $refresh = false)
  * @property string $txtPhone
  * @property string $ddlPhoneType
- * @property string $txtEmail
  * //company contact
  * @property string $txtContactFirstName
  * @property string $txtContactLastName
  * @property string $txtContactJobTitle
+ * -----Emails Behavior
+ * @property string $hdnEmailID
+ * @method array getdtEmails(string $EmailID = NULL, boolean $refresh = false)
+ * @property-read array $dtEmails
+ * @property-read array $dtFreshEmails
+ * @property-read boolean $IsPrimaryEmailEdit
+ * @property-read string $PendingEmail
+ * @property-read string $ActivationEmail
+ * @property-read string $ActivationCode
+ * @method void ResetActivationLink()
+ * @property string $txtEmail
  * -----WebAddresses Behavior
  * @property-read array $arrWebAddrTypes
  * @property-read array $dtWebAddr user web addresses
@@ -90,43 +97,49 @@ class Info extends \Base\FormModel_BehaviorHost {
 	}
 
 	//------------- behavior attachments
-	public function AttachInfo_Artist($Behavior = null) {
+	public function Attach_Artist($Behavior = null) {
 		if (!$Behavior)
 			$Behavior = new Info_Artist();
 		$this->attachBehavior('Info_Artist', $Behavior);
 	}
 
-	public function AttachInfo_Company($Behavior = null) {
+	public function Attach_Company($Behavior = null) {
 		if (!$Behavior)
 			$Behavior = new Info_Company();
 		$this->attachBehavior('Info_Company', $Behavior);
 	}
 
-	public function AttachInfo_Contacts($Behavior = null) {
+	public function Attach_Emails($Behavior = null) {
+		if (!$Behavior)
+			$Behavior = new Info_Emails();
+		$this->attachBehavior('Info_Emails', $Behavior);
+	}
+
+	public function Attach_Contacts($Behavior = null) {
 		if (!$Behavior)
 			$Behavior = new Info_Contacts();
 		$this->attachBehavior('Info_Contacts', $Behavior);
 	}
 
-	public function AttachInfo_Locations($Behavior = null) {
+	public function Attach_Locations($Behavior = null) {
 		if (!$Behavior)
 			$Behavior = new Info_Locations();
 		$this->attachBehavior('Info_Locations', $Behavior);
 	}
 
-	public function AttachInfo_Residencies($Behavior = null) {
+	public function Attach_Residencies($Behavior = null) {
 		if (!$Behavior)
 			$Behavior = new Info_Residencies();
 		$this->attachBehavior('Info_Residencies', $Behavior);
 	}
 
-	public function AttachInfo_User($Behavior = null) {
+	public function Attach_User($Behavior = null) {
 		if (!$Behavior)
 			$Behavior = new Info_User();
 		$this->attachBehavior('Info_User', $Behavior);
 	}
 
-	public function AttachInfo_WebAddresses($Behavior = null) {
+	public function Attach_WebAddresses($Behavior = null) {
 		if (!$Behavior)
 			$Behavior = new Info_WebAddresses();
 		$this->attachBehavior('Info_WebAddresses', $Behavior);
@@ -263,8 +276,8 @@ class Info extends \Base\FormModel_BehaviorHost {
 		if (!$this->validate())
 			return false;
 		$this->onSave(new \CEvent($this));
-//		if ($Result = $this->RunTransactions())
-//			$this->scenario = 'Edit';
+		if ($Result = $this->RunTransactions())
+			$this->scenario = 'Edit';
 		return $Result;
 	}
 

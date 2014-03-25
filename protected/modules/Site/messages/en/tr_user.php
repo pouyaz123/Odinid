@@ -15,7 +15,8 @@ return array_merge(
 //	'Register Artist' => 'Register',
 //	'Register Company' => 'Register',
 	'Registration failed!' => 'Registration failed! Please try again later.',
-	'Registered successfully' => 'Registration has been done successfully. An activation link has been sent to your mailbox.',
+	'Registered successfully' => 'Registration has been done successfully.',
+	'Activation link sent successfully' => 'An activation link has been sent to your mailbox.',
 #activation
 //	'Activation' => 'Activation',	//page title
 //	'Activate' => 'Activate',	//submit button
@@ -60,10 +61,6 @@ return array_merge(
 //	'txtEmail' => \t2::Site_User('Email'),
 //	'txtWebAddress' => \t2::Site_Company('Web address'),
 //	'txtWebAddressType' => \t2::Site_Company('Web address type'),
-//	'You reached the maximum number of contacts' => 'You reached the maximum number of contacts'
-//	'You reached the maximum number of web addresses' => 'You reached the maximum number of web addresses'
-//	'You reached the maximum number of locations' => 'You reached the maximum number of locations'
-//	'You reached the maximum number of residencies' => 'You reached the maximum number of residencies'
 //	'This geographical location has been used previously'
 #about
 //	'About me'
@@ -84,7 +81,9 @@ return array_merge(
 //	'txtRetirementPercent' => \t2::Site_User('Retirement percent'),
 #
 	'Update' => 'Update',
-	'Edit basic info' => 'Basic info',
-	'Edit contact info' => 'Contacts',
+//	'Basic info' => 'Basic info',
+//	'Phones' => 'Phones',
+//	'Emails' => 'Emails',
+//	'Add new' => 'Add new',
 		)
 );

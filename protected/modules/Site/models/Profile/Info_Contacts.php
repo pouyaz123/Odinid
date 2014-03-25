@@ -15,6 +15,7 @@ use \Tools as T;
  * @property-read array $arrPhoneTypes user contacts
  * @property-read array $dtContacts user contacts
  * @property-read boolean $IsPrimaryEmailEdit
+ * @property-read string $ActivationEmail
  * @property-read string $ActivationCode
  * @property Info $owner
  */
@@ -42,11 +43,11 @@ class Info_Contacts extends \Base\FormModelBehavior {
 		return $this->_IsPrimaryEmailEdit;
 	}
 
-//	private $_PendingEmail = null;
-//
-//	public function getPendingEmail() {
-//		return $this->_PendingEmail;
-//	}
+	private $_ActivationEmail = null;
+
+	public function getActivationEmail() {
+		return $this->_ActivationEmail;
+	}
 
 	private $_ActivationCode = null;
 
@@ -66,31 +67,37 @@ class Info_Contacts extends \Base\FormModelBehavior {
 		$vl = \ValidationLimits\User::GetInstance();
 		$e->params['arrRules'] = array_merge($e->params['arrRules'], array(
 			array('hdnContactID', 'required',
-				'on' => 'Edit, Delete'),
+				'on' => 'Edit, Delete, ResetActivationLink'),
+			array('hdnContactID', 'IsExist',
+				'SQL' => 'SELECT COUNT(*) FROM `_user_contactbook` WHERE `CombinedID`=:val AND `UID`=:uid AND NOT ISNULL(`PendingEmail`)',
+				'SQLParams' => array(':uid' => $this->owner->drUser->ID),
+				'message' => \t2::Site_User('There is no item such this'),
+				'on' => 'ResetActivationLink'),
 			array('hdnContactID', 'IsExist',
 				'SQL' => 'SELECT COUNT(*) FROM `_user_contactbook` WHERE `CombinedID`=:val AND `UID`=:uid',
 				'SQLParams' => array(':uid' => $this->owner->drUser->ID),
+				'message' => \t2::Site_User('There is no item such this'),
 				'on' => 'Edit, Delete'),
 			array_merge(array('txtPhone', 'length',
-				'except' => 'Delete'), $vl->Phone),
+				'on' => 'Add, Edit'), $vl->Phone),
 			array('txtPhone', 'match',
 				'pattern' => C\Regexp::Phone,
-				'except' => 'Delete'),
+				'on' => 'Add, Edit'),
 			array_merge(array('txtEmail', 'length',
-				'except' => 'Delete'), $vl->Email),
+				'on' => 'Add, Edit'), $vl->Email),
 			array('txtEmail', 'email',
-				'except' => 'Delete'),
+				'on' => 'Add, Edit'),
 //			array('txtEmailRepeat', 'compare',
 //				'compareAttribute' => 'txtEmail',
-//				'except' => 'Delete'),
+//				'on' => 'Add, Edit'),
 //			array('txtEmail', 'IsUnique',
 //				'SQL' => 'SELECT COUNT(*) FROM `_user_contactbook` WHERE `Email`=:val AND `CombinedID`!=:combid',
 //				'SQLParams' => array(':combid' => $this->hdnContactID),
-//				'except' => 'Delete'),
+//				'on' => 'Add, Edit'),
 			#
 			array('ddlPhoneType', 'in',
 				'range' => array_keys($this->arrPhoneTypes),
-				'except' => 'Delete'),
+				'on' => 'Add, Edit'),
 		));
 	}
 
@@ -145,22 +152,9 @@ class Info_Contacts extends \Base\FormModelBehavior {
 		$owner = $this->owner;
 		if (!$this->hdnContactID) {//means in add mode not edit mode
 			if (count($dt) >= T\Settings::GetValue('MaxUserContacts'))
-				$owner->addError('', \t2::Site_User('You reached the maximum number of contacts'));
+				$owner->addError('', \t2::Site_Common('You have reached the maximum'));
 			return;
 		}
-//		$fncChkUnq = function($dr, $DBField, $ModelAttr)use($owner) {
-//			if ($dr[$DBField] && $dr[$DBField] === $this->$ModelAttr)
-//				$owner->addError($ModelAttr, \Yii::t('yii', '{attribute} "{value}" has already been taken.', array(
-//							'{attribute}' => $owner->getAttributeLabel($ModelAttr),
-//							'{value}' => $this->$ModelAttr,
-//				)));
-//		};
-//		foreach ($dt as $dr) {
-//			if ($this->hdnContactID && $dr['CombinedID'] === $this->hdnContactID)
-//				continue;
-//			$fncChkUnq($dr, 'Phone', 'txtPhone');
-//			$fncChkUnq($dr, 'Email', 'txtEmail');
-//		}
 	}
 
 	public function onBeforeAttributeLabels(\CEvent $e) {
@@ -180,12 +174,13 @@ class Info_Contacts extends \Base\FormModelBehavior {
 		if (!$StaticIndex)
 			$StaticIndex = "ALL";
 		static $arrDTs = array();
-		if (!isset($arrDTs[$StaticIndex])) {
+		$Scenario = $this->owner->scenario;
+		if (!isset($arrDTs[$StaticIndex]) || $Scenario == 'Edit' || $Scenario == 'Delete') {
 			$arrDTs[$StaticIndex] = T\DB::GetTable("SELECT *"
 							. " FROM `_user_contactbook` uc"
 							. " INNER JOIN (SELECT 1) tmp ON uc.`UID`=:uid" . ($ContactID ? " AND uc.CombinedID=:contactid " : "")
 							. ($this->owner->asa('Info_Company') ?
-									" LEFT JOIN _company_contactinfo cci ON cci.ContactCombinedID = uc.CombinedID" :
+									" LEFT JOIN _company_contactinfo cci ON cci.ContactID = uc.CombinedID" :
 									'')
 							. " ORDER BY uc.`OrderNumber`"
 							, array(
@@ -235,22 +230,19 @@ class Info_Contacts extends \Base\FormModelBehavior {
 						)
 				) : $this->hdnContactID;
 		$arrTrans = array();
-		$GenerateNewActivationCode = ($owner->scenario == 'Add');
-		$drEmails = null;
-		if ($owner->scenario != 'Add') {
-			$drEmails = T\DB::GetRow("SELECT `Email`, `PendingEmail` FROM `_user_contactbook` WHERE `CombinedID`=:combid"
+		$drEditingEmail = null;
+		if ($owner->scenario == 'Edit') {
+			$drEditingEmail = T\DB::GetRow("SELECT `Email`, `PendingEmail` FROM `_user_contactbook` WHERE `CombinedID`=:combid"
 							, array(
 						':combid' => $this->hdnContactID
 							)
 			);
-			if ($drEmails)
-				$GenerateNewActivationCode = ($drEmails['PendingEmail'] != $this->txtEmail && $drEmails['Email'] != $this->txtEmail);
-			if ((!$this->txtEmail || $drEmails['Email'] == $this->txtEmail) && $drEmails['PendingEmail']) {
+			if ($drEditingEmail['PendingEmail'] && (!$this->txtEmail || $drEditingEmail['Email'] == $this->txtEmail)) {
 				$arrTrans[] = array(
-					"DELETE FROM `_user_recoveries` WHERE `UID`=:uid AND `PendingEmail`=:email",
+					"DELETE FROM `_user_recoveries` WHERE `UID`=:uid AND `PendingEmail`=:pendingemail",
 					array(
 						':uid' => $owner->drUser->ID,
-						':pendingemail' => $drEmails['PendingEmail'],
+						':pendingemail' => $drEditingEmail['PendingEmail'],
 					)
 				);
 			}
@@ -274,19 +266,27 @@ class Info_Contacts extends \Base\FormModelBehavior {
 				':uid' => $owner->drUser->ID,
 				':phone' => $this->txtPhone? : null,
 				':phonetype' => $this->txtPhone && $this->ddlPhoneType ? $this->ddlPhoneType : null,
-				':pendingemail' => $GenerateNewActivationCode ? $this->txtEmail : null,
+				':pendingemail' => !$drEditingEmail || $drEditingEmail['Email'] != $this->txtEmail ?
+						$this->txtEmail :
+						null,
 			)
 		);
-		if ($GenerateNewActivationCode) {
+		if (!$drEditingEmail || $drEditingEmail['Email'] != $this->txtEmail) {
 			$this->_ActivationCode = T\DB::GetUniqueCode('_user_recoveries', 'Code');
-			$arrTrans[] = array("INSERT INTO `_user_recoveries`(`UID`, `Code`, `TimeStamp`, `PendingEmail`, `Type`)"
-				. " VALUES(:uid, :code, :time, :email, :emailverify)",
+			$this->_ActivationEmail = $this->txtEmail;
+			$arrTrans[] = array(
+				!$drEditingEmail['PendingEmail'] ?
+						"INSERT INTO `_user_recoveries`(`UID`, `Code`, `TimeStamp`, `PendingEmail`, `Type`)"
+						. " VALUES(:uid, :code, :time, :email, :emailverify)" :
+						"UPDATE `_user_recoveries` SET `Code`=:code, `TimeStamp`=:time, `PendingEmail`=:email, `Type`=:emailverify"
+						. " WHERE `UID`=:uid AND `PendingEmail`=:oldpendingemail",
 				array(
 					':uid' => $owner->drUser->ID,
 					':code' => $this->_ActivationCode,
 					':time' => time(),
 					':email' => $this->txtEmail,
 					':emailverify' => C\User::Recovery_EmailVerify,
+					':oldpendingemail' => $drEditingEmail ? $drEditingEmail['PendingEmail'] : null,
 				)
 			);
 		}
@@ -294,7 +294,7 @@ class Info_Contacts extends \Base\FormModelBehavior {
 		if ($owner->asa('Info_Company')) {
 			if (!$this->txtContactFirstName && $this->txtContactLastName && $this->txtContactJobTitle)
 				$arrTrans[] = array(
-					"DELETE FROM `_company_contactinfo` WHERE `ContactCombinedID`=:cntctid AND `UID`=:uid"
+					"DELETE FROM `_company_contactinfo` WHERE `ContactID`=:cntctid AND `UID`=:uid"
 					, array(
 						':uid' => $owner->drUser->ID,
 						':cntctid' => $this->hdnContactID,
@@ -304,7 +304,7 @@ class Info_Contacts extends \Base\FormModelBehavior {
 				$arrTrans[] = array(
 					"INSERT INTO `_company_contactinfo` SET "
 					. " `UID`=:uid"
-					. ", `ContactCombinedID`=:cntctid"
+					. ", `ContactID`=:cntctid"
 					. ", `FirstName`=:cfname"
 					. ", `LastName`=:clname"
 					. ", `JobTitle`=:cjobtitle"
@@ -343,8 +343,31 @@ class Info_Contacts extends \Base\FormModelBehavior {
 			}
 			$owner->attributes = $arrAttrs;
 			$this->_IsPrimaryEmailEdit = $drContact['IsPrimary'];
-//			$this->_PendingEmail = $drContact['PendingEmail'];
 		}
+	}
+
+	public function ResetActivationLink() {
+		$this->_ActivationCode = T\DB::GetUniqueCode('_user_recoveries', 'Code');
+		$this->_ActivationEmail = $this->txtEmail;
+		$drActivationContact = T\DB::GetRow(
+						"SELECT `PendingEmail`"
+						. " FROM `_user_contactbook`"
+						. " WHERE `CombinedID`=:combid"
+						, array(
+					':combid' => $this->hdnContactID
+						)
+		);
+		T\DB::Execute(
+				"UPDATE `_user_recoveries` SET `Code`=:code, `TimeStamp`=:time, `PendingEmail`=:email"
+				. " WHERE `UID`=:uid AND `PendingEmail`=:oldpendingemail, `Type`=:emailverify", array(
+			':uid' => $this->owner->drUser->ID,
+			':code' => $this->_ActivationCode,
+			':time' => time(),
+			':email' => $this->txtEmail,
+			':emailverify' => C\User::Recovery_EmailVerify,
+			':oldpendingemail' => $drActivationContact['PendingEmail'],
+				)
+		);
 	}
 
 }

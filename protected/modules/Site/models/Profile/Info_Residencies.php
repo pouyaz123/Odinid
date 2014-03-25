@@ -109,7 +109,7 @@ class Info_Residencies extends \Base\FormModelBehavior {
 	private function ValidateNewResidency() {
 		if (!$this->hdnRsdCountryID) {//means in add mode not edit mode
 			if (T\DB::GetField("SELECT COUNT(*) FROM `_user_residencies` WHERE `UID`=:uid") >= T\Settings::GetValue('MaxUserResidencies'))
-				$this->owner->addError('', \t2::Site_User('You reached the maximum number of residencies'));
+				$this->owner->addError('', \t2::Site_Common('You have reached the maximum'));
 			return;
 		}
 	}

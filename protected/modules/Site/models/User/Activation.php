@@ -125,7 +125,7 @@ class Activation extends \Base\FormModel {
 			);
 		}
 		$Queries[] = array(
-			"UPDATE `_user_contactbook` SET `Email`=:email AND `PendingEmail`=NULL"
+			"UPDATE `_user_emails` SET `Email`=:email AND `PendingEmail`=NULL"
 			. " WHERE `UID`=:uid AND `PendingEmail`=:email"
 			, array(
 				':email' => $drActvt['Email'],

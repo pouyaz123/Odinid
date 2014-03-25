@@ -3,7 +3,7 @@
 /* @var $Model \Site\models\Profile\Info */
 ?>
 <? if (\Site\models\User\Login::IsLoggedIn()): ?>
-	<div><?= \CHtml::link(t2::Site_User('Edit basic info'), \Site\Consts\Routes::UserEditInfo()) ?></div>
+	<div><?= \CHtml::link(t2::Site_User('Basic info'), \Site\Consts\Routes::UserEditInfo()) ?></div>
 <? endif; ?>
 <div class="LeftCol">
 	<div>

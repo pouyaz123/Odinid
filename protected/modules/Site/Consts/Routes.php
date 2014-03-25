@@ -43,5 +43,8 @@ final class Routes {
 	static function UserEditContacts($Username = null) {
 		return "/" . self::GetUsername($Username) . "/editcontacts";
 	}
+	static function UserEditEmails($Username = null) {
+		return "/" . self::GetUsername($Username) . "/editemails";
+	}
 
 }

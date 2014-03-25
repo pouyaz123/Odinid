@@ -92,7 +92,7 @@ class Register extends \Base\FormModel {
 			array('txtEmailRepeat', 'compare',
 				'compareAttribute' => 'txtEmail'),
 			array('txtEmail', 'IsUnique',
-				'SQL' => 'SELECT COUNT(*) FROM `_user_contactbook` WHERE `Email`=:val'),
+				'SQL' => 'SELECT COUNT(*) FROM `_user_emails` WHERE `Email`=:val'),
 			#artist
 			array('txtInvitationCode', 'required',
 				'on' => 'ArtistRegister'),
@@ -213,8 +213,8 @@ class Register extends \Base\FormModel {
 			)
 		);
 		$Queries[] = "SET @regstr_uid:=(SELECT ID FROM _users WHERE Username=:un)";
-		$strSQLPart_ContactCombinedID = T\DB::GetNewID_Combined(
-						'_user_contactbook'
+		$strSQLPart_EmailID = T\DB::GetNewID_Combined(
+						'_user_emails'
 						, 'CombinedID'
 						, 'UID=@regstr_uid'
 						, NULL
@@ -222,8 +222,8 @@ class Register extends \Base\FormModel {
 					'PrefixQuery' => "CONCAT(@regstr_uid, '_')"
 						)
 		);
-		$Queries[] = array("INSERT INTO `_user_contactbook`(`CombinedID`, `UID`, `PendingEmail`)"
-			. " VALUES(($strSQLPart_ContactCombinedID), @regstr_uid, :email)",
+		$Queries[] = array("INSERT INTO `_user_emails`(`CombinedID`, `UID`, `PendingEmail`)"
+			. " VALUES(($strSQLPart_EmailID), @regstr_uid, :email)",
 			array(':email' => $this->txtEmail)
 		);
 		$Queries[] = array("INSERT INTO `_user_recoveries`(`UID`, `Code`, `TimeStamp`, `PendingEmail`, `Type`, `CompanyDomain`)"

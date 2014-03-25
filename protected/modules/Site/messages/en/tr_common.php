@@ -15,5 +15,6 @@ return array_merge(
 //	'Rates' => 'Rates,
 //	#
 //	'Requested profile was not found' => 'Requested profile was not found',
+//	'There is no item such this' => 'There is no item such this',
 		)
 );

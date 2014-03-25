@@ -10,21 +10,22 @@ use Site\models\User\Register;
 /**
  * @author Abbas Hashemian <tondarweb@gmail.com>
  */
-class EditContacts extends \CAction {
+class EditEmails extends \CAction {
 
 	public function run() {
 		$this->controller->pageTitle = \t2::SitePageTitle('tr_common'
-						, \t2::Site_User('Phones'));
+						, \t2::Site_User('Emails'));
 
 		$Model = new \Site\models\Profile\Info();
 		$Model->Username = Login::GetSessionDR('Username');
 
-		$Model->Attach_Contacts();
+		$Model->Attach_Emails();
 
 		$btnAdd = \GPCS::POST('btnAdd');
-		$btnEdit = \GPCS::POST('btnEdit');
 		$btnSaveEdit = \GPCS::POST('btnSaveEdit');
+		$btnEdit = \GPCS::POST('btnEdit');
 		$btnDelete = \GPCS::POST('btnDelete');
+		$btnResendActivationLink = \GPCS::POST('btnResendActivationLink');
 
 		if ($btnAdd)
 			$Model->scenario = 'Add';
@@ -32,9 +33,12 @@ class EditContacts extends \CAction {
 			$Model->scenario = 'Edit';
 		elseif ($btnDelete)
 			$Model->scenario = 'Delete';
+		elseif ($btnResendActivationLink)
+			$Model->scenario = 'ResetActivationLink';
 
-		if ($ContactID = \GPCS::POST('hdnContactID'))
-			$Model->attributes = array('hdnContactID' => $ContactID);
+
+		if ($EmailID = \GPCS::POST('hdnEmailID'))
+			$Model->attributes = array('hdnEmailID' => $EmailID);
 
 		if ($btnAdd || $btnSaveEdit) {
 			$Model->attributes = \GPCS::POST('ProfileInfo');
@@ -44,12 +48,11 @@ class EditContacts extends \CAction {
 			$Model->SetForm();
 		elseif ($btnDelete)
 			$Model->Delete();
-		elseif (\GPCS::POST('btnResendActivationLink')) {
-			$Model->scenario = 'ResetActivationLink';
+		elseif ($btnResendActivationLink)
 			$Model->ResetActivationLink();
-		} else {
+		else
 			\Base\FormModel::AjaxValidation('ProfileInfo', $Model, true);
-		}
+
 		if ($ActivationCode = $Model->ActivationCode) {
 			\Site\models\User\Activation::SendActivationEmail(
 					$ActivationCode
@@ -59,7 +62,7 @@ class EditContacts extends \CAction {
 
 		\Output::Render($this->controller
 				, ($btnEdit ?
-						'editinfo/contacts_addedit' : 'editinfo/contacts')
+						'editinfo/emails_addedit' : 'editinfo/emails')
 				, array(
 			'Model' => $Model,
 				)

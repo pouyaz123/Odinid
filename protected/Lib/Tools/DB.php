@@ -286,7 +286,12 @@ class DB {
 	 * @param type $TableName
 	 * @param type $WHEREClause
 	 * @param type $arrDBParams
-	 * @param array $arrOptions	//array('ReturnTheQuery' => true, 'Delim' => '_', 'Count' => -1, 'PrefixQuery' => "''")<br/>
+	 * @param array $arrOptions array(<br/>
+	 *  'ReturnTheQuery' => true,<br/>
+	 *  'Delim' => '_',<br/>
+	 *  'Count' => -1,<br/>
+	 *  'PrefixQuery' => "''"<br/>
+	 * )<br/>
 	 * 	*Delim : Delimiter<br/>
 	 *  *PrefixQuery : this should be a query which will be prepnded to the result using a CONCAT(..., ...). If you pass a string remember to escape special chars and add quotes around it
 	 * @return integer|string

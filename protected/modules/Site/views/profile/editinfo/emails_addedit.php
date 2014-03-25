@@ -2,7 +2,7 @@
 /* @var $this \Site\controllers\ProfileController */
 /* @var $Model \Site\models\Profile\Info */
 ?>
-<div id="divEditContact">
+<div id="divEditEmail">
 	<?
 	if ($form = $this->beginWidget('Widgets\ActiveForm', array(
 		'id' => 'ProfileInfo',
@@ -12,15 +12,15 @@
 		'clientOptions' => array(
 			'validateOnSubmit' => true,
 		),
-		'focus' => array($Model, 'txtPhone'),
+		'focus' => array($Model, 'txtEmail'),
 			))):
 		/* @var $form Widgets\ActiveForm */
 		?>
-		<?= $Model->scenario == 'Edit' ? \CHtml::link(t2::Site_User('Add new'), \Site\Consts\Routes::UserEditContacts()) : '' ?>
+		<?= $Model->scenario == 'Edit' ? \CHtml::link(t2::Site_User('Add new'), \Site\Consts\Routes::UserEditEmails()) : '' ?>
 		<table class="FullW">
 			<tr>
 				<td style="width: 350px">
-					<?= $form->hiddenField($Model, 'hdnContactID') ?>
+					<?= $form->hiddenField($Model, 'hdnEmailID') ?>
 					<?=
 					html::FieldContainer(
 							$form->textField($Model, 'txtEmail')
@@ -28,39 +28,7 @@
 //							, $form->error($Model, 'txtEmail'))
 							, $form->error($Model, 'txtEmail', NULL, true))
 					?>
-					<?=
-					html::FieldContainer(
-							$form->textField($Model, 'txtPhone')
-							, $form->labelEx($Model, 'txtPhone')
-							, $form->error($Model, 'txtPhone'))
-					?>
-					<?=
-					html::FieldContainer(
-							\html::activeComboBox($Model, $form, 'ddlPhoneType', $Model->arrPhoneTypes
-									, array('prompt' => '', 'rel' => \html::Combobox_NoSearchRel))
-							, $form->labelEx($Model, 'ddlPhoneType')
-							, $form->error($Model, 'ddlPhoneType'))
-					?>
-					<? if ($Model->asa('Info_Company')): ?>
-						<?=
-						html::FieldContainer(
-								$form->textField($Model, 'txtContactFirstName')
-								, $form->labelEx($Model, 'txtContactFirstName')
-								, $form->error($Model, 'txtContactFirstName'))
-						?>
-						<?=
-						html::FieldContainer(
-								$form->textField($Model, 'txtContactLastName')
-								, $form->labelEx($Model, 'txtContactLastName')
-								, $form->error($Model, 'txtContactLastName'))
-						?>
-						<?=
-						html::FieldContainer(
-								$form->textField($Model, 'txtContactJobTitle')
-								, $form->labelEx($Model, 'txtContactJobTitle')
-								, $form->error($Model, 'txtContactJobTitle'))
-						?>
-					<? endif; ?>
+					<div><?= $Model->PendingEmail ? t2::Site_User('Pending email') . ' : ' . $Model->PendingEmail : '' ?></div>
 
 					<?=
 					html::ButtonContainer(

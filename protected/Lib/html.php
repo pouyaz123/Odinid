@@ -487,21 +487,20 @@ final class html {
 //	const SubmitValidator = ' validSubmit ';
 //	const Focus = ' FocusMe ';
 //
-//	public static function PutInContainer(&$strobjContent = "", $Prefix = "<div>", $Postfix = '</div>', $OnlyReturnMsg = true) {
-//		if (is_string($strobjContent)) {
-//			$strobjContent = $Prefix . $strobjContent . $Postfix;
-//			$strobjContent = \F3::resolve($strobjContent);
-//		} elseif (is_a($strobjContent, '\Base\Container')) {
-//			$strobjContent->AddContentAt($Prefix, 0);
-//			$strobjContent->AddContentAt($Postfix, -1);
-//		}
-//		if ($OnlyReturnMsg)
-//			return $strobjContent;
-//		else {
-//			echo $strobjContent;
-//			return $strobjContent;
-//		}
-//	}
+	public static function PutInContainer(&$strobjContent = "", $Prefix = "<div>", $Postfix = '</div>', $OnlyReturnMsg = true) {
+		if (is_string($strobjContent)) {
+			$strobjContent = $Prefix . $strobjContent . $Postfix;
+		} elseif (is_a($strobjContent, '\Base\Container')) {
+			$strobjContent->AddContentAt($Prefix, 0);
+			$strobjContent->AddContentAt($Postfix, -1);
+		}
+		if ($OnlyReturnMsg)
+			return $strobjContent;
+		else {
+			echo $strobjContent;
+			return $strobjContent;
+		}
+	}
 //
 //	static function GetParentalPath_ByDataTable(
 //	$dtPath
