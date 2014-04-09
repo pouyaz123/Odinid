@@ -85,8 +85,11 @@ class Info_Emails extends \Base\FormModelBehavior {
 		$unq->attributes = array('txtEmail');
 		$unq->SQL = 'SELECT COUNT(*) FROM `_user_emails` WHERE '
 				. ($owner->scenario == 'Edit' || $this->hdnEmailID ? ' `CombinedID`!=:combid AND ' : '')
-				. ' `Email`=:val';
-		$unq->SQLParams = array(':combid' => $this->hdnEmailID);
+				. ' (`Email`=:val OR (PendingEmail=:val AND UID=:uid))';
+		$unq->SQLParams = array(
+			':combid' => $this->hdnEmailID,
+			':uid' => $owner->drUser['ID']
+		);
 		$unq->except = array('Delete');
 		$owner->validatorList->add($unq);
 	}
@@ -121,8 +124,7 @@ class Info_Emails extends \Base\FormModelBehavior {
 			$StaticIndex = "ALL";
 		static $arrDTs = array();
 		if (!isset($arrDTs[$StaticIndex]) || $refresh) {
-			$arrDTs[$StaticIndex] = T\DB::GetTable(
-							"SELECT *"
+			$arrDTs[$StaticIndex] = T\DB::GetTable("SELECT *"
 							. " FROM `_user_emails`"
 							. " WHERE " . ($EmailID ? " CombinedID=:emailid AND " : "") . " `UID`=:uid"
 							. " ORDER BY `OrderNumber`"
@@ -157,10 +159,15 @@ class Info_Emails extends \Base\FormModelBehavior {
 
 	public function onDelete(\CEvent $e) {
 		$this->raiseEvent('onDelete', $e);
-		$this->owner->addTransactions(array(
+		$owner = $this->owner;
+		$owner->addTransactions(array(
 			array(
-				"DELETE FROM `_user_emails` WHERE `CombinedID`=:combid AND ISNULL(`IsPrimary`)",
-				array(':combid' => $this->hdnEmailID)
+				"DELETE FROM `_user_emails` WHERE `CombinedID`=:id AND ISNULL(`IsPrimary`)",
+				array(':id' => $this->hdnEmailID)
+			),
+			array(
+				"DELETE FROM `_user_recoveries` WHERE `EmailID`=:id",
+				array(':id' => $this->hdnEmailID)
 			)
 		));
 	}
@@ -188,11 +195,8 @@ class Info_Emails extends \Base\FormModelBehavior {
 			);
 			if ($drEditingEmail['PendingEmail'] && (!$this->txtEmail || $drEditingEmail['Email'] == $this->txtEmail)) {
 				$arrTrans[] = array(
-					"DELETE FROM `_user_recoveries` WHERE `UID`=:uid AND `PendingEmail`=:pendingemail",
-					array(
-						':uid' => $owner->drUser->ID,
-						':pendingemail' => $drEditingEmail['PendingEmail'],
-					)
+					"DELETE FROM `_user_recoveries` WHERE `EmailID`=:id",
+					array(':id' => $this->hdnEmailID)
 				);
 			}
 		}
@@ -203,21 +207,20 @@ class Info_Emails extends \Base\FormModelBehavior {
 							, 'UID=:uid'
 							, array(':uid' => $owner->drUser->ID)
 							, array(
+						'ReturnTheQuery' => false,
 						'PrefixQuery' => "CONCAT(:uid, '_')",
 							)
 			);
 		$arrTrans[] = array(
 			(!$this->hdnEmailID ?
-					"INSERT INTO `_user_emails` SET"
-					. " `CombinedID`=( $CombinedID )"
-					. ", `UID`=:uid"
-					. ", `PendingEmail`=:pendingemail" :
+					"INSERT INTO `_user_emails`(`CombinedID`, `UID`, `PendingEmail`)"
+					. " VALUES(:combid, :uid, :pendingemail)" :
 					"UPDATE `_user_emails` SET"
 					. " `PendingEmail`=:pendingemail"
 					. " WHERE `CombinedID`=:combid"
 			)
 			, array(
-				':combid' => $this->hdnEmailID,
+				':combid' => $this->hdnEmailID? : $CombinedID,
 				':uid' => $owner->drUser->ID,
 				':pendingemail' => !$drEditingEmail || $drEditingEmail['Email'] != $this->txtEmail ?
 						$this->txtEmail :
@@ -229,19 +232,22 @@ class Info_Emails extends \Base\FormModelBehavior {
 			$this->_ActivationEmail = $this->txtEmail;
 			$arrTrans[] = array(
 				!$drEditingEmail['PendingEmail'] ?
-						"INSERT INTO `_user_recoveries`(`UID`, `Code`, `TimeStamp`, `PendingEmail`, `Type`)"
-						. " VALUES(:uid, :code, :time, :email, :emailverify)" :
-						"UPDATE `_user_recoveries` SET `Code`=:code, `TimeStamp`=:time, `PendingEmail`=:email, `Type`=:emailverify"
-						. " WHERE `UID`=:uid AND `PendingEmail`=:oldpendingemail",
+						"INSERT INTO `_user_recoveries`(`UID`, `Code`, `TimeStamp`, `PendingEmail`, `EmailID`, `Type`)"
+						. " VALUES(:uid, :code, :time, :email, :emailid, :emailverify)" :
+						"UPDATE `_user_recoveries` SET `Code`=:code, `TimeStamp`=:time, `PendingEmail`=:email"
+						. " WHERE `EmailID`=:emailid",
 				array(
 					':uid' => $owner->drUser->ID,
 					':code' => $this->_ActivationCode,
 					':time' => time(),
 					':email' => $this->txtEmail,
 					':emailverify' => C\User::Recovery_EmailVerify,
-					':oldpendingemail' => $drEditingEmail ? $drEditingEmail['PendingEmail'] : null,
+					':emailid' => $this->hdnEmailID? : $CombinedID,
 				)
 			);
+		}
+		if (!$this->hdnEmailID) {
+			$this->hdnEmailID = $CombinedID;
 		}
 		$owner->addTransactions($arrTrans);
 	}
@@ -264,7 +270,7 @@ class Info_Emails extends \Base\FormModelBehavior {
 
 	public function ResetActivationLink() {
 		$drActivationContact = T\DB::GetRow(
-						"SELECT `PendingEmail`"
+						"SELECT `PendingEmail`, `CombinedID`"
 						. " FROM `_user_emails`"
 						. " WHERE `CombinedID`=:combid"
 						, array(
@@ -276,12 +282,10 @@ class Info_Emails extends \Base\FormModelBehavior {
 			$this->_ActivationEmail = $drActivationContact['PendingEmail'];
 			T\DB::Execute(
 					"UPDATE `_user_recoveries` SET `Code`=:code, `TimeStamp`=:time"
-					. " WHERE `UID`=:uid AND `PendingEmail`=:oldpendingemail AND `Type`=:emailverify", array(
+					. " WHERE `EmailID`=:emailid", array(
 				':code' => $this->_ActivationCode,
 				':time' => time(),
-				':uid' => $this->owner->drUser->ID,
-				':oldpendingemail' => $drActivationContact['PendingEmail'],
-				':emailverify' => C\User::Recovery_EmailVerify,
+				':emailid' => $drActivationContact['CombinedID'],
 					)
 			);
 		}

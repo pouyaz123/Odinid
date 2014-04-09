@@ -87,7 +87,7 @@ class Activation extends \Base\FormModel {
 
 	function IsValidActivationCode() {
 		$this->_drActivationRow = T\DB::GetRow(
-						"SELECT `UID`, `PendingEmail` AS Email, `CompanyDomain`, `Code`"
+						"SELECT `UID`, `PendingEmail` AS Email, `CompanyDomain`, `Code`, `Type`, `EmailID`"
 						. " FROM `_user_recoveries`"
 						. " WHERE `Code`=:code AND (`Type`=:activation OR `Type`=:emailverify)"
 						. " AND `TimeStamp`>" . (time() - (T\Settings::GetValue('ActivationLink_LifeTime') * 60 * 60))
@@ -114,6 +114,13 @@ class Activation extends \Base\FormModel {
 			':uid' => $drActvt['UID'],
 		);
 		$Queries = array();
+		$Queries[] = array(
+			"UPDATE `_user_emails` SET `Email`=:email, `PendingEmail`=NULL WHERE `CombinedID`=:emailid"
+			, array(
+				':email' => $drActvt['Email'],
+				':emailid' => $drActvt['EmailID'],
+			)
+		);
 		if ($drActvt['Type'] == C\User::Recovery_Activation) {
 			$Queries[] = array("UPDATE `_users` SET `Status`=:active, `PrimaryEmail`=:email"
 				. " WHERE `ID`=:uid AND `Status`!=:disabled"
@@ -124,18 +131,6 @@ class Activation extends \Base\FormModel {
 				)
 			);
 		}
-		$Queries[] = array(
-			"UPDATE `_user_emails` SET `Email`=:email AND `PendingEmail`=NULL"
-			. " WHERE `UID`=:uid AND `PendingEmail`=:email"
-			, array(
-				':email' => $drActvt['Email'],
-			)
-		);
-		$Queries[] = array("UPDATE `_user_recoveries` SET `PendingEmail`=NULL WHERE `PendingEmail`=:email"
-			, array(
-				':email' => $drActvt['Email']
-			)
-		);
 		if ($drActvt['CompanyDomain']) {
 			$Queries[] = array(
 				"UPDATE `_company_info` SET `Domain`=:domain WHERE `OwnerUID`=:uid"
@@ -150,6 +145,7 @@ class Activation extends \Base\FormModel {
 		$Queries[] = array("DELETE FROM `_user_recoveries` WHERE `Code`=:code OR `PendingEmail`=:email"
 			, array(':code' => $this->txtActivationCode, ':email' => $drActvt['Email']));
 		$Result = T\DB::Transaction($Queries, $CommonParams, function(\Exception $ex) {
+					\Err::DebugBreakPoint($ex);
 					\html::ErrMsg_Exit(\t2::Site_User('Activation failed!'));
 				});
 		return $Result ? true : false;
@@ -189,7 +185,7 @@ class Activation extends \Base\FormModel {
 		}
 	}
 
-	static function SendActivationEmail($ActivationCode, $Email, $Name = '') {
+	static function SendActivationEmail($ActivationCode, $Email, $Name = '', $AnyFailureMsg = true) {
 		$MS = T\SendMail::GetConfiguredMailSender();
 		$MS->AddAddress($Email, $Name);
 		if (!$MS->Send2(
@@ -202,9 +198,12 @@ class Activation extends \Base\FormModel {
 							'Email' => $Email,
 						))
 				)) {
-			\html::ErrMsg_Exit(\t2::Site_User('Failed to send activation link!'));
+			if ($AnyFailureMsg)
+				\html::ErrMsg_Exit(\t2::Site_User('Failed to send activation link! Resend'));
 			\Err::TraceMsg_Method(__METHOD__, "Failed to send the user activation link", func_get_args());
+			return false;
 		}
+		return true;
 	}
 
 }

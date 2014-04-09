@@ -46,7 +46,7 @@
 											, array(
 										'name' => 'btnDelete',
 										'rel' => \html::AjaxElement('#divEditInfo') . ' ' . html::OnceClick,
-										'onclick' => \html::PostbackConfirm_OnClick('Are you sure to delete it?'),
+										'onclick' => \html::PostbackConfirm_OnClick('Are you sure?'),
 											)
 							)) : ''
 					?>

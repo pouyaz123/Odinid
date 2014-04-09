@@ -200,8 +200,8 @@ class Register extends \Base\FormModel {
 		$CommonParams = array(
 			':un' => $this->txtUsername,
 		);
-		$Queries[] = array("INSERT INTO `_users`(`ParentAccountID`, `AccountType`, `UserTypeID`, `UTypeExpDate`, `Username`, `Password`, `PendingPrimaryEmail`, `RegisterDateTime`)"
-			. " VALUES(:parentid, :accounttype, ($strSQLPart_UserType), :utexp, :un, :pw, :email, :registertime)",
+		$Queries[] = array("INSERT INTO `_users`(`ParentAccountID`, `AccountType`, `UserTypeID`, `UTypeExpDate`, `Username`, `Password`, `RegisterDateTime`)"
+			. " VALUES(:parentid, :accounttype, ($strSQLPart_UserType), :utexp, :un, :pw, :registertime)",
 			array(
 				':parentid' => $PrimaryUserID,
 				':accounttype' => $this->ddlAccountType,
@@ -222,12 +222,12 @@ class Register extends \Base\FormModel {
 					'PrefixQuery' => "CONCAT(@regstr_uid, '_')"
 						)
 		);
-		$Queries[] = array("INSERT INTO `_user_emails`(`CombinedID`, `UID`, `PendingEmail`)"
-			. " VALUES(($strSQLPart_EmailID), @regstr_uid, :email)",
+		$Queries[] = array("INSERT INTO `_user_emails`(`CombinedID`, `UID`, `PendingEmail`, `IsPrimary`)"
+			. " VALUES(@regstr_emailid:=($strSQLPart_EmailID), @regstr_uid, :email, 1)",
 			array(':email' => $this->txtEmail)
 		);
-		$Queries[] = array("INSERT INTO `_user_recoveries`(`UID`, `Code`, `TimeStamp`, `PendingEmail`, `Type`, `CompanyDomain`)"
-			. " VALUES(@regstr_uid, :code, :time, :email, :activation, :domain)",
+		$Queries[] = array("INSERT INTO `_user_recoveries`(`UID`, `Code`, `TimeStamp`, `PendingEmail`, `EmailID`, `Type`, `CompanyDomain`)"
+			. " VALUES(@regstr_uid, :code, :time, :email, @regstr_emailid, :activation, :domain)",
 			array(
 				':code' => $this->_ActivationCode,
 				':time' => time(),

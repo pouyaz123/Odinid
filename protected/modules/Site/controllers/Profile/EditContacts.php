@@ -13,17 +13,16 @@ use Site\models\User\Register;
 class EditContacts extends \CAction {
 
 	public function run() {
-		$this->controller->pageTitle = \t2::SitePageTitle('tr_common'
-						, \t2::Site_User('Phones'));
+		$this->controller->pageTitle = \t2::SitePageTitle('tr_common', \t2::Site_User('Phones'));
 
-		$Model = new \Site\models\Profile\Info();
+		$Model = new \Site\models\Profile\Info('Add');
 		$Model->Username = Login::GetSessionDR('Username');
 
 		$Model->Attach_Contacts();
 
 		$btnAdd = \GPCS::POST('btnAdd');
-		$btnEdit = \GPCS::POST('btnEdit');
 		$btnSaveEdit = \GPCS::POST('btnSaveEdit');
+		$btnEdit = \GPCS::POST('btnEdit');
 		$btnDelete = \GPCS::POST('btnDelete');
 
 		if ($btnAdd)
@@ -33,29 +32,23 @@ class EditContacts extends \CAction {
 		elseif ($btnDelete)
 			$Model->scenario = 'Delete';
 
-		if ($ContactID = \GPCS::POST('hdnContactID'))
+		$ContactID = \GPCS::POST('hdnContactID');
+		if ($btnDelete && !$ContactID) {
+			$ContactID = \GPCS::POST('ProfileInfo');
+			$ContactID = $ContactID ? $ContactID['hdnContactID'] : $ContactID;
+		}
+		if ($ContactID)
 			$Model->attributes = array('hdnContactID' => $ContactID);
 
 		if ($btnAdd || $btnSaveEdit) {
 			$Model->attributes = \GPCS::POST('ProfileInfo');
 			$Model->Save();
-			$Model->SetForm();
 		} elseif ($btnEdit)
 			$Model->SetForm();
 		elseif ($btnDelete)
 			$Model->Delete();
-		elseif (\GPCS::POST('btnResendActivationLink')) {
-			$Model->scenario = 'ResetActivationLink';
-			$Model->ResetActivationLink();
-		} else {
+		else
 			\Base\FormModel::AjaxValidation('ProfileInfo', $Model, true);
-		}
-		if ($ActivationCode = $Model->ActivationCode) {
-			\Site\models\User\Activation::SendActivationEmail(
-					$ActivationCode
-					, $Model->ActivationEmail
-					, $Model->Username);
-		}
 
 		\Output::Render($this->controller
 				, ($btnEdit ?

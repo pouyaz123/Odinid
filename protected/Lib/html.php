@@ -766,7 +766,7 @@ final class html {
 	 * @param string $Code
 	 * @param string $OverrideID  //KW causes the new Code overrides the older code and the code is removable totally
 	 * @param string $AjaxKW	//using ajax kw you can explicitely define what ajax request you want to put this script through it.
-	 * @param string $AjaxContentUKW
+	 * @param string $AjaxContentUKW if null then $OverrideID will be used
 	 */
 	public static function InlineJS($Code, $OverrideID = NULL, $AjaxKW = false, $AjaxContentUKW = NULL) {
 		$Queue = &self::$JSQueue['INLINE'];

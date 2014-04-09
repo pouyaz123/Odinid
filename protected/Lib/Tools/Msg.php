@@ -24,30 +24,6 @@ class Msg {
 	}
 
 #----------------- Different -----------------#
-
-//	public static function Copyright($strCopyright = null, $GregStartY = NULL, $PerStartY = NULL) {
-//		if (!$strCopyright)
-//			$strCopyright = \F3::get('res_Copyright');
-//
-//		if (strpos($strCopyright, '#PER#') !== false) {
-//			$PDT = new \Base\MyPersianDate();
-//
-//			if (!$PerStartY)
-//				$PerStartY = \F3::get('res_CopyrightStartYear.PER');
-//			$PerY = $PDT->Format('Y');
-//			$PerEra = $PerY . ( $PerStartY != $PerY ? ' - ' . $PerStartY : '' );
-//			$strCopyright = str_replace('#PER#', $PerEra, $strCopyright);
-//		}
-//		if (strpos($strCopyright, '#GREG#') !== false) {
-//			if (!$GregStartY)
-//				$GregStartY = \F3::get('res_CopyrightStartYear.GREG');
-//			$GregY = gmdate('Y');
-//			$GregEra = ( $GregStartY != $GregY ? $GregStartY . ' - ' : '' ) . $GregY;
-//			$strCopyright = str_replace('#GREG#', $GregEra, $strCopyright);
-//		}
-//		return $strCopyright;
-//	}
-
 #----------------- HTTP ERROR PAGES -----------------#
 //are moved to class "\Err"
 #----------------- GENERAL MSG BOX -----------------#
@@ -93,9 +69,9 @@ class Msg {
 		$CustomButtons = '';
 		if ($arrBtns) {
 			$arrBtns = array_map(function ($Elm) {
-						$Elm = $Elm . '';
-						return (strpos($Elm, '<') !== false) ? '"' . addslashes($Elm) . '"' : $Elm;
-					}, $arrBtns);
+				$Elm = $Elm . '';
+				return (strpos($Elm, '<') !== false) ? '"' . addslashes($Elm) . '"' : $Elm;
+			}, $arrBtns);
 			$CustomButtons.=implode(', ', $arrBtns);
 		}
 		$CustomButtons = (strlen($CustomButtons)) ? "[$CustomButtons]" : '[{value:"OK", focus:true}]';
@@ -105,33 +81,33 @@ class Msg {
 		if (!$Title) {
 			switch ($Type) {
 				case self::Prompt_Info:
-					$Title = '{{@res_Note}}';
+					$Title = \t2::Site_Common('Note');
 					break;
 				case self::Prompt_Success:
-					$Title = '{{@res_Success}}';
+					$Title = \t2::Site_Common('Success');
 					break;
 				case self::Prompt_Warning:
-					$Title = '{{@res_Warning}}';
+					$Title = \t2::Site_Common('Warning');
 					break;
 				case self::Prompt_Error:
-					$Title = '{{@res_Error}}';
+					$Title = \t2::Site_Common('Error');
 					break;
 				default :
-					$Title = '{{@res_Note}}';
+					$Title = \t2::Site_Common('Note');
 			}
 		}
 		$Title = addslashes($Title);
 
 		$JSContent = "$(function(){jAlert( '$Type', '$Msg', '$Title', null, $CustomButtons)});";
-		\html::InlineJS($JSContent, $PromptID);
-		\Output::AddIn_AjaxOutput(function ()use($JSContent) {
-					echo "<script>$JSContent</script>";
-				}, $AjaxSpecialKW, null, $PromptID);
+		\html::InlineJS($JSContent, $PromptID, $AjaxSpecialKW);
+//		\Output::AddIn_AjaxOutput(function ()use($JSContent) {
+//					echo "<script>$JSContent</script>";
+//				}, $AjaxSpecialKW, null, $PromptID);
 	}
 
 	static function PromptAlert_Remove($PromptID) {
 		\html::InlineJS_Remove($PromptID);
-		\Output::$cntAjax->RemoveContent($PromptID);
+//		\Output::$cntAjax->RemoveContent($PromptID);
 	}
 
 }

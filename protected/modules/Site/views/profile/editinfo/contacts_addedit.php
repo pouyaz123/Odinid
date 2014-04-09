@@ -8,7 +8,6 @@
 		'id' => 'ProfileInfo',
 		'method' => 'POST',
 		'enableClientValidation' => true,
-//		'enableAjaxValidation' => true,
 		'clientOptions' => array(
 			'validateOnSubmit' => true,
 		),
@@ -21,13 +20,6 @@
 			<tr>
 				<td style="width: 350px">
 					<?= $form->hiddenField($Model, 'hdnContactID') ?>
-					<?=
-					html::FieldContainer(
-							$form->textField($Model, 'txtEmail')
-							, $form->labelEx($Model, 'txtEmail')
-//							, $form->error($Model, 'txtEmail'))
-							, $form->error($Model, 'txtEmail', NULL, true))
-					?>
 					<?=
 					html::FieldContainer(
 							$form->textField($Model, 'txtPhone')
@@ -67,18 +59,18 @@
 							CHtml::submitButton(\t2::Site_User($Model->scenario == 'Edit' ? 'Edit' : 'Add')
 									, array(
 								'name' => $Model->scenario == 'Edit' ? 'btnSaveEdit' : 'btnAdd',
-								'rel' => \html::AjaxElement('#divEditInfo') . ' ' . html::OnceClick
+								'rel' => \html::AjaxElement('#divEditInfo') . ' ' . \html::OnceClick
 									)
 					))
 					?>
 					<?=
-					$Model->scenario == 'Edit' && !$Model->IsPrimaryEmailEdit ?
+					$Model->scenario == 'Edit' ?
 							html::ButtonContainer(
 									CHtml::button(\t2::Site_User('Delete')
 											, array(
 										'name' => 'btnDelete',
 										'rel' => \html::AjaxElement('#divEditInfo') . ' ' . html::OnceClick,
-										'onclick' => \html::PostbackConfirm_OnClick('Are you sure to delete it?'),
+										'onclick' => \html::PostbackConfirm_OnClick('Are you sure?'),
 											)
 							)) : ''
 					?>

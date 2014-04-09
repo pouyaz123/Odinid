@@ -13,10 +13,9 @@ use Site\models\User\Register;
 class EditEmails extends \CAction {
 
 	public function run() {
-		$this->controller->pageTitle = \t2::SitePageTitle('tr_common'
-						, \t2::Site_User('Emails'));
+		$this->controller->pageTitle = \t2::SitePageTitle('tr_common', \t2::Site_User('Emails'));
 
-		$Model = new \Site\models\Profile\Info();
+		$Model = new \Site\models\Profile\Info('Add');
 		$Model->Username = Login::GetSessionDR('Username');
 
 		$Model->Attach_Emails();
@@ -36,14 +35,17 @@ class EditEmails extends \CAction {
 		elseif ($btnResendActivationLink)
 			$Model->scenario = 'ResetActivationLink';
 
-
-		if ($EmailID = \GPCS::POST('hdnEmailID'))
+		$EmailID = \GPCS::POST('hdnEmailID');
+		if ($btnDelete && !$EmailID) {
+			$EmailID = \GPCS::POST('ProfileInfo');
+			$EmailID = $EmailID ? $EmailID['hdnEmailID'] : $EmailID;
+		}
+		if ($EmailID)
 			$Model->attributes = array('hdnEmailID' => $EmailID);
 
 		if ($btnAdd || $btnSaveEdit) {
 			$Model->attributes = \GPCS::POST('ProfileInfo');
 			$Model->Save();
-			$Model->SetForm();
 		} elseif ($btnEdit)
 			$Model->SetForm();
 		elseif ($btnDelete)
@@ -54,10 +56,14 @@ class EditEmails extends \CAction {
 			\Base\FormModel::AjaxValidation('ProfileInfo', $Model, true);
 
 		if ($ActivationCode = $Model->ActivationCode) {
-			\Site\models\User\Activation::SendActivationEmail(
-					$ActivationCode
-					, $Model->ActivationEmail
-					, $Model->Username);
+			if (!\Site\models\User\Activation::SendActivationEmail(
+							$ActivationCode
+							, $Model->ActivationEmail
+							, $Model->Username
+							, false)) {
+				T\Msg::GMsg_Add(\t2::Site_User("Failed to send activation link!"), T\Msg::ErrorCSS);
+				T\Msg::GMsg_Show(T\Msg::Prompt_Error);
+			}
 		}
 
 		\Output::Render($this->controller

@@ -12,7 +12,7 @@
 	</tr>
 	<? foreach ($Model->dtFreshEmails as $drEmail): ?>
 		<tr>
-			<td><?= $drEmail['Email'] ?></td>
+			<td><?= $drEmail['Email'] ?> <?= $drEmail['IsPrimary'] ? ' [' . t2::Site_User('Primary') . ']' : '' ?> </td>
 			<td><?= $drEmail['PendingEmail'] ?></td>
 			<td>
 				<?
@@ -48,7 +48,18 @@
 											, array(
 										'name' => 'btnDelete',
 										'rel' => \html::AjaxElement('#divEditInfo', NULL, "hdnEmailID={$drEmail['CombinedID']}") . ' ' . html::OnceClick,
-										'onclick' => \html::PostbackConfirm_OnClick('Are you sure to delete it?'),
+										'onclick' => \html::PostbackConfirm_OnClick('Are you sure?'),
+											)
+							)) : ''
+					?>
+					<?=
+					!$drEmail['IsPrimary'] && !$drEmail['PendingEmail'] ?
+							html::ButtonContainer(
+									CHtml::button(\t2::Site_User('Set as primary')
+											, array(
+										'name' => 'btnPrimary',
+										'rel' => \html::AjaxElement('#divEditInfo', NULL, "hdnEmailID={$drEmail['CombinedID']}") . ' ' . html::OnceClick,
+										'onclick' => \html::PostbackConfirm_OnClick('Are you sure?'),
 											)
 							)) : ''
 					?>

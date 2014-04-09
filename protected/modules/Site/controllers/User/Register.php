@@ -69,6 +69,8 @@ class Register extends \CAction {
 			\Output::Render($this->controller, '../messages/success'
 					, array(
 				'msg' => \t2::Site_User('Registered successfully')
+				. ' <br/> '
+				. \t2::Site_User('Activation link sent successfully')
 					)
 			);
 		} else

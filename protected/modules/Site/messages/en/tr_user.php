@@ -29,7 +29,8 @@ return array_merge(
 	. \Yii::app()->createAbsoluteUrl(\Site\Consts\Routes::UserResendActivation)
 	. '">Resend Activation Link</a>',
 	'Activation failed!' => 'Activation failed! Please try again later.',
-	'Failed to send activation link!' => 'Failed to send activation link email! Please try'
+	'Failed to send activation link!' => 'Failed to send activation link email !',
+	'Failed to send activation link! Resend' => 'Failed to send activation link email ! Please try'
 	. ' <a href="'
 	. \Yii::app()->createAbsoluteUrl(\Site\Consts\Routes::UserResendActivation)
 	. '">Resend Activation Link</a>',
@@ -85,5 +86,7 @@ return array_merge(
 //	'Phones' => 'Phones',
 //	'Emails' => 'Emails',
 //	'Add new' => 'Add new',
+//	'Set as primary' => 'Set as primary',
+//	'Primary' => 'Primary',
 		)
 );
