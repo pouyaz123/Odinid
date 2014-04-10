@@ -1,45 +1,54 @@
 <?php
 /* @var $this \Site\controllers\ProfileController */
 /* @var $Model \Site\models\Profile\Info */
+/* @var $wdgGeoLocation \Widgets\GeoLocationFields\GeoLocationFields */
 ?>
-<div id="divEditEmail">
+<div id="divEditResidency">
 	<?
 	if ($form = $this->beginWidget('Widgets\ActiveForm', array(
 		'id' => 'ProfileInfo',
 		'method' => 'POST',
 		'enableClientValidation' => true,
-//		'enableAjaxValidation' => true,	//disabled because of the Edit mode which the ID of the current email must be passed
 		'clientOptions' => array(
 			'validateOnSubmit' => true,
 		),
-		'focus' => array($Model, 'txtEmail'),
 			))):
 		/* @var $form Widgets\ActiveForm */
 		?>
-		<?= $Model->scenario == 'Edit' ? \CHtml::link(t2::Site_User('Add new'), \Site\Consts\Routes::User_EditEmails()) : '' ?>
+		<?= $Model->scenario == 'Edit' ? \CHtml::link(t2::Site_User('Add new'), \Site\Consts\Routes::User_EditResidencies()) : '' ?>
 		<table class="FullW">
 			<tr>
 				<td style="width: 350px">
-					<?= $form->hiddenField($Model, 'hdnEmailID') ?>
+					<?= $form->hiddenField($Model, 'hdnResidencyID') ?>
+					<?
+					$wdgGeoLocation->ActiveForm = $form;
+					echo $wdgGeoLocation;
+					?>
 					<?=
 					html::FieldContainer(
-							$form->textField($Model, 'txtEmail')
-							, $form->labelEx($Model, 'txtEmail')
-							, $form->error($Model, 'txtEmail', NULL, true))
+							$form->radioButtonList($Model, 'rdoResidencyStatus', $Model->arrResidencyStatuses)
+//							, $form->labelEx($Model, 'rdoResidencyStatus')
+//							, $form->error($Model, 'rdoResidencyStatus')
+					)
 					?>
-					<div><?= $Model->PendingEmail ? t2::Site_User('Pending email') . ' : ' . $Model->PendingEmail : '' ?></div>
+					<?=
+					html::FieldContainer(
+							$form->textField($Model, 'txtVisaType')
+							, $form->labelEx($Model, 'txtVisaType')
+							, $form->error($Model, 'txtVisaType'))
+					?>
 
 					<?=
 					html::ButtonContainer(
 							CHtml::submitButton(\t2::Site_User($Model->scenario == 'Edit' ? 'Edit' : 'Add')
 									, array(
 								'name' => $Model->scenario == 'Edit' ? 'btnSaveEdit' : 'btnAdd',
-								'rel' => \html::AjaxElement('#divEditInfo') . ' ' . html::OnceClick
+								'rel' => \html::AjaxElement('#divEditInfo') . ' ' . \html::OnceClick
 									)
 					))
 					?>
 					<?=
-					$Model->scenario == 'Edit' && !$Model->IsPrimaryEmailEdit ?
+					$Model->scenario == 'Edit' ?
 							html::ButtonContainer(
 									CHtml::button(\t2::Site_User('Delete')
 											, array(
@@ -51,10 +60,10 @@
 					?>
 				</td>
 				<td class="BtmAlign">
-					<?= $form->errorSummary($Model) ?>
+	<?= $form->errorSummary($Model) ?>
 				</td>
 			</tr>
 		</table>
 	<? endif; ?>
-	<? $this->endWidget(); ?>
+<? $this->endWidget(); ?>
 </div>

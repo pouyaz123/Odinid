@@ -32,19 +32,16 @@ final class Routes {
 		return $Username;
 	}
 
-	static function UserProfile($Username = null) {
-		return "/" . self::GetUsername($Username);
-	}
-
-	static function UserEditInfo($Username = null) {
-		return "/" . self::GetUsername($Username) . "/editinfo";
-	}
-
-	static function UserEditContacts($Username = null) {
-		return "/" . self::GetUsername($Username) . "/editcontacts";
-	}
-	static function UserEditEmails($Username = null) {
-		return "/" . self::GetUsername($Username) . "/editemails";
+	static function __callStatic($Name, $Params) {
+		$Name = explode('_', $Name);
+		$Username = isset($Params[0]) ? $Params[0] : null;
+		if (isset($Name[1]))
+			$Name[1] = strtolower($Name[1]);
+		switch ($Name[0]) {
+			case 'User':
+				return "/" . self::GetUsername($Username) . ($Name[1] != 'profile' ? '/' . $Name[1] : '');
+				break;
+		}
 	}
 
 }

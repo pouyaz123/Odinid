@@ -35,7 +35,7 @@ return array_merge(
 	. \Yii::app()->createAbsoluteUrl(\Site\Consts\Routes::UserResendActivation)
 	. '">Resend Activation Link</a>',
 	'Activation link has been sent' => 'New activation link has been sent to your email.<br/> The link(code) has a short expiration time.',
-//	'User account has been activated.' => 'User account has been activated.',
+	'User account has been activated.' => 'The email address and/or user account has been activated.',
 #
 	'Plz activate your account first' => 'Please activate your account first',
 #recovery
@@ -85,6 +85,20 @@ return array_merge(
 //	'Basic info' => 'Basic info',
 //	'Phones' => 'Phones',
 //	'Emails' => 'Emails',
+//	'Locations' => 'Locations',
+//	'Work permissions' => 'Work permissions',
+//	
+//	'Country' => 'Country',
+	'Division' => 'State | Province | Territory',
+//	'City' => 'City',
+//	'Address 1' => 'Address 1',
+//	'Address 2' => 'Address 2',
+//	'txtPostalCode' => \t2::Site_User('Postal code'),
+//	'chkIsCurrentLocation' => \t2::Site_User('Is current location'),
+//	'chkIsBillingLocation' => \t2::Site_User('Is billing location'),
+//	'ddlResidencyStatus' => \t2::Site_User('Residency Status'),
+//	'txtVisaType' => \t2::Site_User('Visa Type'),
+//	
 //	'Add new' => 'Add new',
 //	'Set as primary' => 'Set as primary',
 //	'Primary' => 'Primary',

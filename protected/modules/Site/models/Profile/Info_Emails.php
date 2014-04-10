@@ -61,12 +61,16 @@ class Info_Emails extends \Base\FormModelBehavior {
 		$vl = \ValidationLimits\User::GetInstance();
 		$e->params['arrRules'] = array_merge($e->params['arrRules'], array(
 			array('hdnEmailID', 'required',
-				'on' => 'Edit, Delete, ResetActivationLink'),
-			array('hdnEmailID', 'IsExist',
+				'on' => 'Edit, Delete, ResetActivationLink, SetAsPrimary'),
+			array('hdnEmailID', 'IsExist', //only to resend activation link
 				'SQL' => 'SELECT COUNT(*) FROM `_user_emails` WHERE `CombinedID`=:val AND `UID`=:uid AND NOT ISNULL(`PendingEmail`)',
 				'SQLParams' => array(':uid' => $this->owner->drUser->ID),
 				'on' => 'ResetActivationLink'),
-			array('hdnEmailID', 'IsExist',
+			array('hdnEmailID', 'IsExist', //making primary (must not be pending)
+				'SQL' => 'SELECT COUNT(*) FROM `_user_emails` WHERE `CombinedID`=:val AND `UID`=:uid AND ISNULL(`PendingEmail`)',
+				'SQLParams' => array(':uid' => $this->owner->drUser->ID),
+				'on' => 'SetAsPrimary'),
+			array('hdnEmailID', 'IsExist', //edit delete at all
 				'SQL' => 'SELECT COUNT(*) FROM `_user_emails` WHERE `CombinedID`=:val AND `UID`=:uid',
 				'SQLParams' => array(':uid' => $this->owner->drUser->ID),
 				'on' => 'Edit, Delete'),
@@ -85,12 +89,12 @@ class Info_Emails extends \Base\FormModelBehavior {
 		$unq->attributes = array('txtEmail');
 		$unq->SQL = 'SELECT COUNT(*) FROM `_user_emails` WHERE '
 				. ($owner->scenario == 'Edit' || $this->hdnEmailID ? ' `CombinedID`!=:combid AND ' : '')
-				. ' (`Email`=:val OR (PendingEmail=:val AND UID=:uid))';
+				. ' (`Email`=:val OR (`PendingEmail`=:val AND `UID`=:uid))';
 		$unq->SQLParams = array(
 			':combid' => $this->hdnEmailID,
 			':uid' => $owner->drUser['ID']
 		);
-		$unq->except = array('Delete');
+		$unq->except = 'Delete';
 		$owner->validatorList->add($unq);
 	}
 
@@ -118,19 +122,19 @@ class Info_Emails extends \Base\FormModelBehavior {
 		));
 	}
 
-	public function getdtEmails($EmailID = NULL, $refresh = false) {
-		$StaticIndex = $EmailID;
+	public function getdtEmails($ID = NULL, $refresh = false) {
+		$StaticIndex = $ID;
 		if (!$StaticIndex)
 			$StaticIndex = "ALL";
 		static $arrDTs = array();
 		if (!isset($arrDTs[$StaticIndex]) || $refresh) {
 			$arrDTs[$StaticIndex] = T\DB::GetTable("SELECT *"
 							. " FROM `_user_emails`"
-							. " WHERE " . ($EmailID ? " CombinedID=:emailid AND " : "") . " `UID`=:uid"
+							. " WHERE " . ($ID ? " CombinedID=:id AND " : "") . " `UID`=:uid"
 							. " ORDER BY `OrderNumber`"
 							, array(
 						':uid' => $this->owner->drUser->ID,
-						':emailid' => $EmailID,
+						':id' => $ID,
 							)
 			);
 		}
@@ -139,13 +143,13 @@ class Info_Emails extends \Base\FormModelBehavior {
 
 	/**
 	 * gets fresh data table only once after the edit or delete process
-	 * @param string $EmailID
+	 * @param string $ID
 	 * @return array
 	 */
-	public function getdtFreshEmails($EmailID = null) {
+	public function getdtFreshEmails($ID = null) {
 		static $Result = null;
 		if (!$Result)
-			$Result = $this->getdtEmails($EmailID, true);
+			$Result = $this->getdtEmails($ID, true);
 		return $Result;
 	}
 
@@ -246,9 +250,8 @@ class Info_Emails extends \Base\FormModelBehavior {
 				)
 			);
 		}
-		if (!$this->hdnEmailID) {
+		if (!$this->hdnEmailID)
 			$this->hdnEmailID = $CombinedID;
-		}
 		$owner->addTransactions($arrTrans);
 	}
 
@@ -289,6 +292,17 @@ class Info_Emails extends \Base\FormModelBehavior {
 					)
 			);
 		}
+	}
+
+	public function SetAsPrimary() {
+		T\DB::Transaction(array(
+			array(
+				"UPDATE `_user_emails` SET `IsPrimary`=NULL WHERE `UID`=:uid AND NOT ISNULL(`IsPrimary`)"
+				, array(':uid' => $this->owner->drUser['ID'])),
+			array(
+				"UPDATE `_user_emails` SET `IsPrimary`=1 WHERE `CombinedID`=:id"
+				, array(':id' => $this->hdnEmailID)),
+		));
 	}
 
 }

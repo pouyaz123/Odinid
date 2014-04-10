@@ -68,7 +68,7 @@ class Conf {
 	const UserHomeRoute = \Site\Consts\Routes::UserProfile;
 
 	static public function UserHomeRoute() {
-		return \Site\Consts\Routes::UserProfile();
+		return \Site\Consts\Routes::User_Profile();
 	}
 
 	const jQTheme = 'redmond';

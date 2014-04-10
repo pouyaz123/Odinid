@@ -54,7 +54,7 @@ h1, h2, h3{margin:0px; font-weight: normal}
 	#Logo{vertical-align: top}
 	#HNav #mnuHdrNav{width:72.9%}
 	#HNav #mnuHdrNav li{width:32%}
-	#HNav #mnuUsrPanel{width:23%; float: none;}
+	#HNav #mnuUsrPanel{width:23%; float: none}
 	#HNav #mnuUsrPanel li{display: block}
 	#HNav li a{display: block}
 	.LeftCol{display: block; width:100%; padding-right: 0px}
@@ -63,6 +63,6 @@ h1, h2, h3{margin:0px; font-weight: normal}
 	#Hdr input{margin:0px; margin-bottom: 3px}
 }
 
-.OLst {}
+.OLst {background: #ccc}
 .OLst td {width: 1%}
 .OLst .LstHdr td {background: #7E7E7E; text-align: center; color: #C6C6C6; border: 1px solid #C6C6C6}

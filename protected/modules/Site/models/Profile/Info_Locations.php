@@ -101,17 +101,17 @@ class Info_Locations extends \Base\FormModelBehavior {
 
 	public function onBeforeAttributeLabels(\CEvent $e) {
 		$e->params['arrAttrLabels'] = array_merge($e->params['arrAttrLabels'], array(
-			'ddlCountry' => \t2::Site_Common('Country'),
-			'ddlDivision' => \t2::Site_Common('Division'),
-			'ddlCity' => \t2::Site_Common('City'),
-			'txtCountry' => \t2::Site_Common('Country'),
-			'txtDivision' => \t2::Site_Common('Division'),
-			'txtCity' => \t2::Site_Common('City'),
-			'txtAddress1' => \t2::Site_Common('Address 1'),
-			'txtAddress2' => \t2::Site_Common('Address 2'),
-			'txtPostalCode' => \t2::Site_Common('Postal code'),
-			'chkIsCurrentLocation' => \t2::Site_Common('Is current location'),
-			'chkIsBillingLocation' => \t2::Site_Common('Is Billing location'),
+			'ddlCountry' => \t2::Site_User('Country'),
+			'ddlDivision' => \t2::Site_User('Division'),
+			'ddlCity' => \t2::Site_User('City'),
+			'txtCountry' => \t2::Site_User('Country'),
+			'txtDivision' => \t2::Site_User('Division'),
+			'txtCity' => \t2::Site_User('City'),
+			'txtAddress1' => \t2::Site_User('Address 1'),
+			'txtAddress2' => \t2::Site_User('Address 2'),
+			'txtPostalCode' => \t2::Site_User('Postal code'),
+			'chkIsCurrentLocation' => \t2::Site_User('Is current location'),
+			'chkIsBillingLocation' => \t2::Site_User('Is billing location'),
 		));
 	}
 
@@ -160,34 +160,46 @@ class Info_Locations extends \Base\FormModelBehavior {
 		return $dr;
 	}
 
-	public function getdtLocations() {
-		static $dt = null;
-		if (!$dt) {
+	public function getdtLocations($ID = NULL, $refresh = false) {
+		$StaticIndex = $ID;
+		if (!$StaticIndex)
+			$StaticIndex = "ALL";
+		static $arrDTs = null;
+		if (!isset($arrDTs[$StaticIndex]) || $refresh) {
 			//mytodo x: in Info_Locations i think we can query faster if we put these joins in a procedure
-			$dt = T\DB::GetTable(
+			$arrDTs[$StaticIndex] = T\DB::GetTable(
 							"SELECT "
 							. " locs.*"
 							. ", IFNULL(gc.`AsciiName`, guc.`Country`) AS Country"
 							. ", IFNULL(gd.`AsciiName`, gud.`Division`) AS Division"
-							. ", IFNULL(gct.`AsciiName`, gud.`City`) AS City"
+							. ", IFNULL(gct.`AsciiName`, guct.`City`) AS City"
 							. " FROM `_user_locations` AS locs"
-							. " INNER JOIN (SELECT 1) AS tmp ON locs.`UID`=:uid"
+							. " INNER JOIN (SELECT 1) AS tmp ON " . ($ID ? " CombinedID=:id AND " : "") . "locs.`UID`=:uid"
 							. " LEFT JOIN `_geo_countries` AS gc ON gc.`ISO2`=locs.`GeoCountryISO2`"
 							. " LEFT JOIN `_geo_divisions` AS gd ON gd.`CombinedCode`=locs.`GeoDivisionCode`"
 							. " LEFT JOIN `_geo_cities` AS gct ON gct.`GeonameID` =locs.`GeoCityID`"
 							. " LEFT JOIN `_geo_user_countries` AS guc ON guc.`ID`=locs.`UserCountryID`"
 							. " LEFT JOIN `_geo_user_divisions` AS gud ON gud.`ID`=locs.`UserDivisionID`"
 							. " LEFT JOIN `_geo_user_cities` AS guct ON guct.`ID`=locs.`UserCityID`"
-							, array(':uid' => $this->owner->drUser->ID));
+							, array(
+						':uid' => $this->owner->drUser->ID,
+						':id' => $ID,
+							)
+			);
 		}
-		return $dt;
+		return $arrDTs[$StaticIndex]? : array();
 	}
 
-	public function events() {
-		return array_merge(parent::events(), array(
-			'onSave' => 'onSave',
-			'onDelete' => 'onDelete',
-		));
+	/**
+	 * gets fresh data table only once after the edit or delete process
+	 * @param string $ID
+	 * @return array
+	 */
+	public function getdtFreshLocations($ID = null) {
+		static $Result = null;
+		if (!$Result)
+			$Result = $this->getdtLocations($ID, true);
+		return $Result;
 	}
 
 	public function onDelete(\CEvent $e) {
@@ -204,39 +216,36 @@ class Info_Locations extends \Base\FormModelBehavior {
 	public function onSave(\CEvent $e) {
 		$this->raiseEvent('onSave', $e);
 		$owner = $this->owner;
-		if ($this->hdnLocationID)
-			$CombinedID = $this->hdnLocationID;
-		else
-			$CombinedID = T\DB::GetNewID_Combined(
-							'_user_locations'
-							, 'CombinedID'
-							, 'UID=:uid'
-							, array(':uid' => $owner->drUser->ID)
-							, array(
-						'PrefixQuery' => "CONCAT(:uid, '_')",
-						'ReturnTheQuery' => false
-							)
-			);
+		$CombinedID = $this->hdnLocationID? : T\DB::GetNewID_Combined(
+						'_user_locations'
+						, 'CombinedID'
+						, 'UID=:uid'
+						, array(':uid' => $owner->drUser->ID)
+						, array(
+					'PrefixQuery' => "CONCAT(:uid, '_')",
+					'ReturnTheQuery' => false
+						)
+		);
 		$arrTransactions = array();
 		$arrTransactions[] = array(
 			"CALL geo_getGeoLocationIDs(
 					:country
 					, :division
 					, :city
-					, @info_CountryISO2
-					, @info_DivisionCombined
-					, @info_DivisionCode
-					, @info_CityID);
+					, @location_CountryISO2
+					, @location_DivisionCombined
+					, @location_DivisionCode
+					, @location_CityID);
 				CALL geo_getUserLocationIDs(
 					:country
 					, :division
 					, :city
-					, @info_CountryISO2
-					, @info_DivisionCombined
-					, @info_CityID
-					, @info_UserCountryID
-					, @info_UserDivisionID
-					, @info_UserCityID)"
+					, @location_CountryISO2
+					, @location_DivisionCombined
+					, @location_CityID
+					, @location_UserCountryID
+					, @location_UserDivisionID
+					, @location_UserCityID)"
 			, array(
 				':country' => $this->txtCountry? : $this->ddlCountry,
 				':division' => $this->txtDivision? : $this->ddlDivision,
@@ -253,17 +262,31 @@ class Info_Locations extends \Base\FormModelBehavior {
 		  //				. " WHERE `UID`=:uid",
 		  //				array(':uid' => $owner->drUser->ID)
 		  //			); */
+		if ($this->chkIsCurrentLocation || $this->chkIsBillingLocation) {
+			$arrTransactions[] = array(
+				"UPDATE `_user_locations` SET "
+				. ($this->chkIsCurrentLocation ? " `IsCurrentLocation`=NULL " : "")
+				. ($this->chkIsCurrentLocation && $this->chkIsBillingLocation ? " , " : "")
+				. ($this->chkIsBillingLocation ? " `IsBillingLocation`=NULL " : "")
+				. " WHERE UID=:uid AND ( "
+				. ($this->chkIsCurrentLocation ? " NOT ISNULL(`IsCurrentLocation`) " : "")
+				. ($this->chkIsCurrentLocation && $this->chkIsBillingLocation ? " OR " : "")
+				. ($this->chkIsBillingLocation ? " NOT ISNULL(`IsBillingLocation`) " : "")
+				. " )"
+				, array(':uid' => $owner->drUser['ID'])
+			);
+		}
 		$arrTransactions[] = array(
 			(!$this->hdnLocationID ?
 					"INSERT INTO `_user_locations` SET"
 					. " `CombinedID`='$CombinedID'"
 					. ", `UID`=:uid"
-					. ", `GeoCountryISO2`=@info_CountryISO2"
-					. ", `GeoDivisionCode`=@info_DivisionCombined"
-					. ", `GeoCityID`=@info_CityID"
-					. ", `UserCountryID`=@info_UserCountryID"
-					. ", `UserDivisionID`=@info_UserDivisionID"
-					. ", `UserCityID`=@info_UserCityID"
+					. ", `GeoCountryISO2`=@location_CountryISO2"
+					. ", `GeoDivisionCode`=@location_DivisionCombined"
+					. ", `GeoCityID`=@location_CityID"
+					. ", `UserCountryID`=@location_UserCountryID"
+					. ", `UserDivisionID`=@location_UserDivisionID"
+					. ", `UserCityID`=@location_UserCityID"
 					. ", `Address1`=:addr1"
 					. ", `Address2`=:addr2"
 					. ", `PostalCode`=:postcode"
@@ -271,12 +294,12 @@ class Info_Locations extends \Base\FormModelBehavior {
 					. ", `IsBillingLocation`=:isbilling" :
 					"UPDATE `_user_locations` SET"
 					. " `UID`=:uid"
-					. ", `GeoCountryISO2`=@info_CountryISO2"
-					. ", `GeoDivisionCode`=@info_DivisionCombined"
-					. ", `GeoCityID`=@info_CityID"
-					. ", `UserCountryID`=@info_UserCountryID"
-					. ", `UserDivisionID`=@info_UserDivisionID"
-					. ", `UserCityID`=@info_UserCityID"
+					. ", `GeoCountryISO2`=@location_CountryISO2"
+					. ", `GeoDivisionCode`=@location_DivisionCombined"
+					. ", `GeoCityID`=@location_CityID"
+					. ", `UserCountryID`=@location_UserCountryID"
+					. ", `UserDivisionID`=@location_UserDivisionID"
+					. ", `UserCityID`=@location_UserCityID"
 					. ", `Address1`=:addr1"
 					. ", `Address2`=:addr2"
 					. ", `PostalCode`=:postcode"
@@ -287,8 +310,8 @@ class Info_Locations extends \Base\FormModelBehavior {
 			, array(
 				':uid' => $owner->drUser->ID,
 				':combid' => $CombinedID? : null,
-				':adrr1' => $this->txtAddress1? : null,
-				':adrr2' => $this->txtAddress2? : null,
+				':addr1' => $this->txtAddress1? : null,
+				':addr2' => $this->txtAddress2? : null,
 				':postcode' => $this->txtPostalCode? : null,
 				':iscurrent' => $this->chkIsCurrentLocation? : null,
 				':isbilling' => $this->chkIsBillingLocation? : null,
@@ -305,7 +328,41 @@ class Info_Locations extends \Base\FormModelBehavior {
 				)
 			);
 		}
+		if (!$this->hdnLocationID)
+			$this->hdnLocationID = $CombinedID;
 		$owner->addTransactions($arrTransactions);
+	}
+
+	public function onSetForm(\CEvent $e) {
+		$this->raiseEvent('onSetForm', $e);
+		$owner = $this->owner;
+		$dr = $this->getdtLocations($this->hdnLocationID);
+		if ($dr) {
+			$dr = $dr[0];
+			$arrAttrs = array(
+				'hdnLocationID' => $dr['CombinedID'],
+				'ddlCountry' => $dr['GeoCountryISO2']? : '_other_',
+				'ddlDivision' => $dr['GeoDivisionCode']? : '_other_',
+				'ddlCity' => $dr['GeoCityID']? : '_other_',
+				'txtCountry' => $dr['GeoCountryISO2'] ? : $dr['Country'],
+				'txtDivision' => $dr['GeoDivisionCode'] ? : $dr['Division'],
+				'txtCity' => $dr['GeoCityID'] ? : $dr['City'],
+				'txtAddress1' => $dr['Address1'],
+				'txtAddress2' => $dr['Address2'],
+				'txtPostalCode' => $dr['PostalCode'],
+				'chkIsCurrentLocation' => $dr['IsCurrentLocation'],
+				'chkIsBillingLocation' => $dr['IsBillingLocation'],
+			);
+			$owner->attributes = $arrAttrs;
+		}
+	}
+
+	public function events() {
+		return array_merge(parent::events(), array(
+			'onSave' => 'onSave',
+			'onDelete' => 'onDelete',
+			'onSetForm' => 'onSetForm',
+		));
 	}
 
 }

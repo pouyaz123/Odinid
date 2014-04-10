@@ -43,7 +43,8 @@ use \Tools as T;
  * -----Phones Behavior
  * @property integer $hdnContactID
  * @property-read array $arrPhoneTypes
- * @property-read array $dtContacts user contacts
+ * @property-read array $dtContacts
+ * @property-read array $dtFreshContacts
  * @method array getdtContacts(string $ContactID = NULL, boolean $refresh = false)
  * @property string $txtPhone
  * @property string $ddlPhoneType
@@ -61,16 +62,18 @@ use \Tools as T;
  * @property-read string $ActivationEmail
  * @property-read string $ActivationCode
  * @method void ResetActivationLink()
+ * @method void SetAsPrimary()
  * @property string $txtEmail
  * -----WebAddresses Behavior
  * @property-read array $arrWebAddrTypes
- * @property-read array $dtWebAddr user web addresses
+ * @property-read array $dtWebAddr
  * @property integer $hdnWebAddrID;
  * @property string $txtWebAddress
  * @property string $ddlWebAddrType
  * @property string $txtCustomType
  * -----Location Behavior
- * @property-read array $dtLocations user locations
+ * @property-read array $dtLocations
+ * @property-read array $dtFreshLocations
  * @property-read array $drCurrentLocation
  * @property-read array $drBillingLocation
  * @property integer $hdnLocationID
@@ -85,6 +88,15 @@ use \Tools as T;
  * @property string $txtPostalCode
  * @property boolean $chkIsCurrentLocation
  * @property boolean $chkIsBillingLocation
+ * -----Residencies Behavior
+ * @property-read array $arrResidencyStatuses
+ * @property-read array $dtResidencies
+ * @property-read array $dtFreshResidencies
+ * @property integer $hdnRsdCountryID
+ * @property string $ddlCountry
+ * @property string $txtCountry
+ * @property string $rdoResidencyStatus
+ * @property string $txtVisaType
  */
 class Info extends \Base\FormModel_BehaviorHost {
 

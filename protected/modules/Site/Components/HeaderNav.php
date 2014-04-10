@@ -46,7 +46,7 @@ class HeaderNav {
 			$Username = Login::GetSessionDR('Username');
 			$arrUsrPanelItems = array(
 				array('label' => \CHtml::encode(T\Basics::ucwords_ASCIISafe($Username))
-					, 'url' => array(Routes::UserProfile(\CHtml::encode($Username)))),
+					, 'url' => array(Routes::User_Profile(\CHtml::encode($Username)))),
 				array('label' => \t2::Site_Common('Logout')
 					, 'url' => array(Routes::UserLogout)
 					, 'linkOptions' => array('rel' => \html::AjaxExcept)),

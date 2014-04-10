@@ -10,10 +10,10 @@
 		<td><?= t2::Site_User('Pending email') ?></td>
 		<td></td>
 	</tr>
-	<? foreach ($Model->dtFreshEmails as $drEmail): ?>
-		<tr>
-			<td><?= $drEmail['Email'] ?> <?= $drEmail['IsPrimary'] ? ' [' . t2::Site_User('Primary') . ']' : '' ?> </td>
-			<td><?= $drEmail['PendingEmail'] ?></td>
+	<? foreach ($Model->dtFreshEmails as $dr): ?>
+		<tr <?= html::AltRow()?>>
+			<td><?= $dr['Email'] ?> <?= $dr['IsPrimary'] ? ' [' . t2::Site_User('Primary') . ']' : '' ?> </td>
+			<td><?= $dr['PendingEmail'] ?></td>
 			<td>
 				<?
 				if ($form = $this->beginWidget('Widgets\ActiveForm', array(
@@ -23,12 +23,12 @@
 					/* @var $form Widgets\ActiveForm */
 					?>
 					<?=
-					$drEmail['PendingEmail'] ?
+					$dr['PendingEmail'] ?
 							html::ButtonContainer(
 									CHtml::button(\t2::Site_User('Resend Activation Link')
 											, array(
 										'name' => 'btnResendActivationLink',
-										'rel' => \html::AjaxElement('#divEditInfo', NULL, "hdnEmailID={$drEmail['CombinedID']}") . ' ' . html::OnceClick,
+										'rel' => \html::AjaxElement('#divEditInfo', NULL, "hdnEmailID={$dr['CombinedID']}") . ' ' . html::OnceClick,
 											)
 							)) : ''
 					?>
@@ -37,28 +37,28 @@
 							CHtml::button(\t2::Site_User('Edit')
 									, array(
 								'name' => 'btnEdit',
-								'rel' => \html::AjaxElement('#divEditEmail', NULL, "hdnEmailID={$drEmail['CombinedID']}") . \html::SimpleAjaxPanel,
+								'rel' => \html::AjaxElement('#divEditEmail', NULL, "hdnEmailID={$dr['CombinedID']}") . \html::SimpleAjaxPanel,
 									)
 					))
 					?>
 					<?=
-					!$drEmail['IsPrimary'] ?
+					!$dr['IsPrimary'] ?
 							html::ButtonContainer(
 									CHtml::button(\t2::Site_User('Delete')
 											, array(
 										'name' => 'btnDelete',
-										'rel' => \html::AjaxElement('#divEditInfo', NULL, "hdnEmailID={$drEmail['CombinedID']}") . ' ' . html::OnceClick,
+										'rel' => \html::AjaxElement('#divEditInfo', NULL, "hdnEmailID={$dr['CombinedID']}") . ' ' . html::OnceClick,
 										'onclick' => \html::PostbackConfirm_OnClick('Are you sure?'),
 											)
 							)) : ''
 					?>
 					<?=
-					!$drEmail['IsPrimary'] && !$drEmail['PendingEmail'] ?
+					!$dr['IsPrimary'] && !$dr['PendingEmail'] ?
 							html::ButtonContainer(
 									CHtml::button(\t2::Site_User('Set as primary')
 											, array(
 										'name' => 'btnPrimary',
-										'rel' => \html::AjaxElement('#divEditInfo', NULL, "hdnEmailID={$drEmail['CombinedID']}") . ' ' . html::OnceClick,
+										'rel' => \html::AjaxElement('#divEditInfo', NULL, "hdnEmailID={$dr['CombinedID']}") . ' ' . html::OnceClick,
 										'onclick' => \html::PostbackConfirm_OnClick('Are you sure?'),
 											)
 							)) : ''

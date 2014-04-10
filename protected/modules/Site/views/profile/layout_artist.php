@@ -3,7 +3,7 @@
 /* @var $Model \Site\models\Profile\Info */
 ?>
 <? if (\Site\models\User\Login::IsLoggedIn()): ?>
-	<div><?= \CHtml::link(t2::Site_User('Basic info'), \Site\Consts\Routes::UserEditInfo()) ?></div>
+	<div><?= \CHtml::link(t2::Site_User('Basic info'), \Site\Consts\Routes::User_EditInfo()) ?></div>
 <? endif; ?>
 <div class="LeftCol">
 	<div>
@@ -21,7 +21,7 @@
 			<tr>
 				<td>
 					<?=
-					$drCurrentLocation = $Model->drCurrentLocation ? \t2::Site_User('User location', array(
+					($drCurrentLocation = $Model->drCurrentLocation) ? \t2::Site_User('User location', array(
 						'{City}' => $drCurrentLocation['City'],
 						'{Division}' => !is_numeric($drCurrentLocation['DivisionCode']) ?
 								$drCurrentLocation['DivisionCode'] : $drCurrentLocation['Division'],

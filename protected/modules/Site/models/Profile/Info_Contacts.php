@@ -112,22 +112,22 @@ class Info_Contacts extends \Base\FormModelBehavior {
 		));
 	}
 
-	public function getdtContacts($ContactID = NULL, $refresh = false) {
-		$StaticIndex = $ContactID;
+	public function getdtContacts($ID = NULL, $refresh = false) {
+		$StaticIndex = $ID;
 		if (!$StaticIndex)
 			$StaticIndex = "ALL";
 		static $arrDTs = array();
 		if (!isset($arrDTs[$StaticIndex]) || $refresh) {
 			$arrDTs[$StaticIndex] = T\DB::GetTable("SELECT *"
 							. " FROM `_user_contacts` uc"
-							. " INNER JOIN (SELECT 1) tmp ON uc.`UID`=:uid" . ($ContactID ? " AND uc.CombinedID=:id " : "")
+							. " INNER JOIN (SELECT 1) tmp ON uc.`UID`=:uid" . ($ID ? " AND uc.CombinedID=:id " : "")
 							. ($this->owner->asa('Info_Company') ?
 									" LEFT JOIN _company_contactinfo cci ON cci.ContactID = uc.CombinedID" :
 									"")
 							. " ORDER BY uc.`OrderNumber`"
 							, array(
 						':uid' => $this->owner->drUser->ID,
-						':id' => $ContactID,
+						':id' => $ID,
 							)
 			);
 		}
@@ -136,13 +136,13 @@ class Info_Contacts extends \Base\FormModelBehavior {
 
 	/**
 	 * gets fresh data table only once after the edit or delete process
-	 * @param string $ContactID
+	 * @param string $ID
 	 * @return array
 	 */
-	public function getdtFreshContacts($ContactID = null) {
+	public function getdtFreshContacts($ID = null) {
 		static $Result = null;
 		if (!$Result)
-			$Result = $this->getdtContacts($ContactID, true);
+			$Result = $this->getdtContacts($ID, true);
 		return $Result;
 	}
 
@@ -203,32 +203,33 @@ class Info_Contacts extends \Base\FormModelBehavior {
 				':phonetype' => $this->txtPhone && $this->ddlPhoneType ? $this->ddlPhoneType : null,
 			)
 		);
-		$this->hdnContactID = $CombinedID;
 		if ($owner->asa('Info_Company')) {
 			if (!$this->txtContactFirstName && !$this->txtContactLastName && !$this->txtContactJobTitle)
 				$arrTrans[] = array(
-					"DELETE FROM `_company_contactinfo` WHERE `ContactID`=:cntctid"
+					"DELETE FROM `_company_contactinfo` WHERE `ContactID`=:id"
 					, array(
 						':uid' => $owner->drUser->ID,
-						':cntctid' => $this->hdnContactID,
+						':id' => $CombinedID,
 					)
 				);
 			else
 				$arrTrans[] = array(
 					"INSERT INTO `_company_contactinfo`(`ContactID`, `FirstName`, `LastName`, `JobTitle`)"
-					. " VALUES(:cntctid, :cfname, :clname, :cjobtitle)"
+					. " VALUES(:id, :cfname, :clname, :cjobtitle)"
 					. " ON DUPLICATE KEY UPDATE "
 					. " `FirstName`=:cfname"
 					. ", `LastName`=:clname"
 					. ", `JobTitle`=:cjobtitle"
 					, array(
-						':cntctid' => $this->hdnContactID,
+						':id' => $CombinedID,
 						':cfname' => $this->txtContactFirstName? : null,
 						':clname' => $this->txtContactLastName? : null,
 						':cjobtitle' => $this->txtContactJobTitle? : null,
 					)
 				);
 		}
+		if (!$this->hdnContactID)
+			$this->hdnContactID = $CombinedID;
 		$owner->addTransactions($arrTrans);
 	}
 

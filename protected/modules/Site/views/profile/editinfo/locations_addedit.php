@@ -1,8 +1,9 @@
 <?php
 /* @var $this \Site\controllers\ProfileController */
 /* @var $Model \Site\models\Profile\Info */
+/* @var $wdgGeoLocation \Widgets\GeoLocationFields\GeoLocationFields */
 ?>
-<div id="divEditContact">
+<div id="divEditLocation">
 	<?
 	if ($form = $this->beginWidget('Widgets\ActiveForm', array(
 		'id' => 'ProfileInfo',
@@ -11,48 +12,48 @@
 		'clientOptions' => array(
 			'validateOnSubmit' => true,
 		),
-		'focus' => array($Model, 'txtPhone'),
 			))):
 		/* @var $form Widgets\ActiveForm */
 		?>
-		<?= $Model->scenario == 'Edit' ? \CHtml::link(t2::Site_User('Add new'), \Site\Consts\Routes::User_EditContacts()) : '' ?>
+		<?= $Model->scenario == 'Edit' ? \CHtml::link(t2::Site_User('Add new'), \Site\Consts\Routes::User_EditLocations()) : '' ?>
 		<table class="FullW">
 			<tr>
 				<td style="width: 350px">
-					<?= $form->hiddenField($Model, 'hdnContactID') ?>
-					<?=
-					html::FieldContainer(
-							$form->textField($Model, 'txtPhone')
-							, $form->labelEx($Model, 'txtPhone')
-							, $form->error($Model, 'txtPhone'))
+					<?= $form->hiddenField($Model, 'hdnLocationID') ?>
+					<?
+					$wdgGeoLocation->ActiveForm = $form;
+					echo $wdgGeoLocation;
 					?>
 					<?=
 					html::FieldContainer(
-							\html::activeComboBox($Model, $form, 'ddlPhoneType', $Model->arrPhoneTypes
-									, array('prompt' => '', 'rel' => \html::Combobox_NoSearchRel))
-							, $form->labelEx($Model, 'ddlPhoneType')
-							, $form->error($Model, 'ddlPhoneType'))
+							$form->textField($Model, 'txtAddress1')
+							, $form->labelEx($Model, 'txtAddress1')
+							, $form->error($Model, 'txtAddress1'))
 					?>
-					<? if ($Model->asa('Info_Company')): ?>
-						<?=
-						html::FieldContainer(
-								$form->textField($Model, 'txtContactFirstName')
-								, $form->labelEx($Model, 'txtContactFirstName')
-								, $form->error($Model, 'txtContactFirstName'))
-						?>
-						<?=
-						html::FieldContainer(
-								$form->textField($Model, 'txtContactLastName')
-								, $form->labelEx($Model, 'txtContactLastName')
-								, $form->error($Model, 'txtContactLastName'))
-						?>
-						<?=
-						html::FieldContainer(
-								$form->textField($Model, 'txtContactJobTitle')
-								, $form->labelEx($Model, 'txtContactJobTitle')
-								, $form->error($Model, 'txtContactJobTitle'))
-						?>
-					<? endif; ?>
+					<?=
+					html::FieldContainer(
+							$form->textField($Model, 'txtAddress2')
+							, $form->labelEx($Model, 'txtAddress2')
+							, $form->error($Model, 'txtAddress2'))
+					?>
+					<?=
+					html::FieldContainer(
+							$form->textField($Model, 'txtPostalCode')
+							, $form->labelEx($Model, 'txtPostalCode')
+							, $form->error($Model, 'txtPostalCode'))
+					?>
+					<?=
+					html::FieldContainer(
+							$form->checkBox($Model, 'chkIsCurrentLocation')
+							, $form->labelEx($Model, 'chkIsCurrentLocation')
+							, $form->error($Model, 'chkIsCurrentLocation'))
+					?>
+					<?=
+					html::FieldContainer(
+							$form->checkBox($Model, 'chkIsBillingLocation')
+							, $form->labelEx($Model, 'chkIsBillingLocation')
+							, $form->error($Model, 'chkIsBillingLocation'))
+					?>
 
 					<?=
 					html::ButtonContainer(

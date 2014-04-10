@@ -12,14 +12,14 @@ use \Tools as T;
  * @version 1
  * @copyright (c) Odinid
  * @access public
- * @property \Base\FormModel $Model set only
- * @property array|null $ModelPostValue get only
- * @property string $AjaxKW get only
- * @property string $DivisionDropDown_ContainerID get only
- * @property string $CityDropDown_ContainerID get only
- * @property array $ddlarrCountries get only
- * @property array $ddlarrDivisions get only
- * @property array $ddlarrCities get only
+ * @property-write \Base\FormModel $Model set only
+ * @property-read array|null $ModelPostValue get only
+ * @property-read string $AjaxKW get only
+ * @property-read string $DivisionDropDown_ContainerID get only
+ * @property-read string $CityDropDown_ContainerID get only
+ * @property-read array $ddlarrCountries get only
+ * @property-read array $ddlarrDivisions get only
+ * @property-read array $ddlarrCities get only
  * @property array|boolean $EmptyDDLOption get|set //set to false(default) to have no Empty option
  */
 class GeoLocationFields extends \Base\Widget {
@@ -76,10 +76,38 @@ class GeoLocationFields extends \Base\Widget {
 	public $PromptDDLOption = null;
 
 //-------- DATA --------//
+//	private $_ModelPostValue = null;
+//
+//	function setModelPostValue($val) {
+//		$this->_ModelPostValue = $val;
+//	}
+
 	function getModelPostValue() {
 		static $Post = NULL;
-		if (!$Post)
+		if (!$Post) {
 			$Post = \GPCS::POST(\CHtml::modelName($this->_Model));
+			if (!$Post) {
+				$ddlCountryAttr = $this->ddlCountryAttr;
+				$ddlDivisionAttr = $this->ddlDivisionAttr;
+				$ddlCityAttr = $this->ddlCityAttr;
+				$txtCountryAttr = $this->txtCountryAttr;
+				$txtDivisionAttr = $this->txtDivisionAttr;
+				$txtCityAttr = $this->txtCityAttr;
+				$Post = array();
+				if ($ddlCountryAttr)
+					$Post[$this->ddlCountryAttr] = $this->_Model->$ddlCountryAttr;
+				if ($ddlDivisionAttr)
+					$Post[$this->ddlDivisionAttr] = $this->_Model->$ddlDivisionAttr;
+				if ($ddlCityAttr)
+					$Post[$this->ddlCityAttr] = $this->_Model->$ddlCityAttr;
+				if ($txtCountryAttr)
+					$Post[$this->txtCountryAttr] = $this->_Model->$txtCountryAttr;
+				if ($txtDivisionAttr)
+					$Post[$this->txtDivisionAttr] = $this->_Model->$txtDivisionAttr;
+				if ($txtCityAttr)
+					$Post[$this->txtCityAttr] = $this->_Model->$txtCityAttr;
+			}
+		}
 		return $Post;
 	}
 
@@ -102,7 +130,7 @@ class GeoLocationFields extends \Base\Widget {
 		if (!$Post)
 			return array();
 		$Country = isset($Post[$this->ddlCountryAttr]) || isset($Post[$this->txtCountryAttr]) ?
-				(isset($Post[$this->ddlCountryAttr]) ? $Post[$this->ddlCountryAttr] : $Post[$this->txtCountryAttr])  :
+				(isset($Post[$this->ddlCountryAttr]) ? $Post[$this->ddlCountryAttr] : $Post[$this->txtCountryAttr]) :
 				null;
 		static $ddlarr = array();
 		if (!count($ddlarr) && $Country) {
@@ -137,7 +165,7 @@ class GeoLocationFields extends \Base\Widget {
 		if (!$Post)
 			return array();
 		$Division = isset($Post[$this->ddlDivisionAttr]) || isseT($Post[$this->txtDivisionAttr]) ?
-				(isset($Post[$this->ddlDivisionAttr]) ? $Post[$this->ddlDivisionAttr] : $Post[$this->txtDivisionAttr])  :
+				(isset($Post[$this->ddlDivisionAttr]) ? $Post[$this->ddlDivisionAttr] : $Post[$this->txtDivisionAttr]) :
 				null;
 		static $ddlarr = array();
 		if (!count($ddlarr) && $Division) {

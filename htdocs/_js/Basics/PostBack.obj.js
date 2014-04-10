@@ -385,7 +385,9 @@ var PostBack = new function()
 			AjaxKW = ThisRel.find2find_substr(AjaxKeyword_PostParamName + ':', ' ')
 			RelPostParams = ThisRel.find2find_substr(AjaxPostParamsPrefix + ':', ' ')
 		}
-		PanelAsSimpleTarget = PanelAsSimpleTarget || PanelRel.indexOf('SimpleAjaxPanel')>-1
+		PanelAsSimpleTarget = PanelAsSimpleTarget ||
+				(ThisRel && ThisRel.indexOf('SimpleAjaxPanel')>-1) ||
+				(PanelRel && PanelRel.indexOf('SimpleAjaxPanel')>-1)
 		if (PanelRel && !PanelAsSimpleTarget) {
 			if (!TargetSelector)
 				TargetSelector = PanelRel.find2find_substr(AjaxPnlPrefix + ':', ' ')

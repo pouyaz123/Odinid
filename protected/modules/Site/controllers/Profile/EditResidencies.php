@@ -10,15 +10,15 @@ use Site\models\User\Register;
 /**
  * @author Abbas Hashemian <tondarweb@gmail.com>
  */
-class EditContacts extends \CAction {
+class EditResidencies extends \CAction {
 
 	public function run() {
-		$this->controller->pageTitle = \t2::SitePageTitle('tr_common', \t2::Site_User('Phones'));
+		$this->controller->pageTitle = \t2::SitePageTitle('tr_common', \t2::Site_User('Work permissions'));
 
 		$Model = new \Site\models\Profile\Info('Add');
 		$Model->Username = Login::GetSessionDR('Username');
 
-		$Model->Attach_Contacts();
+		$Model->Attach_Residencies();
 
 		$btnAdd = \GPCS::POST('btnAdd');
 		$btnSaveEdit = \GPCS::POST('btnSaveEdit');
@@ -32,13 +32,13 @@ class EditContacts extends \CAction {
 		elseif ($btnDelete)
 			$Model->scenario = 'Delete';
 
-		$ID = \GPCS::POST('hdnContactID');
-		if ($btnDelete && !$ID) {	//Delete button of the edit form. We will not assign whole form
+		$ID = \GPCS::POST('hdnResidencyID');
+		if ($btnDelete && !$ID) { //Delete button of the edit form. We will not assign whole form
 			$ID = \GPCS::POST('ProfileInfo');
-			$ID = $ID ? $ID['hdnContactID'] : $ID;
+			$ID = $ID ? $ID['hdnResidencyID'] : $ID;
 		}
 		if ($ID)
-			$Model->attributes = array('hdnContactID' => $ID);
+			$Model->attributes = array('hdnResidencyID' => $ID);
 
 		if ($btnAdd || $btnSaveEdit) {
 			$Model->attributes = \GPCS::POST('ProfileInfo');
@@ -50,11 +50,23 @@ class EditContacts extends \CAction {
 		else
 			\Base\FormModel::AjaxValidation('ProfileInfo', $Model, true);
 
+		$wdgGeoLocation = $this->controller->createWidget(
+				'\Widgets\GeoLocationFields\GeoLocationFields'
+				, array(
+			'id' => 'GeoDDLs',
+			'Model' => $Model,
+			'ddlCountryAttr' => 'ddlCountry',
+			'txtCountryAttr' => 'txtCountry',
+			'PromptDDLOption' => 'select',
+				)
+		);
+		/* @var $wdgGeoLocation \Widgets\GeoLocationFields\GeoLocationFields */
 		\Output::Render($this->controller
 				, ($btnEdit ?
-						'editinfo/contacts_addedit' : 'editinfo/contacts')
+						'editinfo/residencies_addedit' : 'editinfo/residencies')
 				, array(
 			'Model' => $Model,
+			'wdgGeoLocation' => $wdgGeoLocation,
 				)
 		);
 	}

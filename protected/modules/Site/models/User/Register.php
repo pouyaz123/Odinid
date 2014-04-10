@@ -135,14 +135,14 @@ class Register extends \Base\FormModel {
 			#Company
 			'txtCompanyURL' => \t2::Site_Company('Company web URL'),
 			#location
-			'ddlCountry' => \t2::Site_Common('Country'),
-			'ddlDivision' => \t2::Site_Common('Division'),
-			'ddlCity' => \t2::Site_Common('City'),
-			'txtCountry' => \t2::Site_Common('Country'),
-			'txtDivision' => \t2::Site_Common('Division'),
-			'txtCity' => \t2::Site_Common('City'),
-//			'txtAddress1' => \t2::Site_Common('Address 1'),
-//			'txtAddress2' => \t2::Site_Common('Address 2'),
+			'ddlCountry' => \t2::Site_User('Country'),
+			'ddlDivision' => \t2::Site_User('Division'),
+			'ddlCity' => \t2::Site_User('City'),
+			'txtCountry' => \t2::Site_User('Country'),
+			'txtDivision' => \t2::Site_User('Division'),
+			'txtCity' => \t2::Site_User('City'),
+//			'txtAddress1' => \t2::Site_User('Address 1'),
+//			'txtAddress2' => \t2::Site_User('Address 2'),
 		);
 	}
 

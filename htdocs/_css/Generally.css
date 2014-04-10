@@ -169,7 +169,7 @@ p{margin: 0px;}
 
 
 /*--------- Lists ---------*/
-.AltRow{background: #eef}
+.AltRow{background: #dedede}
 /*ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-rtl*/
 /*--------- jQuery UI Grid ---------*/
 .ui-widget, .ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget button{font-family: tahoma !important; font-size:11px !important}

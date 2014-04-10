@@ -15,7 +15,7 @@ class ProfileController extends \Site\Components\BaseController {
 			if (!Login::IsLoggedIn())
 				T\HTTP::Redirect_Immediately(\Site\Consts\Routes::UserLogin);
 			T\HTTP::Redirect_Immediately(
-					\Site\Consts\Routes::UserProfile()
+					\Site\Consts\Routes::User_Profile()
 			);
 		}
 	}
@@ -33,6 +33,8 @@ class ProfileController extends \Site\Components\BaseController {
 			'editinfo' => '\Site\controllers\Profile\EditInfo',
 			'editcontacts' => '\Site\controllers\Profile\EditContacts',
 			'editemails' => '\Site\controllers\Profile\EditEmails',
+			'editlocations' => '\Site\controllers\Profile\EditLocations',
+			'editresidencies' => '\Site\controllers\Profile\EditResidencies',
 			'settings' => '\Site\controllers\Profile\Settings',
 		);
 	}

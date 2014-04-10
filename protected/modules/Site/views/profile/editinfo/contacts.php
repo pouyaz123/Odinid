@@ -15,14 +15,14 @@
 		<? endif; ?>
 		<td></td>
 	</tr>
-	<? foreach ($Model->dtContacts as $drContact): ?>
-		<tr>
-			<td><?= $drContact['Phone'] ?></td>
-			<td><?= $drContact['PhoneType'] ?></td>
+	<? foreach ($Model->dtFreshContacts as $dr): ?>
+		<tr <?= html::AltRow()?>>
+			<td><?= $dr['Phone'] ?></td>
+			<td><?= $dr['PhoneType'] ?></td>
 			<? if ($Model->asa('Info_Company')): ?>
-				<td><?= $drContact['FirstName'] ?></td>
-				<td><?= $drContact['LastName'] ?></td>
-				<td><?= $drContact['JobTitle'] ?></td>
+				<td><?= $dr['FirstName'] ?></td>
+				<td><?= $dr['LastName'] ?></td>
+				<td><?= $dr['JobTitle'] ?></td>
 			<? endif; ?>
 			<td>
 				<?
@@ -37,7 +37,7 @@
 							CHtml::button(\t2::Site_User('Edit')
 									, array(
 								'name' => 'btnEdit',
-								'rel' => \html::AjaxElement('#divEditContact', NULL, "hdnContactID={$drContact['CombinedID']}") . \html::SimpleAjaxPanel,
+								'rel' => \html::AjaxElement('#divEditContact', NULL, "hdnContactID={$dr['CombinedID']}") . \html::SimpleAjaxPanel,
 									)
 					))
 					?>
@@ -46,7 +46,7 @@
 							CHtml::button(\t2::Site_User('Delete')
 									, array(
 								'name' => 'btnDelete',
-								'rel' => \html::AjaxElement('#divEditInfo', NULL, "hdnContactID={$drContact['CombinedID']}") . ' ' . html::OnceClick,
+								'rel' => \html::AjaxElement('#divEditInfo', NULL, "hdnContactID={$dr['CombinedID']}") . ' ' . html::OnceClick,
 								'onclick' => \html::PostbackConfirm_OnClick('Are you sure?'),
 									)
 					))

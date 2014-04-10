@@ -25,6 +25,7 @@ class EditEmails extends \CAction {
 		$btnEdit = \GPCS::POST('btnEdit');
 		$btnDelete = \GPCS::POST('btnDelete');
 		$btnResendActivationLink = \GPCS::POST('btnResendActivationLink');
+		$btnPrimary = \GPCS::POST('btnPrimary');
 
 		if ($btnAdd)
 			$Model->scenario = 'Add';
@@ -34,14 +35,16 @@ class EditEmails extends \CAction {
 			$Model->scenario = 'Delete';
 		elseif ($btnResendActivationLink)
 			$Model->scenario = 'ResetActivationLink';
+		elseif ($btnPrimary)
+			$Model->scenario = 'SetAsPrimary';
 
-		$EmailID = \GPCS::POST('hdnEmailID');
-		if ($btnDelete && !$EmailID) {
-			$EmailID = \GPCS::POST('ProfileInfo');
-			$EmailID = $EmailID ? $EmailID['hdnEmailID'] : $EmailID;
+		$ID = \GPCS::POST('hdnEmailID');
+		if ($btnDelete && !$ID) {	//Delete button of the edit form. We will not assign whole form
+			$ID = \GPCS::POST('ProfileInfo');
+			$ID = $ID ? $ID['hdnEmailID'] : $ID;
 		}
-		if ($EmailID)
-			$Model->attributes = array('hdnEmailID' => $EmailID);
+		if ($ID)
+			$Model->attributes = array('hdnEmailID' => $ID);
 
 		if ($btnAdd || $btnSaveEdit) {
 			$Model->attributes = \GPCS::POST('ProfileInfo');
@@ -52,6 +55,8 @@ class EditEmails extends \CAction {
 			$Model->Delete();
 		elseif ($btnResendActivationLink)
 			$Model->ResetActivationLink();
+		elseif ($btnPrimary)
+			$Model->SetAsPrimary();
 		else
 			\Base\FormModel::AjaxValidation('ProfileInfo', $Model, true);
 
