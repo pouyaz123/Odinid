@@ -153,14 +153,6 @@ class Info_Emails extends \Base\FormModelBehavior {
 		return $Result;
 	}
 
-	public function events() {
-		return array_merge(parent::events(), array(
-			'onSave' => 'onSave',
-			'onDelete' => 'onDelete',
-			'onSetForm' => 'onSetForm',
-		));
-	}
-
 	public function onDelete(\CEvent $e) {
 		$this->raiseEvent('onDelete', $e);
 		$owner = $this->owner;
@@ -302,6 +294,14 @@ class Info_Emails extends \Base\FormModelBehavior {
 			array(
 				"UPDATE `_user_emails` SET `IsPrimary`=1 WHERE `CombinedID`=:id"
 				, array(':id' => $this->hdnEmailID)),
+		));
+	}
+
+	public function events() {
+		return array_merge(parent::events(), array(
+			'onSave' => 'onSave',
+			'onDelete' => 'onDelete',
+			'onSetForm' => 'onSetForm',
 		));
 	}
 

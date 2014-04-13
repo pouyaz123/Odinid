@@ -14,7 +14,7 @@ use \Widgets\GeoLocationFields\GeoLocationFields;
 				)
 				, null
 				, null
-				//ddlComno with user input ability
+				//ddlCombo with user input ability
 				, $this->txtCountryAttr ? array(
 					'attribute' => $this->txtCountryAttr
 					, 'htmlOptions' => array(

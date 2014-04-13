@@ -5,7 +5,6 @@
 			var $input,
 					$txtUsrInput,
 					$UsrInputTag,
-					$optOther,
 					self = this,
 					$slct = this.element.hide(),
 					$selected = $slct.children(":selected"),
@@ -21,7 +20,7 @@
 					.appendTo($wrapper)
 					.val(value)
 					.addClass("ui-state-default ui-combobox-input")
-			if($slct.is('[rel*="NoSearchCombobox"]')){
+			if ($slct.is('[rel*="NoSearchCombobox"]')) {
 				$input.attr('readonly', 'readonly')
 			}
 			var ACOptions = {
@@ -29,9 +28,6 @@
 				minLength: 0,
 				source: function(request, response) {
 					var matcher = new RegExp($.ui.autocomplete.escapeRegex(request.term), "i");
-					if ($txtUsrInput && !$optOther) {
-						$optOther = $('<option value="_other_">other</option>').appendTo($slct)
-					}
 					response($slct.children("option").map(function() {
 						var text = $(this).text();
 						if (this.value && (!request.term || matcher.test(text)))
@@ -82,11 +78,13 @@
 					return false;
 				}
 			}
+			if ($slct.attr('value') === '_other_')
+				$txtUsrInput.show()
 			ACOptions.select = function(event, ui) {
 				ChangeHandle(this, ui)
 				this.ChangedBySelect = true
-				if ($optOther && ui.item) {
-					if (ui.item.option === $optOther[0])
+				if (ui.item) {
+					if (ui.item.option.value === '_other_')
 						$txtUsrInput.show().val('')
 					else
 						$txtUsrInput.hide().val($(ui.item.option).val())

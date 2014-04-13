@@ -13,7 +13,7 @@ BEGIN
 	IF ISNULL($skillID) THEN
 		INSERT INTO `_skills`(`Skill`) VALUES($skill);
 
-		SET $skillID = mysql_insert_id();
+		SET $skillID = LAST_INSERT_ID();
 		SET $tagID = skills_getSkillTagID($skillID);
 
 		UPDATE `_skills` SET `TagID` = $tagID WHERE ID = $skillID;

@@ -82,11 +82,12 @@ class Info_Residencies extends \Base\FormModelBehavior {
 		$owner = $this->owner;
 		$unq = new \Validators\DBNotExist();
 		$unq->attributes = array('ddlCountry', 'txtCountry');
-		$unq->SQL = 'SELECT COUNT(*) FROM `_user_residencies` '
-				. ' '
-				. ' WHERE '
-				. ($owner->scenario == 'Edit' || $this->hdnResidencyID ? ' `CombinedID`!=:id AND ' : '')
-				. '  AND `UID`=:uid';
+		$unq->SQL = 'SELECT COUNT(*) FROM `_user_residencies` AS ur'
+				. ' INNER JOIN (SELECT 1) AS tmp ON ur.`UID`=:uid'
+				. ' LEFT JOIN `_geo_user_countries` AS guc ON guc.`ID`=ur.`UserCountryID`'
+				. ' LEFT JOIN `_geo_countries` AS gc ON gc.`ISO2`=ur.`GeoCountryISO2`'
+				. ' WHERE ur.`GeoCountryISO2`=:val OR guc.`Country`=:val OR gc.`AsciiName`=:val'
+				. ($owner->scenario == 'Edit' || $this->hdnResidencyID ? ' AND `CombinedID`!=:id' : '');
 		$unq->SQLParams = array(
 			':id' => $this->hdnResidencyID,
 			':uid' => $owner->drUser['ID']
@@ -135,10 +136,7 @@ class Info_Residencies extends \Base\FormModelBehavior {
 		static $arrDTs = null;
 		if (!isset($arrDTs[$StaticIndex]) || $refresh) {
 			$arrDTs[$StaticIndex] = T\DB::GetTable(
-							"SELECT "
-							. " ur.*"
-							. " , IFNULL(ur.`GeoCountryISO2`, ur.`UserCountryID`) AS ID"
-							. " , IFNULL(gc.`AsciiName`, guc.`Country`) AS Country"
+							"SELECT ur.*, IFNULL(gc.`AsciiName`, guc.`Country`) AS Country"
 							. " FROM `_user_residencies` ur"
 							. " INNER JOIN (SELECT 1) tmp ON " . ($ID ? " CombinedID=:id AND " : "") . " ur.`UID`=:uid "
 							. " LEFT JOIN `_geo_countries` AS gc ON gc.`ISO2`=ur.`GeoCountryISO2`"

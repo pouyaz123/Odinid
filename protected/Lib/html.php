@@ -329,6 +329,8 @@ final class html {
 							, $ActiveForm
 							, $arrUserInputTextField['attribute']
 							, isset($arrUserInputTextField['htmlOptions']) ? $arrUserInputTextField['htmlOptions'] : array());
+		if ($strUserInputJQSelector || $txtUserInputField)
+			$data['_other_'] = 'other';
 		\CHtml::resolveNameID($model, $attribute, $htmlOptions);
 		return \html::activeDropDownList($model, $ActiveForm, $attribute, $data, $htmlOptions)
 				. "\n" . self::ComboBoxScript(
@@ -501,6 +503,7 @@ final class html {
 			return $strobjContent;
 		}
 	}
+
 //
 //	static function GetParentalPath_ByDataTable(
 //	$dtPath
@@ -927,6 +930,15 @@ $.superbox.settings = {
 		\html::LoadJS('jqUI/jquery.ui.position.min');
 		\html::LoadJS('jqUI/jquery.ui.autocomplete.min');
 		\html::LoadJS('MyJuiAutoComplete/MyComboBox');
+	}
+	
+	static function TagIt_Load() {
+		\html::LoadCSS("*/_js/tagit/jquery.tagit.css");
+		\html::LoadCSS("*/_js/tagit/tagit.ui-zendesk.css");
+		\html::LoadJS('jqUI/jquery.ui.core.min');
+		\html::LoadJS('jqUI/jquery.ui.widget.min');
+		\html::LoadJS('jqUI/jquery.ui.autocomplete.min');
+		\html::LoadJS('tagit/tag-it.min');
 	}
 
 //	static function MozillaRTL() {

@@ -101,12 +101,6 @@ class Info_Company extends \Base\FormModelBehavior {
 		}
 	}
 
-	public function events() {
-		return array_merge(parent::events(), array(
-			'onSave' => 'onSave'
-		));
-	}
-
 	public function onSave(\CEvent $e) {
 		$this->raiseEvent('onSave', $e);
 		$owner = $this->owner;
@@ -140,6 +134,12 @@ class Info_Company extends \Base\FormModelBehavior {
 					)
 				)
 		);
+	}
+
+	public function events() {
+		return array_merge(parent::events(), array(
+			'onSave' => 'onSave'
+		));
 	}
 
 }

@@ -21,6 +21,7 @@ use \Tools as T;
  * @property-read array $ddlarrDivisions get only
  * @property-read array $ddlarrCities get only
  * @property array|boolean $EmptyDDLOption get|set //set to false(default) to have no Empty option
+ * @mytodo 1 : "other" autocomplete in the geo location fields
  */
 class GeoLocationFields extends \Base\Widget {
 
@@ -115,10 +116,8 @@ class GeoLocationFields extends \Base\Widget {
 		static $ddlarr = array();
 		if (!count($ddlarr)) {
 			$QryRsrc = T\DB::Query("SELECT `ISO2`, `AsciiName` FROM `_geo_countries` ORDER BY `AsciiName`");
-//			$QryRsrc = T\DB::Query("SELECT `AsciiName` FROM `_geo_countries` ORDER BY `AsciiName`");
 			foreach ($QryRsrc as $dr) {
 				$ddlarr[$dr['ISO2']] = $dr['AsciiName'];
-//				$ddlarr[$dr['AsciiName']] = $dr['AsciiName'];
 			}
 			unset($QryRsrc);
 		}
@@ -134,26 +133,25 @@ class GeoLocationFields extends \Base\Widget {
 				null;
 		static $ddlarr = array();
 		if (!count($ddlarr) && $Country) {
+//			$UserCountryID = T\DB::GetField("SELECT `ID` FROM `_geo_user_countries` WHERE `Country`=:cntr"
+//							, array(':cntr' => $Country));
 			$QryRsrc = T\DB::Query(
 							"SELECT * FROM ("
 							. " SELECT gd.`CombinedCode` AS ID, gd.`AsciiName` AS Name, 1 AS Official"
-//							. " SELECT gd.`AsciiName` AS Name, 1 AS Official"
 							. " FROM `_geo_countries` AS gc"
 							. " INNER JOIN (SELECT 1) AS tmp ON gc.`AsciiName`=:country OR gc.`ISO2`=:country"
 							. " INNER JOIN `_geo_divisions` AS gd ON gd.`CountryISO2`=gc.`ISO2`"
-							. " UNION ALL"
-							. " SELECT gud.`ID`, gud.`Division` AS Name, 0 AS Official"
-//							. " SELECT gud.`Division` AS Name, 0 AS Official"
-							. " FROM `_geo_user_divisions` AS gud"
-							. " INNER JOIN (SELECT 1) AS tmp ON gud.`CountryISO2`=:country OR NOT ISNULL(gud.`UserCountryID`)"
-							. " INNER JOIN `_geo_user_countries` AS guc ON guc.`Country`=:country AND guc.`ID`=gud.`UserCountryID`"
+//							. " UNION ALL"
+//							. " SELECT `ID`, `Division` AS Name, 0 AS Official"
+//							. " FROM `_geo_user_divisions`"
+//							. " WHERE `CountryISO2`=:country "
+//							. ($UserCountryID ? " OR `UserCountryID`=$UserCountryID" : "")
 							. " ) AS tbl"
 							. " ORDER BY tbl.Official, tbl.`Name`"
 							, array(':country' => $Country));
 			if ($QryRsrc)
 				foreach ($QryRsrc as $dr) {
 					$ddlarr[$dr['ID']] = $dr['Name'];
-//					$ddlarr[$dr['Name']] = $dr['Name'];
 				}
 			unset($QryRsrc);
 		}
@@ -169,26 +167,25 @@ class GeoLocationFields extends \Base\Widget {
 				null;
 		static $ddlarr = array();
 		if (!count($ddlarr) && $Division) {
+//			$UserDivisionID = T\DB::GetField("SELECT `ID` FROM `_geo_user_divisions` WHERE `Division`=:dvs OR `ID`=:dvs"
+//							, array(':dvs' => $Division));
 			$QryRsrc = T\DB::Query(
 							"SELECT * FROM ("
 							. " SELECT gc.`GeonameID` AS ID, gc.`AsciiName` AS Name, 1 AS Official, IF(gc.`DivisionCode`='' OR ISNULL(gc.`DivisionCode`), 0, 1) AS HasDivisionCode"
-//							. " SELECT gc.`AsciiName` AS Name, 1 AS Official, IF(gc.`DivisionCode`='' OR ISNULL(gc.`DivisionCode`), 0, 1) AS HasDivisionCode"
 							. " FROM `_geo_divisions` AS gd"
 							. " INNER JOIN (SELECT 1) AS tmp ON gd.`CombinedCode`=:division OR gd.`AsciiName`=:division"
 							. " INNER JOIN `_geo_cities` AS gc ON gc.`CountryISO2`=gd.`CountryISO2` AND (gc.`DivisionCode`=gd.`DivisionCode` OR ISNULL(gc.`DivisionCode`) OR gc.`DivisionCode`='')"
-							. " UNION ALL"
-							. " SELECT guc.`ID`, guc.`City` AS Name, 0 AS Official, 0 AS HasDivisionCode"
-//							. " SELECT guc.`City` AS Name, 0 AS Official, 0 AS HasDivisionCode"
-							. " FROM `_geo_user_cities` AS guc"
-							. " INNER JOIN (SELECT 1) AS tmp ON guc.`DivisionCombinedCode`=:division OR NOT ISNULL(guc.`UserDivisionID`)"
-							. " INNER JOIN `_geo_user_divisions` AS gud ON gud.`Division`=:division AND gud.ID=guc.`UserDivisionID`"
+//							. " UNION ALL"
+//							. " SELECT `ID`, `City` AS Name, 0 AS Official, 0 AS HasDivisionCode"
+//							. " FROM `_geo_user_cities`"
+//							. " WHERE `DivisionCombinedCode`=:division"
+//							. ($UserDivisionID ? " OR `UserDivisionID`=$UserDivisionID" : "")
 							. " ) AS tbl"
 							. " ORDER BY tbl.Official, HasDivisionCode DESC, tbl.`Name`"
 							, array(':division' => $Division));
 			if ($QryRsrc)
 				foreach ($QryRsrc as $dr) {
 					$ddlarr[$dr['ID']] = $dr['Name'];
-//					$ddlarr[$dr['Name']] = $dr['Name'];
 				}
 			unset($QryRsrc);
 		}

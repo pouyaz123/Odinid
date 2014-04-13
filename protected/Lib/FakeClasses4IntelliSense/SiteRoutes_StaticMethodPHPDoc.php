@@ -37,4 +37,12 @@ class Routes {
 		
 	}
 
+	static function User_EditWebAddresses($Username = null) {
+		
+	}
+
+	static function User_EditSkills($Username = null) {
+		
+	}
+
 }

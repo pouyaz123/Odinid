@@ -87,6 +87,10 @@ return array_merge(
 //	'Emails' => 'Emails',
 //	'Locations' => 'Locations',
 //	'Work permissions' => 'Work permissions',
+//	'Web addresses' => 'Web addresses',
+//	'Skills' => 'Skills',
+//	'Rate' => 'Rate',
+	'TagsHelp' => 'Separate by commas(,)',
 //	
 //	'Country' => 'Country',
 	'Division' => 'State | Province | Territory',
@@ -96,7 +100,6 @@ return array_merge(
 //	'txtPostalCode' => \t2::Site_User('Postal code'),
 //	'chkIsCurrentLocation' => \t2::Site_User('Is current location'),
 //	'chkIsBillingLocation' => \t2::Site_User('Is billing location'),
-//	'ddlResidencyStatus' => \t2::Site_User('Residency Status'),
 //	'txtVisaType' => \t2::Site_User('Visa Type'),
 //	
 //	'Add new' => 'Add new',

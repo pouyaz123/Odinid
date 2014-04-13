@@ -2,7 +2,6 @@
 
 namespace Site\controllers\Profile;
 
-use \Consts as C;
 use \Tools as T;
 use Site\models\User\Register;
 

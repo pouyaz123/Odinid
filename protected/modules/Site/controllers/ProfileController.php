@@ -31,11 +31,18 @@ class ProfileController extends \Site\Components\BaseController {
 //			),
 			'about' => '\Site\controllers\Profile\About',
 			'editinfo' => '\Site\controllers\Profile\EditInfo',
+			'settings' => '\Site\controllers\Profile\Settings',
+			#
 			'editcontacts' => '\Site\controllers\Profile\EditContacts',
 			'editemails' => '\Site\controllers\Profile\EditEmails',
+			'editwebaddresses' => '\Site\controllers\Profile\EditWebAddresses',
+			#
 			'editlocations' => '\Site\controllers\Profile\EditLocations',
 			'editresidencies' => '\Site\controllers\Profile\EditResidencies',
-			'settings' => '\Site\controllers\Profile\Settings',
+			#
+			'editskills' => '\Site\controllers\Profile\EditSkills',
+			'editexperiences' => '\Site\controllers\Profile\EditExperiences',
+			'editlanguages' => '\Site\controllers\Profile\EditLanguages',
 		);
 	}
 

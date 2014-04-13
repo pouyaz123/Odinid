@@ -119,13 +119,6 @@ class Info_Artist extends \Base\FormModelBehavior {
 		));
 	}
 
-	public function events() {
-		return array_merge(parent::events(), array(
-			'onSave' => 'onSave',
-			'onSetForm' => 'onSetForm',
-		));
-	}
-
 	public function onSave(\CEvent $e) {
 		$this->raiseEvent('onSave', $e);
 		$owner = $this->owner;
@@ -190,6 +183,13 @@ class Info_Artist extends \Base\FormModelBehavior {
 			'txtHireAvailabilityDate' => $drInfo['HireAvailabilityDate'],
 			'ddlHireAvailabilityType' => $drInfo['HireAvailabilityType'],
 		);
+	}
+
+	public function events() {
+		return array_merge(parent::events(), array(
+			'onSave' => 'onSave',
+			'onSetForm' => 'onSetForm',
+		));
 	}
 
 }

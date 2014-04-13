@@ -7,7 +7,9 @@
 		| <?= \CHtml::link(t2::Site_User('Emails'), \Site\Consts\Routes::User_EditEmails()) ?>
 		| <?= \CHtml::link(t2::Site_User('Phones'), \Site\Consts\Routes::User_EditContacts()) ?>
 		| <?= \CHtml::link(t2::Site_User('Locations'), \Site\Consts\Routes::User_EditLocations()) ?>
-		| <?= \CHtml::link(t2::Site_User('Residencies'), \Site\Consts\Routes::User_EditResidencies()) ?>
+		| <?= \CHtml::link(t2::Site_User('Work permissions'), \Site\Consts\Routes::User_EditResidencies()) ?>
+		| <?= \CHtml::link(t2::Site_User('Web addresses'), \Site\Consts\Routes::User_EditWebAddresses()) ?>
+		| <?= \CHtml::link(t2::Site_User('Skills'), \Site\Consts\Routes::User_EditSkills()) ?>
 	</div>
 	<?= $content; ?>
 </div>

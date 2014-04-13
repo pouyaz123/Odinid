@@ -15,19 +15,34 @@ use \Tools as T;
  * @copyright (c) Odinid
  * @access public
  * @property-read array $arrRates
+ * @property-read array $dtSkills
+ * @property string $txtSkills
  */
 class Skills extends \Base\FormModel {
 
 	public function getPostName() {
 		return "UserSkills";
 	}
-	
+
 	protected function XSSPurify_Exceptions() {
-		return "rdoRate";
+		return "ddlRate";
 	}
 
 	public $txtSkill;
-	public $rdoRate;
+	public $ddlRate;
+	private $_txtSkills = null;
+
+	public function gettxtSkills() {
+		$txtSkills = &$this->_txtSkills;
+		foreach ($this->dtSkills as $drSkill) {
+			$txtSkills.=',' . $drSkill['Skill'];
+		}
+		return $txtSkills;
+	}
+
+	public function settxtSkills($val) {
+		$this->_txtSkills = $val;
+	}
 
 	//Skill Rates
 	const Rate_Beginner = 'Beginner';
@@ -44,17 +59,37 @@ class Skills extends \Base\FormModel {
 		);
 	}
 
-	public function rules(\CEvent $e) {
+	public function rules() {
 		$vl = \ValidationLimits\User::GetInstance();
 		return array(
-			array('txtSkill', 'required'
-				, 'except' => 'Delete'),
-			array_merge(array('txtSkill', 'length'
-				, 'except' => 'Delete'), $vl->LongTitle),
-			array('rdoRate', 'in'
-				, 'range' => array_keys($this->arrRates)
-				, 'except' => 'Delete'),
+			array('txtSkill, ddlRate', 'required'),
+			array_merge(array('txtSkill', 'length'), $vl->LongTitle),
+			array('ddlRate', 'in'
+				, 'range' => array_keys($this->arrRates)),
 		);
+	}
+
+	public function attributeLabels() {
+		return array(
+			'txtSkills' => \t2::Site_User('Skills'),
+			'ddlRate' => \t2::Site_User('Rate'),
+		);
+	}
+
+	public function getdtSkills() {
+		static $dt = null;
+		if (!$dt) {
+			$dt = T\DB::GetTable(
+							"SELECT us.`SelfRate`, skl.`Skill`"
+							. " FROM `_user_skills` us"
+							. " INNER JOIN `_skills` skl ON skl.`ID`=us.`SkillID`"
+							. " WHERE `UID`=:uid"
+							, array(
+						':uid' => self::$UserID,
+							)
+			);
+		}
+		return $dt? : array();
 	}
 
 	/**
@@ -80,9 +115,9 @@ class Skills extends \Base\FormModel {
 						. " FROM `_user_skills` us"
 						. " INNER JOIN (SELECT 1) tmp ON us.`UID` = :uid"
 						. " INNER JOIN `_skills` s ON s.`ID` = us.`SkillID`"
-						. count($arrSkillParams) ?
+						. (count($arrSkillParams) ?
 								" WHERE s.`Skill` != " . implode(' AND s.`Skill` != ', array_keys($arrSkillParams)) :
-								""
+								"")
 						, array_merge($arrSkillParams, array(':uid' => self::$UserID)));
 		if (!$RemovableSkillIDs)
 			return;
@@ -110,9 +145,12 @@ class Skills extends \Base\FormModel {
 		if (!self::$IsValid)
 			return false;
 		self::DeleteUnusedSkills();
-		$Result = T\DB::Transaction(self::$arrTransactions);
-		self::$arrTransactions = array();
-		return $Result;
+		if (self::$arrTransactions) {
+			$Result = T\DB::Transaction(self::$arrTransactions);
+			self::$arrTransactions = array();
+			return $Result;
+		}
+		return false;
 	}
 
 	/**
@@ -135,7 +173,7 @@ class Skills extends \Base\FormModel {
 				, array(
 					':uid' => self::$UserID,
 					':skill' => $this->txtSkill,
-					':selfrate' => $this->rdoRate,
+					':selfrate' => $this->ddlRate,
 				)
 			)
 		);
@@ -148,7 +186,8 @@ class Skills extends \Base\FormModel {
 	public function PushTransactions($arrTransactions = null) {
 		if (!$arrTransactions)
 			$arrTransactions = $this->getTransactions();
-		self::$arrTransactions = array_merge(self::$arrTransactions, $arrTransactions);
+		if ($arrTransactions)
+			self::$arrTransactions = array_merge(self::$arrTransactions, $arrTransactions);
 	}
 
 }

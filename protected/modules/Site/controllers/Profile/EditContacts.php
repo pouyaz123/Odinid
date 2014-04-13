@@ -2,10 +2,7 @@
 
 namespace Site\controllers\Profile;
 
-use \Consts as C;
-use \Tools as T;
 use \Site\models\User\Login;
-use Site\models\User\Register;
 
 /**
  * @author Abbas Hashemian <tondarweb@gmail.com>

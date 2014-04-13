@@ -67,6 +67,7 @@ use \Tools as T;
  * -----WebAddresses Behavior
  * @property-read array $arrWebAddrTypes
  * @property-read array $dtWebAddr
+ * @property-read array $dtFreshWebAddr
  * @property integer $hdnWebAddrID;
  * @property string $txtWebAddress
  * @property string $ddlWebAddrType
@@ -162,20 +163,15 @@ class Info extends \Base\FormModel_BehaviorHost {
 
 	/**
 	 * checks username and user account and gets user basic data row of _users datatable
-	 * @staticvar null $drUser
-	 * @param string $Username
+	 * @staticvar null $drUser	//next changes of Username will not affect
 	 * @return UserDataRow
 	 * @throws \Err
 	 * @throws \CHttpException
 	 */
-	function getdrUser($Username = null) {
+	function getdrUser() {
 		static $drUser = null;
-		if ($drUser && $Username && $Username !== $this->Username)
-			throw new \Err(__METHOD__, 'You can set Username only once', func_get_args());
 		if (!$drUser) {
-			if ($Username)
-				$this->Username = $Username;
-			$Username = $this->Username;
+			$Username = &$this->Username;
 			if (!$Username || !preg_match(C\Regexp::Username, $Username) ||
 					preg_match(C\Regexp::Username_InvalidCases(), $Username))
 				throw new \CHttpException(404, \t2::Site_Common('Requested profile was not found'));

@@ -146,14 +146,6 @@ class Info_Contacts extends \Base\FormModelBehavior {
 		return $Result;
 	}
 
-	public function events() {
-		return array_merge(parent::events(), array(
-			'onSave' => 'onSave',
-			'onDelete' => 'onDelete',
-			'onSetForm' => 'onSetForm',
-		));
-	}
-
 	public function onDelete(\CEvent $e) {
 		$this->raiseEvent('onDelete', $e);
 		$this->owner->addTransactions(array(
@@ -253,6 +245,14 @@ class Info_Contacts extends \Base\FormModelBehavior {
 			}
 			$owner->attributes = $arrAttrs;
 		}
+	}
+
+	public function events() {
+		return array_merge(parent::events(), array(
+			'onSave' => 'onSave',
+			'onDelete' => 'onDelete',
+			'onSetForm' => 'onSetForm',
+		));
 	}
 
 }

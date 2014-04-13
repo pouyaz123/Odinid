@@ -7,15 +7,15 @@ use \Site\models\User\Login;
 /**
  * @author Abbas Hashemian <tondarweb@gmail.com>
  */
-class EditLocations extends \CAction {
+class EditWebAddresses extends \CAction {
 
 	public function run() {
-		$this->controller->pageTitle = \t2::SitePageTitle('tr_common', \t2::Site_User('Locations'));
+		$this->controller->pageTitle = \t2::SitePageTitle('tr_common', \t2::Site_User('Web Addresses'));
 
 		$Model = new \Site\models\Profile\Info('Add');
 		$Model->Username = Login::GetSessionDR('Username');
 
-		$Model->Attach_Locations();
+		$Model->Attach_WebAddresses();
 
 		$btnAdd = \GPCS::POST('btnAdd');
 		$btnSaveEdit = \GPCS::POST('btnSaveEdit');
@@ -29,13 +29,13 @@ class EditLocations extends \CAction {
 		elseif ($btnDelete)
 			$Model->scenario = 'Delete';
 
-		$ID = \GPCS::POST('hdnLocationID');
+		$ID = \GPCS::POST('hdnWebAddrID');
 		if ($btnDelete && !$ID) { //Delete button of the edit form. We will not assign whole form
 			$ID = \GPCS::POST('ProfileInfo');
-			$ID = $ID ? $ID['hdnLocationID'] : $ID;
+			$ID = $ID ? $ID['hdnWebAddrID'] : $ID;
 		}
 		if ($ID)
-			$Model->attributes = array('hdnLocationID' => $ID);
+			$Model->attributes = array('hdnWebAddrID' => $ID);
 
 		if ($btnAdd || $btnSaveEdit) {
 			$Model->attributes = \GPCS::POST('ProfileInfo');
@@ -53,18 +53,14 @@ class EditLocations extends \CAction {
 			'id' => 'GeoDDLs',
 			'Model' => $Model,
 			'ddlCountryAttr' => 'ddlCountry',
-			'ddlDivisionAttr' => 'ddlDivision',
-			'ddlCityAttr' => 'ddlCity',
 			'txtCountryAttr' => 'txtCountry',
-			'txtDivisionAttr' => 'txtDivision',
-			'txtCityAttr' => 'txtCity',
 			'PromptDDLOption' => 'select',
 				)
 		);
 		/* @var $wdgGeoLocation \Widgets\GeoLocationFields\GeoLocationFields */
 		\Output::Render($this->controller
 				, ($btnEdit ?
-						'editinfo/locations_addedit' : 'editinfo/locations')
+						'editinfo/webaddresses_addedit' : 'editinfo/webaddresses')
 				, array(
 			'Model' => $Model,
 			'wdgGeoLocation' => $wdgGeoLocation,

@@ -50,32 +50,34 @@ class Info_WebAddresses extends \Base\FormModelBehavior {
 				'SQL' => 'SELECT COUNT(*) FROM `_user_webaddresses` WHERE `CombinedID`=:val AND `UID`=:uid',
 				'SQLParams' => array(':uid' => $this->owner->drUser->ID),
 				'on' => 'Edit, Delete'),
-			array_merge(array('txtWebAddress', 'length',
-				'except' => 'Delete'), $vl->WebAddress),
 			#
-			array('ddlWebAddrType', 'in',
-				'range' => array_keys($this->arrWebAddrTypes),
-				'except' => 'Delete'),
+			array('txtWebAddress, ddlWebAddrType, txtCustomType', 'required',
+				'on' => 'Add, Edit'),
+			array_merge(array('txtWebAddress', 'length',
+				'on' => 'Add, Edit'), $vl->WebAddress),
+			array('txtWebAddress', 'url',
+				'on' => 'Add, Edit'),
+//			array('ddlWebAddrType', 'in',
+//				'range' => array_keys($this->arrWebAddrTypes),
+//				'on' => 'Add, Edit'),
 			array_merge(array('txtCustomType', 'length',
-				'except' => 'Delete'), $vl->CustomType),
+				'on' => 'Add, Edit'), $vl->CustomType),
 		));
 	}
 
-	protected function beforeValidate($event) {
-		if (!$this->ddlWebAddrType) {
-			#required txtCustomType
-			$rv = new \CRequiredValidator();
-			$rv->attributes = array('txtCustomType');
-			$rv->except = array('Delete');
-			$this->owner->validatorList->add($rv);
-			#length txtCustomType
-			$vl = \ValidationLimits\User::GetInstance();
-			$lenv = new \CStringValidator();
-			$lenv->attributes = array('txtCustomType');
-			T\Basics::ConfigureObject($lenv, $vl->CustomType);
-			$lenv->except = array('Delete');
-			$this->owner->validatorList->add($lenv);
-		}
+	public function beforeValidate($event) {
+		$owner = $this->owner;
+		$unq = new \Validators\DBNotExist();
+		$unq->attributes = array('txtWebAddress');
+		$unq->SQL = 'SELECT COUNT(*) FROM `_user_webaddresses` WHERE '
+				. ($owner->scenario == 'Edit' || $this->hdnWebAddrID ? ' `CombinedID`!=:combid AND ' : '')
+				. ' `WebAddress`=:val AND `UID`=:uid';
+		$unq->SQLParams = array(
+			':combid' => $this->hdnWebAddrID,
+			':uid' => $owner->drUser['ID']
+		);
+		$unq->except = 'Delete';
+		$owner->validatorList->add($unq);
 	}
 
 	public function afterValidate(\CEvent $event) {
@@ -104,23 +106,36 @@ class Info_WebAddresses extends \Base\FormModelBehavior {
 		));
 	}
 
-	public function getdtWebAddr() {
-		static $dt = null;
-		if (!$dt)
-			$dt = T\DB::GetTable(
+	public function getdtWebAddr($ID = NULL, $refresh = false) {
+		$StaticIndex = $ID;
+		if (!$StaticIndex)
+			$StaticIndex = "ALL";
+		static $arrDTs = null;
+		if (!isset($arrDTs[$StaticIndex]) || $refresh) {
+			$arrDTs[$StaticIndex] = T\DB::GetTable(
 							"SELECT *"
 							. " FROM `_user_webaddresses`"
-							. " WHERE `UID`=:uid"
+							. " WHERE " . ($ID ? " CombinedID=:id AND " : "") . " `UID`=:uid"
 							. " ORDER BY `OrderNumber`"
-							, array(':uid' => $this->owner->drUser->ID));
-		return $dt? : array();
+							, array(
+						':uid' => $this->owner->drUser->ID,
+						':id' => $ID,
+							)
+			);
+		}
+		return $arrDTs[$StaticIndex]? : array();
 	}
 
-	public function events() {
-		return array_merge(parent::events(), array(
-			'onSave' => 'onSave',
-			'onDelete' => 'onDelete',
-		));
+	/**
+	 * gets fresh data table only once after the edit or delete process
+	 * @param string $ID
+	 * @return array
+	 */
+	public function getdtFreshWebAddr($ID = null) {
+		static $Result = null;
+		if (!$Result)
+			$Result = $this->getdtWebAddr($ID, true);
+		return $Result;
 	}
 
 	public function onDelete(\CEvent $e) {
@@ -137,10 +152,6 @@ class Info_WebAddresses extends \Base\FormModelBehavior {
 	public function onSave(\CEvent $e) {
 		$this->raiseEvent('onSave', $e);
 		$owner = $this->owner;
-		if (!$this->txtPhone && !$this->txtFax && !$this->txtMobile && !$this->txtEmail && !$this->txtWebAddress) {
-			$owner->Delete();
-			return false;
-		}
 		if (!$this->hdnWebAddrID)
 			$strSQLPart_CombinedID = T\DB::GetNewID_Combined(
 							'_user_webaddresses'
@@ -159,22 +170,46 @@ class Info_WebAddresses extends \Base\FormModelBehavior {
 					. ", `UID`=:uid"
 					. ", `WebAddress`=:webaddr"
 					. ", `Type`=:webaddrt"
-					. ", `CustomTitle`=:customtype" :
+					. ", `CustomType`=:customtype" :
 					"UPDATE `_user_webaddresses` SET "
 					. " `WebAddress`=:webaddr"
 					. ", `Type`=:webaddrt"
-					. ", `CustomTitle`=:customtype"
+					. ", `CustomType`=:customtype"
 					. " WHERE `CombinedID`=:combid"
 			)
 			, array(
 				':combid' => $this->hdnWebAddrID? : null,
 				':uid' => $owner->drUser->ID,
 				':webaddr' => $this->txtWebAddress? : null,
-				':webaddrt' => $this->ddlWebAddrType? : null,
+				':webaddrt' => array_key_exists($this->ddlWebAddrType, $this->arrWebAddrTypes) ? $this->ddlWebAddrType : 'Other',
 				':customtype' => $this->txtCustomType? : null,
 			)
 		);
 		$owner->addTransactions($arrTransactions);
+	}
+
+	public function onSetForm(\CEvent $e) {
+		$this->raiseEvent('onSetForm', $e);
+		$owner = $this->owner;
+		$dr = $this->getdtWebAddr($this->hdnWebAddrID);
+		if ($dr) {
+			$dr = $dr[0];
+			$arrAttrs = array(
+				'hdnWebAddrID' => $dr['CombinedID'],
+				'txtWebAddress' => $dr['WebAddress'],
+				'ddlWebAddrType' => $dr['Type'] != 'Other' ? $dr['Type'] : '_other_',
+				'txtCustomType' => $dr['CustomType'],
+			);
+			$owner->attributes = $arrAttrs;
+		}
+	}
+
+	public function events() {
+		return array_merge(parent::events(), array(
+			'onSave' => 'onSave',
+			'onDelete' => 'onDelete',
+			'onSetForm' => 'onSetForm',
+		));
 	}
 
 }
