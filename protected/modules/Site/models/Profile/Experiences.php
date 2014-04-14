@@ -15,6 +15,8 @@ use \Tools as T;
  * @property-read array $arrEmployTypes
  * @property-read array $arrSalaryTypes
  * @property-read array $arrWorkConditions
+ * @property-read array $dtExperiences
+ * @property-read array $dtFreshExperiences
  * @mytodo 1 : Expreinces has optional location items (add them to locations)
  */
 class Experiences extends \Base\FormModel {
@@ -24,19 +26,19 @@ class Experiences extends \Base\FormModel {
 	}
 
 	protected function XSSPurify_Exceptions() {
-		return "hdnCombinedID"
+		return "hdnExperienceID"
 				. ", UID"
 				. ", ddlLevel"
 				. ", ddlEmploymentType"
 				. ", ddlSalaryType"
+				. ", ddlWorkCondition"
 				. ", chkHealthInsurance"
 				. ", chkOvertimePay"
-				. ", ddlWorkCondition"
 				. ", chkRetirementAccount";
 	}
 
 	//----- attrs
-	public $hdnCombinedID;
+	public $hdnExperienceID;
 	public $chkHealthInsurance = false;
 	public $chkOvertimePay = false;
 	public $chkRetirementAccount = false;
@@ -61,7 +63,7 @@ class Experiences extends \Base\FormModel {
 	public $txtDivision;
 	public $txtCity;
 	#
-	public $UID;
+	public $UserID;
 
 	//Experience levels
 	const Level_Junior = 'Junior';
@@ -119,12 +121,12 @@ class Experiences extends \Base\FormModel {
 		);
 	}
 
-	public function rules(\CEvent $e) {
+	public function rules() {
 		$vl = \ValidationLimits\User::GetInstance();
 		return array(
-			array('hdnCombinedID', 'required',
+			array('hdnExperienceID', 'required',
 				'on' => 'Edit, Delete'),
-			array('hdnCombinedID', 'IsExist',
+			array('hdnExperienceID', 'IsExist',
 				'SQL' => 'SELECT COUNT(*) FROM `_user_experiences` WHERE `CombinedID`=:val',
 				'on' => 'Edit, Delete'),
 			#
@@ -202,72 +204,184 @@ class Experiences extends \Base\FormModel {
 		if (!$this->validate())
 			return false;
 		$Queries = array();
-		$CommonParams = array(
-			':un' => $this->txtUsername,
-		);
-			$strSQLPart_ExpID = T\DB::GetNewID_Combined(
+		if ($this->hdnExperienceID) {
+			$strSQLPart_ID = T\DB::GetNewID_Combined(
 							'_user_experiences'
 							, 'CombinedID'
-							, 'UID=@regstr_uid'
-							, null
-							, array('PrefixQuery' => "CONCAT(@regstr_uid, '_')"));
-		$Domain = parse_url($this->txtCompanyURL, PHP_URL_HOST);
-		$Domain = ltrim($Domain, 'www.');
-		$Queries[] = array(
-			"INSERT INTO `_user_experiences`()"
-			. "CALL companies_getCreatedCompanyID(:hdnCompanyID, :companyTitle, :companyDomain, :companyDomainLikeEscaped)"
-			, array(
-				':companyTitle' => $this->txtCompanyTitle,
-				':companyDomain' => $Domain,
-				':companyDomainLikeEscaped' => T\DB::EscapeLikeWildCards($Domain),
-				':hdnCompanyID' => $this->hdnCompanyID,
-			)
-		);
+							, 'UID=:uid'
+							, array($this->UserID)
+							, array('PrefixQuery' => "CONCAT(:uid, '_')"));
+		}
 		//locations
 		$Queries[] = array(
 			"CALL geo_getGeoLocationIDs(
 				:country
 				, :division
 				, :city
-				, @regstr_CountryISO2
-				, @regstr_DivisionCombined
-				, @regstr_DivisionCode
-				, @regstr_CityID);
+				, @expr_CountryISO2
+				, @expr_DivisionCombined
+				, @expr_DivisionCode
+				, @expr_CityID);
 			CALL geo_getUserLocationIDs(
 				:country
 				, :division
 				, :city
-				, @regstr_CountryISO2
-				, @regstr_DivisionCombined
-				, @regstr_CityID
-				, @regstr_UserCountryID
-				, @regstr_UserDivisionID
-				, @regstr_UserCityID)"
+				, @expr_CountryISO2
+				, @expr_DivisionCombined
+				, @expr_CityID
+				, @expr_UserCountryID
+				, @expr_UserDivisionID
+				, @expr_UserCityID)"
 			, array(
-				':country' => $this->txtCountry? : $this->ddlCountry,
-				':division' => $this->txtDivision? : $this->ddlDivision,
-				':city' => $this->txtCity? : $this->ddlCity,
+				':country' => ($this->txtCountry? : $this->ddlCountry)? : NULL,
+				':division' => ($this->txtDivision? : $this->ddlDivision)? : NULL,
+				':city' => ($this->txtCity? : $this->ddlCity)? : NULL,
+			)
+		);
+		$Domain = parse_url($this->txtCompanyURL, PHP_URL_HOST);
+		$Domain = ltrim($Domain, 'www.');
+		$Queries[] = array(
+			!$this->hdnExperienceID ?
+					"INSERT INTO `_user_experiences`("
+					. " `CombinedID`, `UID`, `CompanyID`"
+					. ", `JobTitle`, `Level`, `EmploymentType`, `SalaryType`, `SalaryAmount`"
+					. ", `TBALayoff`, `HealthInsurance`, `OvertimePay`, `WorkCondition`"
+					. ", `RetirementAccount`, `RAPercent`"
+					. ", `GeoCountryISO2`, `GeoDivisionCode`, `GeoCityID`"
+					. ", `UserCountryID`,`UserDivisionID`, `UserCityID`)"
+					. " VALUE("
+					. "($strSQLPart_ID), :uid, companies_getCreatedCompanyID(:compid, :compttl, :compdom, :compdom_escaped)"
+					. ", :jobttl, :lvl, :emptype, :saltype, :salamount"
+					. ", :tba, :insur, :ovrtpay, :wrkcnd"
+					. ", :retaccount, :retpercent"
+					. ", @expr_CountryISO2, @expr_DivisionCombined, @expr_CityID"
+					. ", @expr_UserCountryID, @expr_UserDivisionID, @expr_UserCityID)" :
+					"UPDATE `_user_experiences` SET "
+					. " `CompanyID`=:compid"
+					. ", `JobTitle`=:jobttl, `Level`=:lvl, `EmploymentType`=:emptype, `SalaryType`=:saltype, `SalaryAmount`=:salamount"
+					. ", `TBALayoff`=:tba, `HealthInsurance`=:insur, `OvertimePay`=:ovrtpay, `WorkCondition`=:wrkcnd"
+					. ", `RetirementAccount`=:retaccount, `RAPercent`=:retpercent"
+					. ", `GeoCountryISO2`=@expr_CountryISO2, `GeoDivisionCode`=@expr_DivisionCombined, `GeoCityID`=@expr_CityID"
+					. ", `UserCountryID`=@expr_UserCountryID, `UserDivisionID`=@expr_UserDivisionID, `UserCityID`=@expr_UserCityID"
+					. " WHERE `CombinedID`=:combid AND `UID`=:uid"
+			, array(
+				':combid' => $this->hdnExperienceID,
+				':uid' => $this->UserID,
+				#
+				':compid' => $this->hdnCompanyID,
+				':compttl' => $this->txtCompanyTitle,
+				':compdom' => $Domain,
+				':compdom_escaped' => T\DB::EscapeLikeWildCards($Domain),
+				#
+				':jobttl' => $this->txtJobTitle,
+				':lvl' => $this->ddlLevel,
+				':emptype' => $this->ddlEmploymentType,
+				':saltype' => $this->ddlSalaryType,
+				':salamount' => $this->txtSalaryAmount,
+				':tba' => $this->txtTBALayoff,
+				':insur' => $this->chkHealthInsurance,
+				':ovrtpay' => $this->chkOvertimePay,
+				':wrkcnd' => $this->ddlWorkCondition,
+				':retaccount' => $this->chkRetirementAccount,
+				':retpercent' => $this->txtRetirementPercent,
 			)
 		);
 		$Result = T\DB::Transaction($Queries, $CommonParams, function(\Exception $ex) {
 					\html::ErrMsg_Exit(\t2::Site_Common('Failed! Plz retry.'));
 				});
+		if ($Result)
+			$this->scenario = 'Edit';
 		return $Result ? true : false;
 	}
 
-//	public $hdnCombinedID;
-//	public $chkHealthInsurance = false;
-//	public $chkOvertimePay = false;
-//	public $chkRetirementAccount = false;
-//	#
-//	public $ddlLevel;
-//	public $ddlEmploymentType;
-//	public $ddlSalaryType;
-//	public $ddlWorkCondition;
-//	#
-//	public $txtCompanyTitle;
-//	public $txtJobTitle;
-//	public $txtSalaryAmount;
-//	public $txtTBALayoff;
-//	public $txtRetirementPercent;
+	public function Delete() {
+		$this->scenario = 'Delete';
+		if (!$this->validate())
+			return false;
+		$Result = T\DB::Execute("DELETE FROM `_user_experiences` WHERE `CombinedID`=:combid AND `UID`=:uid"
+						, array(
+					':combid' => $this->hdnExperienceID,
+					':uid' => $this->UserID,
+						)
+		);
+		if ($Result)
+			$this->scenario = 'Add';
+		return $Result;
+	}
+
+	public function getdtExperiences($ID = NULL, $refresh = false) {
+		$StaticIndex = $ID;
+		if (!$StaticIndex)
+			$StaticIndex = "ALL";
+		static $arrDTs = array();
+		if (!isset($arrDTs[$StaticIndex]) || $refresh) {
+			$arrDTs[$StaticIndex] = T\DB::GetTable(
+							"SELECT uexp.*"
+							. ", IFNULL(gc.`AsciiName`, guc.`Country`) AS Country"
+							. ", IFNULL(gd.`AsciiName`, gud.`Division`) AS Division"
+							. ", IFNULL(gct.`AsciiName`, guct.`City`) AS City"
+							. ", ci.`Title` AS CompanyTitle"
+							. ", ci.`URL` AS CompanyURL"
+							. " FROM `_user_experiences` AS uexp"
+//							. " INNER JOIN (SELECT 1) tmp ON " . ($ID ? " uexp.`CombinedID`=:id AND " : '') . " UID=:uid"
+							. " LEFT JOIN `_company_info` AS ci ON ci.`ID`=uexp.CompanyID"
+							. " LEFT JOIN `_geo_countries` AS gc ON gc.`ISO2`=uexp.`GeoCountryISO2`"
+							. " LEFT JOIN `_geo_divisions` AS gd ON gd.`CombinedCode`=uexp.`GeoDivisionCode`"
+							. " LEFT JOIN `_geo_cities` AS gct ON gct.`GeonameID` =uexp.`GeoCityID`"
+							. " LEFT JOIN `_geo_user_countries` AS guc ON guc.`ID`=uexp.`UserCountryID`"
+							. " LEFT JOIN `_geo_user_divisions` AS gud ON gud.`ID`=uexp.`UserDivisionID`"
+							. " LEFT JOIN `_geo_user_cities` AS guct ON guct.`ID`=uexp.`UserCityID`"
+							, array(
+						':uid' => $this->UserID,
+						':id' => $ID,
+							)
+			);
+		}
+		return $arrDTs[$StaticIndex]? : array();
+	}
+
+	/**
+	 * gets fresh data table only once after the edit or delete process
+	 * @param string $ID
+	 * @return array
+	 */
+	public function getdtFreshExperiences($ID = null) {
+		static $R = null;
+		if (!$R)
+			$R = $this->getdtExperiences($ID, true);
+		return $R;
+	}
+
+	public function SetForm() {
+		$dr = $this->getdtExperiences($this->hdnExperienceID);
+		if ($dr) {
+			$dr = $dr[0];
+			$arrAttrs = array(
+				'hdnExperienceID' => $dr['CombinedID'],
+				'hdnCompanyID' => $dr['CompanyID'],
+				'txtJobTitle' => $dr['JobTitle'],
+				'ddlLevel' => $dr['Level'],
+				'ddlEmploymentType' => $dr['EmploymentType'],
+				'ddlSalaryType' => $dr['SalaryType'],
+				'txtSalaryAmount' => $dr['SalaryAmount'],
+				'txtTBALayoff' => $dr['TBALayoff'],
+				'chkHealthInsurance' => $dr['HealthInsurance'],
+				'chkOvertimePay' => $dr['OvertimePay'],
+				'ddlWorkCondition' => $dr['WorkCondition'],
+				'chkRetirementAccount' => $dr['RetirementAccount'],
+				'txtRetirementPercent' => $dr['RAPercent'],
+				#
+				'txtCompanyTitle' => $dr['CompanyTitle'],
+				'txtCompanyURL' => $dr['CompanyURL'],
+				#
+				'ddlCountry' => $dr['GeoCountryISO2']? : '_other_',
+				'ddlDivision' => $dr['GeoDivisionCode']? : '_other_',
+				'ddlCity' => $dr['GeoCityID']? : '_other_',
+				'txtCountry' => $dr['GeoCountryISO2'] ? : $dr['Country'],
+				'txtDivision' => $dr['GeoDivisionCode'] ? : $dr['Division'],
+				'txtCity' => $dr['GeoCityID'] ? : $dr['City'],
+			);
+			$this->attributes = $arrAttrs;
+		}
+	}
 }

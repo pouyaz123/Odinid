@@ -10,6 +10,7 @@
 		| <?= \CHtml::link(t2::Site_User('Work permissions'), \Site\Consts\Routes::User_EditResidencies()) ?>
 		| <?= \CHtml::link(t2::Site_User('Web addresses'), \Site\Consts\Routes::User_EditWebAddresses()) ?>
 		| <?= \CHtml::link(t2::Site_User('Skills'), \Site\Consts\Routes::User_EditSkills()) ?>
+		| <?= \CHtml::link(t2::Site_User('Experiences'), \Site\Consts\Routes::User_EditExperiences()) ?>
 	</div>
 	<?= $content; ?>
 </div>

@@ -12,8 +12,8 @@ class EditSkills extends \CAction {
 
 	public function run() {
 		$this->controller->pageTitle = \t2::SitePageTitle('tr_common', \t2::Site_User('Skills'));
-\html::TagIt_Load();
-\html::LoadJS('balloon/jquery.balloon.min');
+		\html::TagIt_Load();
+		\html::Balloon_Load();
 		$Model = new Skills();
 		Skills::$UserID = Login::GetSessionDR('ID');
 		if (\GPCS::POST('btnSaveEdit')) {
@@ -33,7 +33,7 @@ class EditSkills extends \CAction {
 			Skills::Commit();
 		}
 
-
+		\Tools\GCC::RogueSkills();
 
 		\Output::Render($this->controller
 				, 'editinfo/skills'

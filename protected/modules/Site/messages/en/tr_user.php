@@ -88,6 +88,7 @@ return array_merge(
 //	'Locations' => 'Locations',
 //	'Work permissions' => 'Work permissions',
 //	'Web addresses' => 'Web addresses',
+//	'Experiences' => 'Experiences',
 //	'Skills' => 'Skills',
 //	'Rate' => 'Rate',
 	'TagsHelp' => 'Separate by commas(,)',

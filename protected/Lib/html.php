@@ -931,7 +931,7 @@ $.superbox.settings = {
 		\html::LoadJS('jqUI/jquery.ui.autocomplete.min');
 		\html::LoadJS('MyJuiAutoComplete/MyComboBox');
 	}
-	
+
 	static function TagIt_Load() {
 		\html::LoadCSS("*/_js/tagit/jquery.tagit.css");
 		\html::LoadCSS("*/_js/tagit/tagit.ui-zendesk.css");
@@ -939,6 +939,10 @@ $.superbox.settings = {
 		\html::LoadJS('jqUI/jquery.ui.widget.min');
 		\html::LoadJS('jqUI/jquery.ui.autocomplete.min');
 		\html::LoadJS('tagit/tag-it.min');
+	}
+
+	static function Balloon_Load() {
+		\html::LoadJS('balloon/jquery.balloon.min');
 	}
 
 //	static function MozillaRTL() {

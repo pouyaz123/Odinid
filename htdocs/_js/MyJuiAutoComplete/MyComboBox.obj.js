@@ -78,12 +78,12 @@
 					return false;
 				}
 			}
-			if ($slct.attr('value') === '_other_')
+			if ($txtUsrInput && $slct.attr('value') === '_other_')
 				$txtUsrInput.show()
 			ACOptions.select = function(event, ui) {
 				ChangeHandle(this, ui)
 				this.ChangedBySelect = true
-				if (ui.item) {
+				if ($txtUsrInput && ui.item) {
 					if (ui.item.option.value === '_other_')
 						$txtUsrInput.show().val('')
 					else
