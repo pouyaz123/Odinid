@@ -937,6 +937,7 @@ $.superbox.settings = {
 		\html::LoadCSS("*/_js/tagit/tagit.ui-zendesk.css");
 		\html::LoadJS('jqUI/jquery.ui.core.min');
 		\html::LoadJS('jqUI/jquery.ui.widget.min');
+		\html::LoadJS('jqUI/jquery.ui.position.min');
 		\html::LoadJS('jqUI/jquery.ui.autocomplete.min');
 		\html::LoadJS('tagit/tag-it.min');
 	}

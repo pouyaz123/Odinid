@@ -3,7 +3,6 @@
 /* @var $Model \Site\models\Profile\Info */
 ?>
 <? $this->beginContent('Site.views.profile.editinfo.layout') ?>
-<? require 'webaddresses_addedit.php'; ?>
 <table class="FullW OLst">
 	<tr class="LstHdr">
 		<td><?= $Model->getAttributeLabel('txtWebAddress') ?></td>
@@ -47,4 +46,5 @@
 		</tr>
 	<? endforeach; ?>
 </table>
+<? require 'webaddresses_addedit.php'; ?>
 <? $this->endContent(); ?>

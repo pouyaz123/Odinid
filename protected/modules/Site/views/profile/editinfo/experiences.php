@@ -3,7 +3,6 @@
 /* @var $Model \Site\models\Profile\Experiences */
 ?>
 <? $this->beginContent('Site.views.profile.editinfo.layout') ?>
-<? require 'experiences_addedit.php'; ?>
 <table class="FullW OLst">
 	<tr class="LstHdr">
 		<td><?= $Model->getAttributeLabel('txtCompanyTitle') ?></td>
@@ -25,7 +24,7 @@
 			?>"><?= $dr['JobTitle'] ?></td>
 			<td title="<?= $dr['City'] . ($dr['City'] && $dr['Division'] ? ' , ' : '') . $dr['Division'] ?>"><?= $dr['Country'] ?></td>
 			<td><input type="checkbox" <?= $dr['HealthInsurance'] ? "checked='checked'" : "" ?> disabled="disabled"/> </td>
-			<td title="<?= $dr['RAPercent'] ?>"><input type="checkbox" <?= $dr['RetirementAccount'] ? "checked='checked'" : "" ?> disabled="disabled"/> </td>
+			<td title="<?= $dr['RAPercent'] ? $Model->getAttributeLabel('txtRetirementPercent') . ' : ' . $dr['RAPercent'] . '%' : '' ?>"><input type="checkbox" <?= $dr['RetirementAccount'] ? "checked='checked'" : "" ?> disabled="disabled"/> </td>
 			<td>
 				<?
 				if ($form = $this->beginWidget('Widgets\ActiveForm', array(
@@ -59,4 +58,5 @@
 		</tr>
 	<? endforeach; ?>
 </table>
+<? require 'experiences_addedit.php'; ?>
 <? $this->endContent(); ?>

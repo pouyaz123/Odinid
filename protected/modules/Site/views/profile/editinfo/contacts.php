@@ -3,7 +3,6 @@
 /* @var $Model \Site\models\Profile\Info */
 ?>
 <? $this->beginContent('Site.views.profile.editinfo.layout') ?>
-<? require 'contacts_addedit.php'; ?>
 <table class="FullW OLst">
 	<tr class="LstHdr">
 		<td><?= $Model->getAttributeLabel('txtPhone') ?></td>
@@ -57,4 +56,5 @@
 		</tr>
 	<? endforeach; ?>
 </table>
+<? require 'contacts_addedit.php'; ?>
 <? $this->endContent(); ?>

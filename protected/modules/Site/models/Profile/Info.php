@@ -64,6 +64,7 @@ use \Tools as T;
  * @method void ResetActivationLink()
  * @method void SetAsPrimary()
  * @property string $txtEmail
+ * @property string $chkIsPrivate
  * -----WebAddresses Behavior
  * @property-read array $arrWebAddrTypes
  * @property-read array $dtWebAddr

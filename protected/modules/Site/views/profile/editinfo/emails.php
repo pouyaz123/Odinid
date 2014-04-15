@@ -3,17 +3,18 @@
 /* @var $Model \Site\models\Profile\Info */
 ?>
 <? $this->beginContent('Site.views.profile.editinfo.layout') ?>
-<? require 'emails_addedit.php'; ?>
 <table class="FullW OLst">
 	<tr class="LstHdr">
 		<td><?= $Model->getAttributeLabel('txtEmail') ?></td>
 		<td><?= t2::Site_User('Pending email') ?></td>
+		<td><?= $Model->getAttributeLabel('chkIsPrivate') ?></td>
 		<td></td>
 	</tr>
 	<? foreach ($Model->dtFreshEmails as $dr): ?>
 		<tr <?= html::AltRow()?>>
 			<td><?= $dr['Email'] ?> <?= $dr['IsPrimary'] ? ' [' . t2::Site_User('Primary') . ']' : '' ?> </td>
 			<td><?= $dr['PendingEmail'] ?></td>
+			<td><input type="checkbox" <?= $dr['IsPrivate'] ? "checked='checked'" : "" ?> disabled="disabled"/> </td>
 			<td>
 				<?
 				if ($form = $this->beginWidget('Widgets\ActiveForm', array(
@@ -69,4 +70,5 @@
 		</tr>
 	<? endforeach; ?>
 </table>
+<? require 'emails_addedit.php'; ?>
 <? $this->endContent(); ?>

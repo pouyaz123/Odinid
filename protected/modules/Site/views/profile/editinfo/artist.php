@@ -5,7 +5,7 @@
 <? $this->beginContent('Site.views.profile.editinfo.layout') ?>
 <?
 if ($form = $this->beginWidget('Widgets\ActiveForm', array(
-	'id' => 'EditInfo',
+	'id' => 'ProfileInfo',
 	'method' => 'POST',
 	'enableClientValidation' => true,
 	'enableAjaxValidation' => true,

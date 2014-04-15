@@ -3,7 +3,6 @@
 /* @var $Model \Site\models\Profile\Info */
 ?>
 <? $this->beginContent('Site.views.profile.editinfo.layout') ?>
-<? require 'residencies_addedit.php'; ?>
 <table class="FullW OLst">
 	<tr class="LstHdr">
 		<td><?= $Model->getAttributeLabel('ddlCountry') ?></td>
@@ -47,4 +46,5 @@
 		</tr>
 	<? endforeach; ?>
 </table>
+<? require 'residencies_addedit.php'; ?>
 <? $this->endContent(); ?>

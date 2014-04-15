@@ -50,8 +50,12 @@ return array_merge(
 	'Recovery link has been sent' => 'Recovery link has been sent to your email.<br/> The link(code) has a short expiration time.',
 //	'Recover' => 'Recover'
 #change password
+//	'Current username' => 'Current username',
+	'Username change' => 'Username can get changed only once',
+//	'Current password' => 'Current password',
 //	'New password' => 'New password',
 //	'Confirm new password' => 'Confirm new password',
+//	'Invalid password' => 'Invalid password',
 #user info
 //	'txtBirthday' => \t2::Site_User('Birthday'),
 //	'ddlBirthdayFormat' => \t2::Site_User('Birthday view'),
@@ -67,7 +71,6 @@ return array_merge(
 //	'About me'
 	'User location' => '{City}, {Division}, {Country}',
 #
-//	'Skills' => 'Skills',
 //	'chkHealthInsurance' => \t2::Site_User('Health insurance'),
 //	'chkOvertimePay' => \t2::Site_User('Overtime pay'),
 //	'chkRetirementAccount' => \t2::Site_User('Retirement account'),
@@ -83,13 +86,16 @@ return array_merge(
 #
 	'Update' => 'Update',
 //	'Basic info' => 'Basic info',
+	'Setting' => 'Account setting',
 //	'Phones' => 'Phones',
 //	'Emails' => 'Emails',
+//	'Private'=>'Private',
 //	'Locations' => 'Locations',
 //	'Work permissions' => 'Work permissions',
 //	'Web addresses' => 'Web addresses',
 //	'Experiences' => 'Experiences',
 //	'Skills' => 'Skills',
+//	'Languages' => 'Languages',
 //	'Rate' => 'Rate',
 	'TagsHelp' => 'Separate by commas(,)',
 //	

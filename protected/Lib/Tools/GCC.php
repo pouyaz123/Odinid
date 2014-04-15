@@ -25,7 +25,7 @@ class GCC {
 //				self::$LinuxPHPPath;
 //	}
 	//86400 seconds = 24hours
-	const GCCPeriod = 86400;
+	const GCCPeriod = 3600;
 
 	//172800 seconds = 48hours
 //	const MediumGCCPeriod = 172800;
@@ -34,7 +34,7 @@ class GCC {
 	 * cleans expired user recoveries/activations periodically
 	 * mytodo 1: multithread execution for gcc to have parallel processes
 	 */
-//	static function UserRecoveries() {
+	static function UserRecoveries() {
 ////		ignore_user_abort(true);
 ////		set_time_limit(0);
 ////		$pipe = popen(self::getPHP() . ' "' . __DIR__ . '/GCCThreads/UserRecoveries.php" asd 2>&1', 'r');
@@ -69,7 +69,7 @@ class GCC {
 //			if (connection_status() != CONNECTION_NORMAL)
 //				exit;
 //		}
-//	}
+	}
 
 	static function RogueSkills() {
 		if (!T\Cache::rabbitCache()->get('GCC_Skills')) {
@@ -90,6 +90,31 @@ class GCC {
 				T\DB::Transaction($arrTrans);
 			}
 			T\Cache::rabbitCache()->set('GCC_Skills', 1, self::GCCPeriod);
+			ignore_user_abort(false);
+			if (connection_status() != CONNECTION_NORMAL)
+				exit;
+		}
+	}
+
+	static function RogueLanguages() {
+		if (!T\Cache::rabbitCache()->get('GCC_Languages')) {
+			ignore_user_abort(true);
+			$drWhereClause = T\DB::GetRow("SELECT "
+							. " GROUP_CONCAT(DISTINCT lng.ID SEPARATOR ' OR ID=') AS IDs"
+//							. ", GROUP_CONCAT(DISTINCT lng.TagID SEPARATOR '\" OR TagID=\"') AS TagIDs"
+							. " FROM `_languages` lng"
+							. " INNER JOIN (SELECT 1) tmp ON NOT lng.`IsOfficial`"
+							. " LEFT JOIN (SELECT DISTINCT `LangID` FROM `_user_langs`) ulng"
+							. " ON ulng.LangID=lng.`ID`"
+							. " WHERE ISNULL(ulng.LangID)");
+			if ($drWhereClause && $drWhereClause['IDs']) {
+				$arrTrans = array();
+				$arrTrans[] = "DELETE FROM `_languages` WHERE ID=" . $drWhereClause['IDs'];
+//				if ($drWhereClause['TagIDs'])
+//					$arrTrans[] = "DELETE FROM `_tags` WHERE TagID=\"" . $drWhereClause['TagIDs'] . "\"";
+				T\DB::Transaction($arrTrans);
+			}
+			T\Cache::rabbitCache()->set('GCC_Languages', 1, self::GCCPeriod);
 			ignore_user_abort(false);
 			if (connection_status() != CONNECTION_NORMAL)
 				exit;

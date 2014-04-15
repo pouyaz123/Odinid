@@ -144,6 +144,8 @@ class Activation extends \Base\FormModel {
 		}
 		$Queries[] = array("DELETE FROM `_user_recoveries` WHERE `Code`=:code OR `PendingEmail`=:email"
 			, array(':code' => $this->txtActivationCode, ':email' => $drActvt['Email']));
+		$Queries[] = array("DELETE FROM `_user_emails` WHERE `PendingEmail`=:email"
+			, array(':email' => $drActvt['Email']));
 		$Result = T\DB::Transaction($Queries, $CommonParams, function(\Exception $ex) {
 					\Err::DebugBreakPoint($ex);
 					\html::ErrMsg_Exit(\t2::Site_User('Activation failed!'));
@@ -164,9 +166,12 @@ class Activation extends \Base\FormModel {
 			return false;
 
 		$Username = T\DB::GetField("SELECT u.`Username` FROM `_user_recoveries` ur"
-						. " INNER JOIN (SELECT 1) tmp ON ur.`PendingEmail`=:email"
+						. " INNER JOIN (SELECT 1) tmp ON ur.`PendingEmail`=:email AND ur.`Type`=:activation"
 						. " INNER JOIN `_users` u ON u.`ID`=ur.`UID`"
-						, array(':email' => $this->txtEmail)
+						, array(
+					':email' => $this->txtEmail,
+					':activation' => C\User::Recovery_Activation,
+						)
 		);
 		$Code = T\DB::GetUniqueCode('_user_recoveries', 'Code');
 		$Result = T\DB::Execute("UPDATE `_user_recoveries` SET `Code`=:code, `TimeStamp`=:time WHERE `PendingEmail`=:email"
@@ -189,7 +194,7 @@ class Activation extends \Base\FormModel {
 		$MS = T\SendMail::GetConfiguredMailSender();
 		$MS->AddAddress($Email, $Name);
 		if (!$MS->Send2(
-						\t2::Site_User('Activation link')
+						\t2::Site_User('Activation link') . " ($Name)"
 						, T\SendMail::GetEmailTemplate('activation', null, array(
 							'Code' => $ActivationCode,
 							'CodeUrl' => \Yii::app()->createAbsoluteUrl(T\HTTP::URL_InsertGetParams(\Site\Consts\Routes::UserActivation, "code=$ActivationCode")),

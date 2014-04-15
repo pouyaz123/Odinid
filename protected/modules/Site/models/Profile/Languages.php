@@ -15,21 +15,36 @@ use \Tools as T;
  * @copyright (c) Odinid
  * @access public
  * @property-read array $arrRates
+ * @property-read array $dtLanguages
+ * @property string $txtLanguages
  */
 class Languages extends \Base\FormModel {
 
 	public function getPostName() {
-		return "UserLangs";
+		return "UserLanguages";
 	}
-	
+
 	protected function XSSPurify_Exceptions() {
-		return "rdoRate";
+		return "ddlRate";
 	}
 
-	public $txtLang;
-	public $rdoRate;
+	public $txtLanguage;
+	public $ddlRate;
+	private $_txtLanguages = null;
 
-	//Lang Rates
+	public function gettxtLanguages() {
+		$txtLanguages = &$this->_txtLanguages;
+		foreach ($this->dtLanguages as $drLanguage) {
+			$txtLanguages.=',' . $drLanguage['Language'];
+		}
+		return $txtLanguages;
+	}
+
+	public function settxtLanguages($val) {
+		$this->_txtLanguages = $val;
+	}
+
+	//Language Rates
 	const Rate_Beginner = 'Beginner';
 	const Rate_Intermediate = 'Intermediate';
 	const Rate_Advanced = 'Advanced';
@@ -44,51 +59,71 @@ class Languages extends \Base\FormModel {
 		);
 	}
 
-	public function rules(\CEvent $e) {
+	public function rules() {
 		$vl = \ValidationLimits\User::GetInstance();
 		return array(
-			array('txtLang', 'required'
-				, 'except' => 'Delete'),
-			array_merge(array('txtLang', 'length'
-				, 'except' => 'Delete'), $vl->Title),
-			array('rdoRate', 'in'
-				, 'range' => array_keys($this->arrRates)
-				, 'except' => 'Delete'),
+			array('txtLanguage, ddlRate', 'required'),
+			array_merge(array('txtLanguage', 'length'), $vl->LongTitle),
+			array('ddlRate', 'in'
+				, 'range' => array_keys($this->arrRates)),
 		);
+	}
+
+	public function attributeLabels() {
+		return array(
+			'txtLanguages' => \t2::Site_User('Languages'),
+			'ddlRate' => \t2::Site_User('Rate'),
+		);
+	}
+
+	public function getdtLanguages() {
+		static $dt = null;
+		if (!$dt) {
+			$dt = T\DB::GetTable(
+							"SELECT ul.`SelfRate`, lng.`Language`"
+							. " FROM `_user_langs` ul"
+							. " INNER JOIN `_languages` lng ON lng.`ID`=ul.`LangID`"
+							. " WHERE ul.`UID`=:uid"
+							, array(
+						':uid' => self::$UserID,
+							)
+			);
+		}
+		return $dt? : array();
 	}
 
 	/**
 	 * @var int user id to be used in next transactions
 	 */
 	public static $UserID = null;
-	protected static $IsValid = true;
-	protected static $Langs = array();
-	protected static $arrTransactions = array();
+	private static $IsValid = true;
+	private static $Languages = array();
+	private static $arrTransactions = array();
 
 	/**
-	 * Deletes the unused langs(removed langs) of the tag list<br/>
+	 * Deletes the unused Languages(removed Languages) of the tag list<br/>
 	 * This method is called in self::Commit()
 	 * @return void
 	 */
-	protected static function DeleteUnusedLangs() {
-		$arrLangParams = array();
-		foreach (self::$Langs as $idx => $Lang) {
-			$arrLangParams[":skl$idx"] = $Lang;
+	private static function DeleteUnusedLanguages() {
+		$arrParams = array();
+		foreach (self::$Languages as $idx => $item) {
+			$arrParams[":lng$idx"] = $item;
 		}
-		$RemovableLangIDs = T\DB::GetField(
-						"SELECT GROUP_CONCAT(l.`ID` SEPARATOR ',') AS IDs"
+		$RemovableIDs = T\DB::GetField(
+						"SELECT GROUP_CONCAT(lng.`ID` SEPARATOR ',') AS IDs"
 						. " FROM `_user_langs` ul"
 						. " INNER JOIN (SELECT 1) tmp ON ul.`UID` = :uid"
-						. " INNER JOIN `_languages` l ON l.`ID` = ul.`LangID`"
-						. count($arrLangParams) ?
-								" WHERE l.`Language` != " . implode(' AND l.`Language` != ', array_keys($arrLangParams)) :
-								""
-						, array_merge($arrLangParams, array(':uid' => self::$UserID)));
-		if (!$RemovableLangIDs)
+						. " INNER JOIN `_languages` lng ON lng.`ID` = ul.`LangID`"
+						. (count($arrParams) ?
+								" WHERE lng.`Language` != " . implode(' AND lng.`Language` != ', array_keys($arrParams)) :
+								"")
+						, array_merge($arrParams, array(':uid' => self::$UserID)));
+		if (!$RemovableIDs)
 			return;
-		$RemovableLangIDs = explode(',', $RemovableLangIDs);
+		$RemovableIDs = explode(',', $RemovableIDs);
 		self::$arrTransactions[] = array(
-			"DELETE FROM `_user_langs` WHERE `UID`=:uid AND (`LangID` = " . implode(' OR `LangID` = ', $RemovableLangIDs) . ")"
+			"DELETE FROM `_user_langs` WHERE `UID`=:uid AND (`LangID` = " . implode(' OR `LangID` = ', $RemovableIDs) . ")"
 			, array(
 				':uid' => self::$UserID
 			)
@@ -109,10 +144,14 @@ class Languages extends \Base\FormModel {
 			throw new \Err(__METHOD__, 'UserID has not been set in Language model');
 		if (!self::$IsValid)
 			return false;
-		self::DeleteUnusedLangs();
-		$Result = T\DB::Transaction(self::$arrTransactions);
-		self::$arrTransactions = array();
-		return $Result;
+		self::DeleteUnusedLanguages();
+		\Tools\GCC::RogueLanguages();
+		if (self::$arrTransactions) {
+			$Result = T\DB::Transaction(self::$arrTransactions);
+			self::$arrTransactions = array();
+			return $Result;
+		}
+		return false;
 	}
 
 	/**
@@ -123,7 +162,7 @@ class Languages extends \Base\FormModel {
 			self::$IsValid = false;
 			return false;
 		}
-		self::$Langs[] = $this->txtLang;
+		self::$Languages[] = $this->txtLanguage;
 		return array(
 			array(
 				"INSERT INTO `_user_langs` SET"
@@ -134,8 +173,8 @@ class Languages extends \Base\FormModel {
 				. " `SelfRate`=:selfrate"
 				, array(
 					':uid' => self::$UserID,
-					':lang' => $this->txtLang,
-					':selfrate' => $this->rdoRate,
+					':lang' => $this->txtLanguage,
+					':selfrate' => $this->ddlRate,
 				)
 			)
 		);
@@ -148,7 +187,8 @@ class Languages extends \Base\FormModel {
 	public function PushTransactions($arrTransactions = null) {
 		if (!$arrTransactions)
 			$arrTransactions = $this->getTransactions();
-		self::$arrTransactions = array_merge(self::$arrTransactions, $arrTransactions);
+		if ($arrTransactions)
+			self::$arrTransactions = array_merge(self::$arrTransactions, $arrTransactions);
 	}
 
 }

@@ -33,10 +33,6 @@ class Routes {
 		
 	}
 
-	static function User_EditEmails($Username = null) {
-		
-	}
-
 	static function User_EditWebAddresses($Username = null) {
 		
 	}
@@ -45,7 +41,19 @@ class Routes {
 		
 	}
 
+	static function User_EditLanguages($Username = null) {
+		
+	}
+
 	static function User_EditExperiences($Username = null) {
+		
+	}
+
+	static function User_EditEmails($Username = null) {
+		
+	}
+
+	static function User_Setting($Username = null) {
 		
 	}
 

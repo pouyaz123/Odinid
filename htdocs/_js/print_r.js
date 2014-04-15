@@ -33,7 +33,7 @@ function print_r(collection, DontShowDetails, specialMaxLevel, JustReturn) {
 	$result = recursive(collection)
 	if (!JustReturn) {
 		$(document.body).append(
-				$('<pre dir="ltr" style="direction:ltr; text-align:left; position:fixed; height:100%; width:100%; top:0px; left:0px; background:#ffc; z-index:99999; margin:0px; overflow:auto"></pre>').append($result)
+				$('<pre dir="ltr" style="direction:ltr; text-align:left; position:fixed; height:100%; width:100%; top:0px; left:0px; background:#ffc; z-index:99999; margin:0px; overflow:auto; padding:0px"></pre>').append($result)
 				.css({
 			opacity: 0.9
 		})

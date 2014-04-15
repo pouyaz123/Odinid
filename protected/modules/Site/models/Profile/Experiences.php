@@ -17,7 +17,6 @@ use \Tools as T;
  * @property-read array $arrWorkConditions
  * @property-read array $dtExperiences
  * @property-read array $dtFreshExperiences
- * @mytodo 1 : Expreinces has optional location items (add them to locations)
  */
 class Experiences extends \Base\FormModel {
 
@@ -130,47 +129,47 @@ class Experiences extends \Base\FormModel {
 				'SQL' => 'SELECT COUNT(*) FROM `_user_experiences` WHERE `CombinedID`=:val',
 				'on' => 'Edit, Delete'),
 			#
-			array('txtCompanyTitle, txtJobTitle, hdnCompanyID', 'required'
-				, 'except' => 'Delete'),
+			array('txtCompanyTitle, txtJobTitle', 'required'
+				, 'on' => 'Add, Edit'),
 			array('txtCompanyURL', 'url',
-				'except' => 'Delete'),
+				'on' => 'Add, Edit'),
 			array_merge(array('txtCompanyURL', 'length',
-				'except' => 'Delete'), $vl->WebAddress),
+				'on' => 'Add, Edit'), $vl->WebAddress),
 			array_merge(array('txtCompanyTitle, txtJobTitle', 'length'
-				, 'except' => 'Delete'), $vl->Title),
+				, 'on' => 'Add, Edit'), $vl->Title),
 			#
 			array('chkHealthInsurance, chkOvertimePay, chkRetirementAccount', 'boolean'
-				, 'except' => 'Delete'),
+				, 'on' => 'Add, Edit'),
 			#
 			array_merge(array('txtSalaryAmount', 'numerical'
-				, 'except' => 'Delete'), $vl->ExperienceSalaryAmount),
+				, 'on' => 'Add, Edit'), $vl->ExperienceSalaryAmount),
 			array_merge(array('txtTBALayoff', 'numerical'
-				, 'except' => 'Delete'), $vl->ExperienceTBALayoff),
+				, 'on' => 'Add, Edit'), $vl->ExperienceTBALayoff),
 			array_merge(array('txtRetirementPercent', 'numerical'
-				, 'except' => 'Delete'), $vl->ExperienceRetirementAccountPercent),
+				, 'on' => 'Add, Edit'), $vl->ExperienceRetirementAccountPercent),
 			#
 			array('ddlLevel', 'in'
 				, 'range' => array_keys($this->arrLevels)
-				, 'except' => 'Delete'),
+				, 'on' => 'Add, Edit'),
 			array('ddlEmploymentType', 'in'
 				, 'range' => array_keys($this->arrEmployTypes)
-				, 'except' => 'Delete'),
+				, 'on' => 'Add, Edit'),
 			array('ddlSalaryType', 'in'
 				, 'range' => array_keys($this->arrSalaryTypes)
-				, 'except' => 'Delete'),
+				, 'on' => 'Add, Edit'),
 			array('ddlWorkCondition', 'in'
 				, 'range' => array_keys($this->arrWorkConditions)
-				, 'except' => 'Delete'),
+				, 'on' => 'Add, Edit'),
 			#location
 			array('ddlCountry, ddlDivision, ddlCity, txtCountry, txtDivision, txtCity', 'match',
 				'pattern' => C\Regexp::SimpleWords,
-				'except' => 'Delete'),
+				'on' => 'Add, Edit'),
 			array_merge(array('ddlCountry, txtCountry', 'length',
-				'except' => 'Delete'), $vl->Country),
+				'on' => 'Add, Edit'), $vl->Country),
 			array_merge(array('ddlDivision, txtDivision', 'length',
-				'except' => 'Delete'), $vl->Division),
+				'on' => 'Add, Edit'), $vl->Division),
 			array_merge(array('ddlCity, txtCity', 'length',
-				'except' => 'Delete'), $vl->City),
+				'on' => 'Add, Edit'), $vl->City),
 		);
 	}
 
@@ -199,12 +198,11 @@ class Experiences extends \Base\FormModel {
 		);
 	}
 
-//mytodo 1 : complete the experiences save and delete
 	public function Save() {
 		if (!$this->validate())
 			return false;
 		$Queries = array();
-		if ($this->hdnExperienceID) {
+		if (!$this->hdnExperienceID) {
 			$strSQLPart_ID = T\DB::GetNewID_Combined(
 							'_user_experiences'
 							, 'CombinedID'
@@ -238,8 +236,11 @@ class Experiences extends \Base\FormModel {
 				':city' => ($this->txtCity? : $this->ddlCity)? : NULL,
 			)
 		);
-		$Domain = parse_url($this->txtCompanyURL, PHP_URL_HOST);
-		$Domain = ltrim($Domain, 'www.');
+		$Domain = '';
+		if ($this->txtCompanyURL) {
+			$Domain = parse_url($this->txtCompanyURL, PHP_URL_HOST);
+			$Domain = ltrim($Domain, 'www.');
+		}
 		$Queries[] = array(
 			!$this->hdnExperienceID ?
 					"INSERT INTO `_user_experiences`("
@@ -250,14 +251,14 @@ class Experiences extends \Base\FormModel {
 					. ", `GeoCountryISO2`, `GeoDivisionCode`, `GeoCityID`"
 					. ", `UserCountryID`,`UserDivisionID`, `UserCityID`)"
 					. " VALUE("
-					. "($strSQLPart_ID), :uid, companies_getCreatedCompanyID(:compid, :compttl, :compdom, :compdom_escaped)"
+					. "($strSQLPart_ID), :uid, companies_getCreatedCompanyID(:compid, :compttl, :compdom, :compdom_escaped, :compulr)"
 					. ", :jobttl, :lvl, :emptype, :saltype, :salamount"
 					. ", :tba, :insur, :ovrtpay, :wrkcnd"
 					. ", :retaccount, :retpercent"
 					. ", @expr_CountryISO2, @expr_DivisionCombined, @expr_CityID"
 					. ", @expr_UserCountryID, @expr_UserDivisionID, @expr_UserCityID)" :
 					"UPDATE `_user_experiences` SET "
-					. " `CompanyID`=:compid"
+					. " `CompanyID`=companies_getCreatedCompanyID(:compid, :compttl, :compdom, :compdom_escaped, :compulr)"
 					. ", `JobTitle`=:jobttl, `Level`=:lvl, `EmploymentType`=:emptype, `SalaryType`=:saltype, `SalaryAmount`=:salamount"
 					. ", `TBALayoff`=:tba, `HealthInsurance`=:insur, `OvertimePay`=:ovrtpay, `WorkCondition`=:wrkcnd"
 					. ", `RetirementAccount`=:retaccount, `RAPercent`=:retpercent"
@@ -268,25 +269,26 @@ class Experiences extends \Base\FormModel {
 				':combid' => $this->hdnExperienceID,
 				':uid' => $this->UserID,
 				#
-				':compid' => $this->hdnCompanyID,
-				':compttl' => $this->txtCompanyTitle,
-				':compdom' => $Domain,
-				':compdom_escaped' => T\DB::EscapeLikeWildCards($Domain),
+				':compid' => $this->hdnCompanyID? : null,
+				':compttl' => $this->txtCompanyTitle? : null,
+				':compdom' => $Domain? : null,
+				':compdom_escaped' => $Domain ? T\DB::EscapeLikeWildCards($Domain) : null,
+				':compulr' => $this->txtCompanyURL? : null,
 				#
-				':jobttl' => $this->txtJobTitle,
-				':lvl' => $this->ddlLevel,
-				':emptype' => $this->ddlEmploymentType,
-				':saltype' => $this->ddlSalaryType,
-				':salamount' => $this->txtSalaryAmount,
-				':tba' => $this->txtTBALayoff,
+				':jobttl' => $this->txtJobTitle? : null,
+				':lvl' => $this->ddlLevel? : null,
+				':emptype' => $this->ddlEmploymentType? : null,
+				':saltype' => $this->ddlSalaryType? : null,
+				':salamount' => $this->txtSalaryAmount? : null,
+				':tba' => $this->txtTBALayoff? : null,
 				':insur' => $this->chkHealthInsurance,
 				':ovrtpay' => $this->chkOvertimePay,
-				':wrkcnd' => $this->ddlWorkCondition,
+				':wrkcnd' => $this->ddlWorkCondition? : null,
 				':retaccount' => $this->chkRetirementAccount,
-				':retpercent' => $this->txtRetirementPercent,
+				':retpercent' => $this->txtRetirementPercent? : null,
 			)
 		);
-		$Result = T\DB::Transaction($Queries, $CommonParams, function(\Exception $ex) {
+		$Result = T\DB::Transaction($Queries, NULL, function(\Exception $ex) {
 					\html::ErrMsg_Exit(\t2::Site_Common('Failed! Plz retry.'));
 				});
 		if ($Result)
@@ -323,7 +325,7 @@ class Experiences extends \Base\FormModel {
 							. ", ci.`Title` AS CompanyTitle"
 							. ", ci.`URL` AS CompanyURL"
 							. " FROM `_user_experiences` AS uexp"
-//							. " INNER JOIN (SELECT 1) tmp ON " . ($ID ? " uexp.`CombinedID`=:id AND " : '') . " UID=:uid"
+							. " INNER JOIN (SELECT 1) tmp ON " . ($ID ? " uexp.`CombinedID`=:id AND " : '') . " UID=:uid"
 							. " LEFT JOIN `_company_info` AS ci ON ci.`ID`=uexp.CompanyID"
 							. " LEFT JOIN `_geo_countries` AS gc ON gc.`ISO2`=uexp.`GeoCountryISO2`"
 							. " LEFT JOIN `_geo_divisions` AS gd ON gd.`CombinedCode`=uexp.`GeoDivisionCode`"
@@ -374,9 +376,9 @@ class Experiences extends \Base\FormModel {
 				'txtCompanyTitle' => $dr['CompanyTitle'],
 				'txtCompanyURL' => $dr['CompanyURL'],
 				#
-				'ddlCountry' => $dr['GeoCountryISO2']? : '_other_',
-				'ddlDivision' => $dr['GeoDivisionCode']? : '_other_',
-				'ddlCity' => $dr['GeoCityID']? : '_other_',
+				'ddlCountry' => $dr['GeoCountryISO2'] ? : ($dr['Country'] ? '_other_' : ''),
+				'ddlDivision' => $dr['GeoDivisionCode'] ? : ($dr['Division'] ? '_other_' : ''),
+				'ddlCity' => $dr['GeoCityID'] ? : ($dr['City'] ? '_other_' : ''),
 				'txtCountry' => $dr['GeoCountryISO2'] ? : $dr['Country'],
 				'txtDivision' => $dr['GeoDivisionCode'] ? : $dr['Division'],
 				'txtCity' => $dr['GeoCityID'] ? : $dr['City'],
@@ -384,4 +386,5 @@ class Experiences extends \Base\FormModel {
 			$this->attributes = $arrAttrs;
 		}
 	}
+
 }

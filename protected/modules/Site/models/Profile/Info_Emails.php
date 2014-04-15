@@ -25,19 +25,18 @@ class Info_Emails extends \Base\FormModelBehavior {
 
 	public function onBeforeXSSPurify_Exceptions(\CEvent $e) {
 		$e->params['arrXSSExceptions'] = array_merge($e->params['arrXSSExceptions'], array(
-			'hdnEmailID',
+			'hdnEmailID, chkIsPrivate',
 		));
 	}
 
 	public $hdnEmailID;
 	public $txtEmail;
+	public $chkIsPrivate = true;
 	private $_PendingEmail;
 
 	public function getPendingEmail() {
 		return $this->_PendingEmail;
 	}
-
-	#
 
 	private $_IsPrimaryEmailEdit = false;
 
@@ -80,6 +79,8 @@ class Info_Emails extends \Base\FormModelBehavior {
 				'on' => 'Add, Edit'), $vl->Email),
 			array('txtEmail', 'email',
 				'on' => 'Add, Edit'),
+			array('chkIsPrivate', 'boolean',
+				'on' => 'Add, Edit'),
 		));
 	}
 
@@ -119,6 +120,7 @@ class Info_Emails extends \Base\FormModelBehavior {
 	public function onBeforeAttributeLabels(\CEvent $e) {
 		$e->params['arrAttrLabels'] = array_merge($e->params['arrAttrLabels'], array(
 			'txtEmail' => \t2::Site_User('Email'),
+			'chkIsPrivate' => \t2::Site_User('Private'),
 		));
 	}
 
@@ -209,18 +211,20 @@ class Info_Emails extends \Base\FormModelBehavior {
 			);
 		$arrTrans[] = array(
 			(!$this->hdnEmailID ?
-					"INSERT INTO `_user_emails`(`CombinedID`, `UID`, `PendingEmail`)"
-					. " VALUES(:combid, :uid, :pendingemail)" :
+					"INSERT INTO `_user_emails`(`CombinedID`, `UID`, `PendingEmail`, `IsPrivate`)"
+					. " VALUES(:combid, :uid, :email, :isprv)" :
 					"UPDATE `_user_emails` SET"
-					. " `PendingEmail`=:pendingemail"
+					. " `PendingEmail`=:email"
+					. ", `IsPrivate`=:isprv"
 					. " WHERE `CombinedID`=:combid"
 			)
 			, array(
 				':combid' => $this->hdnEmailID? : $CombinedID,
 				':uid' => $owner->drUser->ID,
-				':pendingemail' => !$drEditingEmail || $drEditingEmail['Email'] != $this->txtEmail ?
+				':email' => !$drEditingEmail || $drEditingEmail['Email'] != $this->txtEmail ?
 						$this->txtEmail :
 						null,
+				':isprv' => $this->chkIsPrivate
 			)
 		);
 		if (!$drEditingEmail || $drEditingEmail['Email'] != $this->txtEmail) {
@@ -256,6 +260,7 @@ class Info_Emails extends \Base\FormModelBehavior {
 			$arrAttrs = array(
 				'hdnEmailID' => $drEmails['CombinedID'],
 				'txtEmail' => $drEmails['Email'],
+				'chkIsPrivate' => $drEmails['IsPrivate'],
 			);
 			$owner->attributes = $arrAttrs;
 			$this->_IsPrimaryEmailEdit = $drEmails['IsPrimary'];

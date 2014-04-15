@@ -30,8 +30,6 @@ function MyAutoComplete(jqObj, options, isMulti, isAjax, intMinLen, ReturnACOpts
 	}
 	if (options.appendTo)
 		opt.appendTo = options.appendTo
-	if (options.select)
-		opt.select = options.select
 	if (isMulti) {
 		jqObj.keydown(function(event) {
 			if (event.keyCode === $.ui.keyCode.TAB && $(this).data("autocomplete").menu.active)
@@ -41,8 +39,6 @@ function MyAutoComplete(jqObj, options, isMulti, isAjax, intMinLen, ReturnACOpts
 			return false;
 		}
 		opt.select = function(event, ui) {
-			if (options.select && options.select(event, ui) === false)
-				return
 			var terms = split(this.value);
 			terms.pop();
 			terms.push(ui.item.value);
@@ -75,7 +71,7 @@ function MyAutoComplete(jqObj, options, isMulti, isAjax, intMinLen, ReturnACOpts
 							$a.attr({'target': '_blank', 'href': $BlankTargets.attr('rel').find2find_substr('__btarget:', ' ')}).unbind('click')
 					})
 					$uiac.css('width', 'auto')
-//					SuperBox_Reconstruct()
+					SuperBox_Reconstruct()
 				}, 100)
 			}
 			$.getJSON(options.source, {

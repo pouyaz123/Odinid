@@ -31,7 +31,7 @@ class ProfileController extends \Site\Components\BaseController {
 //			),
 			'about' => '\Site\controllers\Profile\About',
 			'editinfo' => '\Site\controllers\Profile\EditInfo',
-			'settings' => '\Site\controllers\Profile\Settings',
+			'setting' => '\Site\controllers\Profile\Setting',
 			#
 			'editcontacts' => '\Site\controllers\Profile\EditContacts',
 			'editemails' => '\Site\controllers\Profile\EditEmails',

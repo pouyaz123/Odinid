@@ -54,8 +54,8 @@ final class User extends Base {
 	//---- residency
 	public $ResidencyVisa = array('max' => 50);
 	//---- resume
-	public $ExperienceSalaryAmount = array('max' => 5);
-	public $ExperienceTBALayoff = array('max' => 3);
-	public $ExperienceRetirementAccountPercent = array('max' => 3);
+	public $ExperienceSalaryAmount = array('max' => 99999);
+	public $ExperienceTBALayoff = array('max' => 999);
+	public $ExperienceRetirementAccountPercent = array('max' => 999);
 
 }

@@ -33,6 +33,53 @@
 							, $form->labelEx($Model, 'txtCompanyURL')
 							, $form->error($Model, 'txtCompanyURL'))
 					?>
+					<script>
+_t.RunScriptAfterLoad('tagit/tag-it.min', function() {
+	_t.RunScriptAfterLoad('MyJuiAutoComplete/MyAutoComplete', function() {
+		function TagStartup($obj) {
+			$($obj).next('ul').find('a').attr('rel', 'AjaxExcept')
+		}
+		var $obj = $('#UserExperiences_txtCompanyTitle')
+				, ACOpts = MyAutoComplete(
+						$obj, {
+							source: '<?= Tools\HTTP::URL_InsertGetParams($_SERVER['REQUEST_URI'], "__AjaxPostKW=AutoComplete_UserExperiences_txtCompanyTitle") ?>'
+							, select: function(e, ui) {
+								if (ui.item.label) {
+									var dr = $.parseJSON($(ui.item.label).attr('rel'))
+									if (dr['ID'])
+										$('#UserExperiences_hdnCompanyID').attr('value', dr['ID'])
+									if (dr['URL'])
+										$('#UserExperiences_txtCompanyURL').tagit('createTag', dr['URL'])
+								}
+							}
+						}, 0, 1, 1, 1)
+
+		$obj.tagit({
+			allowSpaces: true
+			, autocomplete: ACOpts
+			, tagLimit: 1
+			, afterTagAdded: function(e, ui) {
+				TagStartup($(this))
+			}
+			, afterTagRemoved: function() {
+				$('#UserExperiences_txtCompanyURL').tagit('removeAll')
+				$('#UserExperiences_hdnCompanyID').attr('value', '')
+			}
+		})
+		TagStartup($obj)
+		TagStartup($('#UserExperiences_txtCompanyURL').tagit({
+			allowSpaces: true
+			, tagLimit: 1
+			, afterTagAdded: function(e, ui) {
+				TagStartup($(this))
+			}
+			, afterTagRemoved: function() {
+				$('#UserExperiences_hdnCompanyID').attr('value', '')
+			}
+		}))
+	})
+})
+					</script>
 					<?=
 					html::FieldContainer(
 							$form->textField($Model, 'txtJobTitle')
@@ -42,31 +89,6 @@
 					<?
 					$wdgGeoLocation->ActiveForm = $form;
 					echo $wdgGeoLocation;
-					?>
-					<?=
-					html::FieldContainer(
-							$form->checkBox($Model, 'chkHealthInsurance')
-							, $form->labelEx($Model, 'chkHealthInsurance')
-							, $form->error($Model, 'chkHealthInsurance'))
-					?>
-					<?=
-					html::FieldContainer(
-							$form->checkBox($Model, 'chkOvertimePay')
-							, $form->labelEx($Model, 'chkOvertimePay')
-							, $form->error($Model, 'chkOvertimePay'))
-					?>
-					<?=
-					html::FieldContainer(
-							$form->checkBox($Model, 'chkRetirementAccount')
-							, $form->labelEx($Model, 'chkRetirementAccount')
-							, $form->error($Model, 'chkRetirementAccount'))
-					?>
-					<?=
-					html::FieldContainer(
-							\html::activeComboBox($Model, $form, 'ddlLevel', $Model->arrLevels
-									, array('prompt' => '', 'rel' => \html::Combobox_NoSearchRel))
-							, $form->labelEx($Model, 'ddlLevel')
-							, $form->error($Model, 'ddlLevel'))
 					?>
 					<?=
 					html::FieldContainer(
@@ -84,6 +106,18 @@
 					?>
 					<?=
 					html::FieldContainer(
+							$form->textField($Model, 'txtSalaryAmount')
+							, $form->labelEx($Model, 'txtSalaryAmount')
+							, $form->error($Model, 'txtSalaryAmount'))
+					?>
+					<?=
+					html::FieldContainer(
+							$form->checkBox($Model, 'chkOvertimePay')
+							, $form->labelEx($Model, 'chkOvertimePay')
+							, $form->error($Model, 'chkOvertimePay'))
+					?>
+					<?=
+					html::FieldContainer(
 							\html::activeComboBox($Model, $form, 'ddlWorkCondition', $Model->arrWorkConditions
 									, array('prompt' => '', 'rel' => \html::Combobox_NoSearchRel))
 							, $form->labelEx($Model, 'ddlWorkCondition')
@@ -91,15 +125,28 @@
 					?>
 					<?=
 					html::FieldContainer(
-							$form->textField($Model, 'txtSalaryAmount')
-							, $form->labelEx($Model, 'txtSalaryAmount')
-							, $form->error($Model, 'txtSalaryAmount'))
+							\html::activeComboBox($Model, $form, 'ddlLevel', $Model->arrLevels
+									, array('prompt' => '', 'rel' => \html::Combobox_NoSearchRel))
+							, $form->labelEx($Model, 'ddlLevel')
+							, $form->error($Model, 'ddlLevel'))
+					?>
+					<?=
+					html::FieldContainer(
+							$form->checkBox($Model, 'chkHealthInsurance')
+							, $form->labelEx($Model, 'chkHealthInsurance')
+							, $form->error($Model, 'chkHealthInsurance'))
 					?>
 					<?=
 					html::FieldContainer(
 							$form->textField($Model, 'txtTBALayoff')
 							, $form->labelEx($Model, 'txtTBALayoff')
 							, $form->error($Model, 'txtTBALayoff'))
+					?>
+					<?=
+					html::FieldContainer(
+							$form->checkBox($Model, 'chkRetirementAccount')
+							, $form->labelEx($Model, 'chkRetirementAccount')
+							, $form->error($Model, 'chkRetirementAccount'))
 					?>
 					<?=
 					html::FieldContainer(

@@ -8,12 +8,12 @@ CREATE FUNCTION langs_getCreatedLangID($lang VARCHAR(50))
 RETURNS INT(10)	--check your _languages datatable to ensure about identical type
 BEGIN
 	DECLARE $langID INT(10);
-	DECLARE $tagID CHAR(15);
+-- 	DECLARE $tagID CHAR(15);
 	SET $langID = (SELECT `ID` FROM `_languages` WHERE `Language` = $lang);
 	IF ISNULL($langID) THEN
 		INSERT INTO `_languages`(`Language`) VALUES($lang);
 
-		SET $langID = mysql_insert_id();
+		SET $langID = LAST_INSERT_ID();
 -- 		SET $tagID = langs_getLangTagID($langID);
 
 -- 		UPDATE `_languages` SET `TagID` = $tagID WHERE ID = $langID;

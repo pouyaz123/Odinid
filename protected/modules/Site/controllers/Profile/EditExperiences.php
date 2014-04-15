@@ -3,6 +3,7 @@
 namespace Site\controllers\Profile;
 
 use \Site\models\User\Login;
+use Tools as T;
 
 /**
  * @author Abbas Hashemian <tondarweb@gmail.com>
@@ -11,6 +12,8 @@ class EditExperiences extends \CAction {
 
 	public function run() {
 		$this->controller->pageTitle = \t2::SitePageTitle('tr_common', \t2::Site_User('Experiences'));
+		\html::TagIt_Load();
+		\html::jqUI_AutoComplete_Load();
 
 		$Model = new \Site\models\Profile\Experiences('Add');
 		$Model->UserID = Login::GetSessionDR('ID');
@@ -36,14 +39,32 @@ class EditExperiences extends \CAction {
 			$Model->attributes = array('hdnExperienceID' => $ID);
 
 		if ($btnAdd || $btnSaveEdit) {
-			$Model->attributes = \GPCS::POST('ProfileInfo');
+			$Model->attributes = \GPCS::POST('UserExperiences');
 			$Model->Save();
 		} elseif ($btnEdit)
 			$Model->SetForm();
 		elseif ($btnDelete)
 			$Model->Delete();
-		else
-			\Base\FormModel::AjaxValidation('ProfileInfo', $Model, true);
+		else {//company name autocomplete
+			\Output::AddIn_AjaxOutput(function() {
+				$term = \GPCS::GET('term')? : \GPCS::POST('term');
+				if ($term) {
+					$dt = T\DB::GetTable("SELECT `Title`, `URL`, `ID`"
+									. " FROM `_company_info`"
+									. " WHERE `Title` LIKE CONCAT(:term, '%') ESCAPE '" . T\DB::LikeEscapeChar . "'"
+									, array(':term' => T\DB::EscapeLikeWildCards($term)));
+					if ($dt) {
+						foreach ($dt as $idx => $dr) {
+							$item = array(
+								'label' => "<div rel='" . json_encode(array('ID' => $dr['ID'], 'URL' => $dr['URL'])) . "'>{$dr['Title']}" . ($dr['URL'] ? " ({$dr['URL']})" : '') . "</div>"
+								, 'value' => $dr['Title']);
+							$dt[$idx] = $item;
+						}
+						echo json_encode($dt);
+					}
+				}
+			}, 'AutoComplete_UserExperiences_txtCompanyTitle');
+		}
 
 		$wdgGeoLocation = $this->controller->createWidget(
 				'\Widgets\GeoLocationFields\GeoLocationFields'
