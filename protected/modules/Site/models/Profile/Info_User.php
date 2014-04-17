@@ -65,7 +65,7 @@ class Info_User extends \Base\FormModelBehavior {
 				'except' => 'Delete'), $vl->UserSmallDesc),
 			array_merge(array('txtDescription', 'length',
 				'except' => 'Delete'), $vl->UserDescription),
-			//mytodo 1 : filePicture (avatar of edit user info) - cloudinary
+				//mytodo 1 : filePicture (avatar of edit user info) - cloudinary
 //			array_merge(array('filePicture', 'file',
 //				'except' => 'Delete'), $vl->UserPicture),
 		));
@@ -122,12 +122,12 @@ class Info_User extends \Base\FormModelBehavior {
 		$owner = $this->owner;
 		if ($drInfo = $owner->drInfo) {
 			$arrAttrs = array(
-				'txtBirthday' => $drInfo['Birthday'],
-				'ddlBirthdayFormat' => $drInfo['BirthdayFormat'],
-				'txtObjective' => $drInfo['Objective'],
-				'txtSmallDesc' => $drInfo['SmallDesc'],
-				'txtDescription' => $drInfo['Description'],
-				'filePicture' => $drInfo['Picture'],
+				'txtBirthday' => $drInfo->Birthday,
+				'ddlBirthdayFormat' => $drInfo->BirthdayViewFormat,
+				'txtObjective' => $drInfo->Objective,
+				'txtSmallDesc' => $drInfo->SmallDesc,
+				'txtDescription' => $drInfo->Description,
+				'filePicture' => $drInfo->Picture,
 			);
 			$owner->attributes = $arrAttrs;
 		}

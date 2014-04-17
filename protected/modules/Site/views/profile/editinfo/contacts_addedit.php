@@ -33,6 +33,12 @@
 							, $form->labelEx($Model, 'ddlPhoneType')
 							, $form->error($Model, 'ddlPhoneType'))
 					?>
+					<?=
+					html::FieldContainer(
+							$form->checkBox($Model, 'chkIsPrivate')
+							, $form->labelEx($Model, 'chkIsPrivate')
+							, $form->error($Model, 'chkIsPrivate', NULL, true))
+					?>
 					<? if ($Model->asa('Info_Company')): ?>
 						<?=
 						html::FieldContainer(

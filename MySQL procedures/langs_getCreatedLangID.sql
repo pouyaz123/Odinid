@@ -17,7 +17,7 @@ BEGIN
 -- 		SET $tagID = langs_getLangTagID($langID);
 
 -- 		UPDATE `_languages` SET `TagID` = $tagID WHERE ID = $langID;
--- 		INSERT INTO `_tags`(`TagID`, `Type`) VALUES($tagID, 'Language');
+-- 		INSERT INTO `_tags`(`TagID`, `Type`) VALUES($tagID, 'Language');	--Language type has not been added to db yet(requires Pouya decision)
 	END IF;
 	RETURN $langID;
 END//

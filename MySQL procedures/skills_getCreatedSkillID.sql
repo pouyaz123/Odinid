@@ -25,4 +25,4 @@ DELIMITER ;
 
 CREATE FUNCTION skills_getSkillTagID($skillID INT(10))
 RETURNS CHAR(15)	--check your _skills datatable to ensure about identical type
-	RETURN CONCAT('skill', $skillID);	--check your php consts to be sure about identical prefix if you have
+	RETURN CONCAT('skl', $skillID);	--check your php consts to be sure about identical prefix if you have

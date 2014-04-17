@@ -34,9 +34,9 @@ class Info_Artist extends \Base\FormModelBehavior {
 	public $txtLastName;
 	public $txtMidName;
 	public $txtArtistTitle;
-	public $chkTalentSearchVisibility;
-	public $chkRelocateInternally;
-	public $chkRelocateExternally;
+	public $chkTalentSearchVisibility = 1;
+	public $chkRelocateInternally = 0;
+	public $chkRelocateExternally = 0;
 	public $txtHireAvailabilityDate;
 	public $ddlHireAvailabilityType;
 
@@ -128,27 +128,31 @@ class Info_Artist extends \Base\FormModelBehavior {
 					array(
 						"INSERT INTO `_artist_info` SET "
 						. " `UID`=:uid"
-						. ", `Gender`=:gender"
-						. ", `FirstName`=:fn"
-						. ", `LastName`=:ln"
-						. ", `MidName`=:mn"
-						. ", `Title`=:title"
-						. ", `TalentSearchVisibility`=:tsv"
-						. ", `WouldRelocateInternally`=:ri"
-						. ", `WouldRelocateExternally`=:re"
-						. ", `HireAvailabilityDate`=:had"
-						. ", `HireAvailabilityType`=:hat"
+						. ($this->owner->scenario == 'EditBasicInfo' ?
+								", `Gender`=:gender"
+								. ", `FirstName`=:fn"
+								. ", `LastName`=:ln"
+								. ", `MidName`=:mn"
+								. ", `Title`=:title"
+								. ", `TalentSearchVisibility`=:tsv" : "")
+						. ($this->owner->scenario == 'EditAvailability' ?
+								", `WouldRelocateInternally`=:ri"
+								. ", `WouldRelocateExternally`=:re"
+								. ", `HireAvailabilityDate`=:had"
+								. ", `HireAvailabilityType`=:hat" : "")
 						. " ON DUPLICATE KEY UPDATE "
-						. " `Gender`=:gender"
-						. ", `FirstName`=:fn"
-						. ", `LastName`=:ln"
-						. ", `MidName`=:mn"
-						. ", `Title`=:title"
-						. ", `TalentSearchVisibility`=:tsv"
-						. ", `WouldRelocateInternally`=:ri"
-						. ", `WouldRelocateExternally`=:re"
-						. ", `HireAvailabilityDate`=:had"
-						. ", `HireAvailabilityType`=:hat"
+						. ($this->owner->scenario == 'EditBasicInfo' ?
+								" `Gender`=:gender"
+								. ", `FirstName`=:fn"
+								. ", `LastName`=:ln"
+								. ", `MidName`=:mn"
+								. ", `Title`=:title"
+								. ", `TalentSearchVisibility`=:tsv" : "")
+						. ($this->owner->scenario == 'EditAvailability' ?
+								" `WouldRelocateInternally`=:ri"
+								. ", `WouldRelocateExternally`=:re"
+								. ", `HireAvailabilityDate`=:had"
+								. ", `HireAvailabilityType`=:hat" : "")
 						, array(
 							':uid' => $owner->drUser->ID,
 							':gender' => $this->ddlGender? : null,
@@ -156,9 +160,9 @@ class Info_Artist extends \Base\FormModelBehavior {
 							':ln' => $this->txtLastName? : null,
 							':mn' => $this->txtMidName? : null,
 							':title' => $this->txtArtistTitle? : null,
-							':tsv' => $this->chkTalentSearchVisibility? : null,
-							':ri' => $this->chkRelocateInternally? : null,
-							':re' => $this->chkRelocateExternally? : null,
+							':tsv' => $this->chkTalentSearchVisibility? : 0,
+							':ri' => $this->chkRelocateInternally? : 0,
+							':re' => $this->chkRelocateExternally? : 0,
 							':had' => $this->txtHireAvailabilityDate? : null,
 							':hat' => $this->ddlHireAvailabilityType? : null,
 						)

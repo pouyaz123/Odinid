@@ -20,13 +20,14 @@ class Info_Contacts extends \Base\FormModelBehavior {
 
 	public function onBeforeXSSPurify_Exceptions(\CEvent $e) {
 		$e->params['arrXSSExceptions'] = array_merge($e->params['arrXSSExceptions'], array(
-			'hdnContactID, ddlPhoneType',
+			'hdnContactID, ddlPhoneType, chkIsPrivate',
 		));
 	}
 
 	public $hdnContactID;
 	public $txtPhone;
 	public $ddlPhoneType = 'Mobile';
+	public $chkIsPrivate = true;
 	//company contact
 	public $txtContactFirstName;
 	public $txtContactLastName;
@@ -60,6 +61,8 @@ class Info_Contacts extends \Base\FormModelBehavior {
 				'on' => 'Add, Edit'),
 			array('ddlPhoneType', 'in',
 				'range' => array_keys($this->arrPhoneTypes),
+				'on' => 'Add, Edit'),
+			array('chkIsPrivate', 'boolean',
 				'on' => 'Add, Edit'),
 		));
 	}
@@ -105,6 +108,7 @@ class Info_Contacts extends \Base\FormModelBehavior {
 		$e->params['arrAttrLabels'] = array_merge($e->params['arrAttrLabels'], array(
 			'txtPhone' => \t2::Site_User('Phone'),
 			'ddlPhoneType' => \t2::Site_User('Phone Type'),
+			'chkIsPrivate' => \t2::Site_User('Private'),
 			#
 			'txtContactFirstName' => \t2::Site_Company('Contact First Name'),
 			'txtContactLastName' => \t2::Site_Company('Contact Last Name'),
@@ -182,10 +186,12 @@ class Info_Contacts extends \Base\FormModelBehavior {
 					. " `CombinedID`=:id"
 					. ", `UID`=:uid"
 					. ", `Phone`=:phone"
-					. ", `PhoneType`=:phonetype" :
+					. ", `PhoneType`=:phonetype"
+					. ", `IsPrivate`=:isprv" :
 					"UPDATE `_user_contacts` SET"
 					. " `Phone`=:phone"
 					. ", `PhoneType`=:phonetype"
+					. ", `IsPrivate`=:isprv"
 					. " WHERE `CombinedID`=:id"
 			)
 			, array(
@@ -193,6 +199,7 @@ class Info_Contacts extends \Base\FormModelBehavior {
 				':uid' => $owner->drUser->ID,
 				':phone' => $this->txtPhone? : null,
 				':phonetype' => $this->txtPhone && $this->ddlPhoneType ? $this->ddlPhoneType : null,
+				':isprv' => $this->chkIsPrivate
 			)
 		);
 		if ($owner->asa('Info_Company')) {
@@ -235,6 +242,7 @@ class Info_Contacts extends \Base\FormModelBehavior {
 				'hdnContactID' => $drContact['CombinedID'],
 				'txtPhone' => $drContact['Phone'],
 				'ddlPhoneType' => $drContact['PhoneType'],
+				'chkIsPrivate' => $drContact['IsPrivate'],
 			);
 			if ($owner->asa('Info_Company')) {
 				$arrAttrs = array_merge($arrAttrs, array(

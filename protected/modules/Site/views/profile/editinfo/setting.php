@@ -32,7 +32,7 @@ if ($form = $this->beginWidget('Widgets\ActiveForm', array(
 						, $form->error($Model, 'txtUsername'))
 				?>
 				<div><?= t2::Site_User('Current username') . ' : ' . $Model->drUser['Username'] ?></div>
-				<div><?= t2::Site_User('Username change') . ' : ' . $Model->drUser['UNChangeCount'] ?></div>
+				<div><?= t2::Site_User('Username changes', array('{0}' => $Model->drUser['UNChangeCount'], '{1}' => \Site\models\Profile\Setting::MaxUsernameChanges)) ?></div>
 				<?=
 				html::FieldContainer(
 						$form->passwordField($Model, 'txtNewPassword')

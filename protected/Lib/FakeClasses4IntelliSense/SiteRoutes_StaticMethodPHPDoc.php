@@ -40,6 +40,9 @@ class Routes {
 	static function User_EditSkills($Username = null) {
 		
 	}
+	static function User_EditSoftwares($Username = null) {
+		
+	}
 
 	static function User_EditLanguages($Username = null) {
 		
@@ -49,11 +52,23 @@ class Routes {
 		
 	}
 
+	static function User_EditWorkFields($Username = null) {
+		
+	}
+
 	static function User_EditEmails($Username = null) {
 		
 	}
 
 	static function User_Setting($Username = null) {
+		
+	}
+
+	static function User_EditCertificates($Username = null) {
+		
+	}
+
+	static function User_EditAwards($Username = null) {
 		
 	}
 

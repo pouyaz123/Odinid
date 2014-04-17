@@ -7,6 +7,7 @@
 	<tr class="LstHdr">
 		<td><?= $Model->getAttributeLabel('txtPhone') ?></td>
 		<td><?= $Model->getAttributeLabel('ddlPhoneType') ?></td>
+		<td><?= $Model->getAttributeLabel('chkIsPrivate') ?></td>
 		<? if ($Model->asa('Info_Company')): ?>
 			<td><?= $Model->getAttributeLabel('txtContactFirstName') ?></td>
 			<td><?= $Model->getAttributeLabel('txtContactLastName') ?></td>
@@ -18,6 +19,7 @@
 		<tr <?= html::AltRow()?>>
 			<td><?= $dr['Phone'] ?></td>
 			<td><?= $dr['PhoneType'] ?></td>
+			<td><input type="checkbox" <?= $dr['IsPrivate'] ? "checked='checked'" : "" ?> disabled="disabled"/> </td>
 			<? if ($Model->asa('Info_Company')): ?>
 				<td><?= $dr['FirstName'] ?></td>
 				<td><?= $dr['LastName'] ?></td>

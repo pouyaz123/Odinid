@@ -13,11 +13,13 @@ class EditInfo extends \CAction {
 	public function run() {
 		$this->controller->pageTitle = \t2::SitePageTitle('tr_common'
 						, \t2::Site_User('Basic info'));
+		$FormMode = \GPCS::GET('mode');
 
-		$Model = new \Site\models\Profile\Info('Edit');
+		$Model = new \Site\models\Profile\Info($FormMode == 'availability' ? 'EditAvailability' : 'EditBasicInfo');
 		$Model->Username = Login::GetSessionDR('Username');
 
-		$Model->Attach_User();
+		if (!\GPCS::GET('mode'))
+			$Model->Attach_User();
 		switch ($Model->drUser['AccountType']) {
 			case Register::UserAccountType_Artist:
 				$Model->Attach_Artist();
@@ -34,9 +36,21 @@ class EditInfo extends \CAction {
 			$Model->SetForm();
 		}
 
+		//view file
+		if ($Model->drUser['AccountType'] === Register::UserAccountType_Artist) {
+			switch ($FormMode) {
+				case 'availability':
+					$viewFile = 'editinfo/availability';
+					break;
+				default:
+					$viewFile = 'editinfo/artist';
+					break;
+			}
+		} else {
+			$viewFile = 'editinfo/company';
+		}
 		\Output::Render($this->controller
-				, ($Model->drUser['AccountType'] === Register::UserAccountType_Artist ?
-						'editinfo/artist' : 'editinfo/company')
+				, $viewFile
 				, array(
 			'Model' => $Model,
 				)

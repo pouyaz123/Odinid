@@ -33,10 +33,17 @@ class Setting extends \Base\FormModel {
 	public $chkBlockMatureContent = 1;
 #
 	public $UserID;
-	private $_drUser = null;
 
 	public function getdrUser() {
-		return $this->_drUser;
+		static $dr = null;
+		if (!$dr) {
+			$dr = T\DB::GetRow("SELECT u.`Username`, ui.`BlockMature`, u.`UNChangeCount`"
+							. " FROM `_users` u"
+							. " INNER JOIN (SELECT 1) tmp ON u.`ID`=:uid"
+							. " LEFT JOIN `_user_info` ui ON ui.`UID`=u.`ID`"
+							, array(':uid' => $this->UserID));
+		}
+		return $dr;
 	}
 
 	public function rules() {
@@ -47,7 +54,8 @@ class Setting extends \Base\FormModel {
 			array('txtUsername', 'match', 'not' => true, 'pattern' => C\Regexp::Username_InvalidCases()),
 			array('txtUsername', 'length', 'max' => $vl->Username['max']),
 			array('txtUsername', 'IsUnique',
-				'SQL' => 'SELECT COUNT(*) FROM `_users` WHERE `Username`=:val LIMIT 1'),
+				'SQL' => 'SELECT COUNT(*) FROM `_users` WHERE `Username`=:val AND `ID`!=:id LIMIT 1'
+				, 'SQLParams' => array('id' => $this->UserID)),
 			array('txtNewPasswordRepeat', 'compare',
 				'compareAttribute' => 'txtNewPassword'),
 			array('chkBlockMatureContent', 'boolean'),
@@ -81,12 +89,16 @@ class Setting extends \Base\FormModel {
 			$this->addError('txtCurrentPassword', \t2::Site_User('Invalid password'));
 			return false;
 		}
-		$IsUNChange = ($this->txtUsername && $drUser['Username'] != $this->txtUsername && $drUser['UNChangeCount'] < self::MaxUsernameChanges);
+		$IsUNChange = ($this->txtUsername && $drUser['Username'] != $this->txtUsername);
+		if ($IsUNChange && $drUser['UNChangeCount'] >= self::MaxUsernameChanges) {
+			$IsUNChange = false;
+			$this->addError('txtUsername', \t2::Site_Common('You have reached the maximum'));
+		}
 		$Query = array();
 		if ($IsUNChange || $this->txtNewPassword) {
 			$Query[] = array(
 				"UPDATE `_users` SET "
-				. ($IsUNChange ? " `Username`=:un" : '')
+				. ($IsUNChange ? " `Username`=:un, UNChangeCount=UNChangeCount+1" : '')
 				. ($this->txtNewPassword ? ", `Password`=:pw" : '')
 				. " WHERE `ID`=:uid"
 				, array(
@@ -105,21 +117,21 @@ class Setting extends \Base\FormModel {
 				':uid' => $this->UserID,
 			)
 		);
-		T\DB::Transaction($Query);
+		if (T\DB::Transaction($Query)) {
+			if ($IsUNChange) {
+				\Site\models\User\Login::SetSessionDR('Username', $this->txtUsername);
+				T\HTTP::Redirect_Immediately($_SERVER['REQUEST_URI']);
+			}
+		}
 	}
 
 	public function SetForm() {
-		$dr = T\DB::GetRow("SELECT u.`Username`, ui.`BlockMature`, u.`UNChangeCount`"
-						. " FROM `_users` u"
-						. " INNER JOIN (SELECT 1) tmp ON u.`ID`=:uid"
-						. " LEFT JOIN `_user_info` ui ON ui.`UID`=u.`ID`"
-						, array(':uid' => $this->UserID));
+		$dr = $this->getdrUser();
 		if ($dr) {
 			$arrAttrs = array(
 				'chkBlockMatureContent' => $dr['BlockMature'],
 			);
 			$this->attributes = $arrAttrs;
-			$this->_drUser = $dr;
 		}
 	}
 

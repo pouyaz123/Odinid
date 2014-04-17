@@ -165,6 +165,10 @@ class Login extends \Base\FormModel {
 		return $Field ? (isset($dr[$Field]) ? $dr[$Field] : NULL) : $dr;
 	}
 
+	public static function SetSessionDR($Field, $Value) {
+		$_SESSION[self::SessionName][$Field] = $Value;
+	}
+
 	public static function Logout() {
 		T\UserAuthenticate::Logout(self::SessionName, self::CookieName);
 	}

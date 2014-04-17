@@ -87,30 +87,6 @@ if ($form = $this->beginWidget('Widgets\ActiveForm', array(
 						, $form->error($Model, 'chkTalentSearchVisibility'))
 				?>
 				<?=
-				html::FieldContainer(
-						$form->checkBox($Model, 'chkRelocateInternally')
-						, $form->labelEx($Model, 'chkRelocateInternally')
-						, $form->error($Model, 'chkRelocateInternally'))
-				?>
-				<?=
-				html::FieldContainer(
-						$form->checkBox($Model, 'chkRelocateExternally')
-						, $form->labelEx($Model, 'chkRelocateExternally')
-						, $form->error($Model, 'chkRelocateExternally'))
-				?>
-				<?=
-				html::FieldContainer(
-						$form->textField($Model, 'txtHireAvailabilityDate')
-						, $form->labelEx($Model, 'txtHireAvailabilityDate')
-						, $form->error($Model, 'txtHireAvailabilityDate'))
-				?>
-				<?=
-				html::FieldContainer(
-						\html::activeComboBox($Model, $form, 'ddlHireAvailabilityType', $Model->arrHireAvailabilityTypes, array('prompt' => ''))
-						, $form->labelEx($Model, 'ddlHireAvailabilityType')
-						, $form->error($Model, 'ddlHireAvailabilityType'))
-				?>
-				<?=
 				html::ButtonContainer(
 						CHtml::submitButton(\t2::Site_User('Update')
 								, array(

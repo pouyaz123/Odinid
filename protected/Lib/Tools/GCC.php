@@ -71,9 +71,19 @@ class GCC {
 //		}
 	}
 
-	static function RogueSkills() {
-		if (!T\Cache::rabbitCache()->get('GCC_Skills')) {
+	private static function RogueCacheHandler($fncJob, $GCCCacheName, $GCCCachePeriod = self::GCCPeriod) {
+		if (!T\Cache::rabbitCache()->get($GCCCacheName)) {
 			ignore_user_abort(true);
+			$fncJob();
+			T\Cache::rabbitCache()->set($GCCCacheName, 1, $GCCCachePeriod);
+			ignore_user_abort(false);
+			if (connection_status() != CONNECTION_NORMAL)
+				exit;
+		}
+	}
+
+	static function RogueSkills() {
+		self::RogueCacheHandler(function() {
 			$drWhereClause = T\DB::GetRow("SELECT "
 							. " GROUP_CONCAT(DISTINCT skl.ID SEPARATOR ' OR ID=') AS IDs"
 							. ", GROUP_CONCAT(DISTINCT skl.TagID SEPARATOR '\" OR TagID=\"') AS TagIDs"
@@ -86,19 +96,14 @@ class GCC {
 				$arrTrans = array();
 				$arrTrans[] = "DELETE FROM `_skills` WHERE ID=" . $drWhereClause['IDs'];
 				if ($drWhereClause['TagIDs'])
-					$arrTrans[] = "DELETE FROM `_tags` WHERE TagID=\"" . $drWhereClause['TagIDs'] . "\"";
+					$arrTrans[] = "DELETE FROM `_tags` WHERE TagID=\"" . $drWhereClause['TagIDs'] . "\" AND `Type`='Skill'";
 				T\DB::Transaction($arrTrans);
 			}
-			T\Cache::rabbitCache()->set('GCC_Skills', 1, self::GCCPeriod);
-			ignore_user_abort(false);
-			if (connection_status() != CONNECTION_NORMAL)
-				exit;
-		}
+		}, 'GCC_Skills');
 	}
 
 	static function RogueLanguages() {
-		if (!T\Cache::rabbitCache()->get('GCC_Languages')) {
-			ignore_user_abort(true);
+		self::RogueCacheHandler(function() {
 			$drWhereClause = T\DB::GetRow("SELECT "
 							. " GROUP_CONCAT(DISTINCT lng.ID SEPARATOR ' OR ID=') AS IDs"
 //							. ", GROUP_CONCAT(DISTINCT lng.TagID SEPARATOR '\" OR TagID=\"') AS TagIDs"
@@ -111,14 +116,50 @@ class GCC {
 				$arrTrans = array();
 				$arrTrans[] = "DELETE FROM `_languages` WHERE ID=" . $drWhereClause['IDs'];
 //				if ($drWhereClause['TagIDs'])
-//					$arrTrans[] = "DELETE FROM `_tags` WHERE TagID=\"" . $drWhereClause['TagIDs'] . "\"";
+//					$arrTrans[] = "DELETE FROM `_tags` WHERE TagID=\"" . $drWhereClause['TagIDs'] . "\" AND `Type`='Language'";	//Language type has not been added to db yet(requires Pouya decision)
 				T\DB::Transaction($arrTrans);
 			}
-			T\Cache::rabbitCache()->set('GCC_Languages', 1, self::GCCPeriod);
-			ignore_user_abort(false);
-			if (connection_status() != CONNECTION_NORMAL)
-				exit;
-		}
+		}, 'GCC_Languages');
+	}
+
+	static function RogueWorkFields() {
+		self::RogueCacheHandler(function() {
+			$drWhereClause = T\DB::GetRow("SELECT "
+							. " GROUP_CONCAT(DISTINCT wfld.ID SEPARATOR ' OR ID=') AS IDs"
+							. ", GROUP_CONCAT(DISTINCT wfld.TagID SEPARATOR '\" OR TagID=\"') AS TagIDs"
+							. " FROM `_workfields` wfld"
+							. " INNER JOIN (SELECT 1) tmp ON NOT wfld.`IsOfficial`"
+							. " LEFT JOIN (SELECT DISTINCT `WorkFieldID` FROM `_user_workfields`) uwfld"
+							. " ON uwfld.WorkFieldID=wfld.`ID`"
+							. " WHERE ISNULL(uwfld.WorkFieldID)");
+			if ($drWhereClause && $drWhereClause['IDs']) {
+				$arrTrans = array();
+				$arrTrans[] = "DELETE FROM `_workfields` WHERE ID=" . $drWhereClause['IDs'];
+				if ($drWhereClause['TagIDs'])
+					$arrTrans[] = "DELETE FROM `_tags` WHERE TagID=\"" . $drWhereClause['TagIDs'] . "\" AND `Type`='WorkField'";
+				T\DB::Transaction($arrTrans);
+			}
+		}, 'GCC_WorkFields');
+	}
+
+	static function RogueSoftwares() {
+		self::RogueCacheHandler(function() {
+			$drWhereClause = T\DB::GetRow("SELECT "
+							. " GROUP_CONCAT(DISTINCT sft.ID SEPARATOR ' OR ID=') AS IDs"
+							. ", GROUP_CONCAT(DISTINCT sft.TagID SEPARATOR '\" OR TagID=\"') AS TagIDs"
+							. " FROM `_softwares` sft"
+							. " INNER JOIN (SELECT 1) tmp ON NOT sft.`IsOfficial`"
+							. " LEFT JOIN (SELECT DISTINCT `SoftwareID` FROM `_user_softwares`) usft"
+							. " ON usft.SoftwareID=sft.`ID`"
+							. " WHERE ISNULL(usft.SoftwareID)");
+			if ($drWhereClause && $drWhereClause['IDs']) {
+				$arrTrans = array();
+				$arrTrans[] = "DELETE FROM `_softwares` WHERE ID=" . $drWhereClause['IDs'];
+				if ($drWhereClause['TagIDs'])
+					$arrTrans[] = "DELETE FROM `_tags` WHERE TagID=\"" . $drWhereClause['TagIDs'] . "\" AND `Type`='Software'";
+				T\DB::Transaction($arrTrans);
+			}
+		}, 'GCC_Softwares');
 	}
 
 }

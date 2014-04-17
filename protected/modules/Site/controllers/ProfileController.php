@@ -41,8 +41,10 @@ class ProfileController extends \Site\Components\BaseController {
 			'editresidencies' => '\Site\controllers\Profile\EditResidencies',
 			#
 			'editskills' => '\Site\controllers\Profile\EditSkills',
-			'editexperiences' => '\Site\controllers\Profile\EditExperiences',
+			'editsoftwares' => '\Site\controllers\Profile\EditSoftwares',
 			'editlanguages' => '\Site\controllers\Profile\EditLanguages',
+			'editexperiences' => '\Site\controllers\Profile\EditExperiences',
+			'editworkfields' => '\Site\controllers\Profile\EditWorkFields',
 		);
 	}
 

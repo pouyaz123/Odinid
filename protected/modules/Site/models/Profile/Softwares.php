@@ -8,43 +8,43 @@ use \Tools as T;
 /**
  * Set ::$UserID statically<br>
  * create multiple of this model (like a tabular form). Set attrs and call ->PushTransaction for each one<br>
- * finally by calling Skills::Commit statically all transactions will be committed if the validation result was valid (validation is automatically)<br>
+ * finally by calling Softwares::Commit statically all transactions will be committed if the validation result was valid (validation is automatically)<br>
  * @author Abbas Ali Hashemian <info@namedin.com> <tondarweb@gmail.com> http://webdesignir.com
  * @package Odinid
  * @version 1
  * @copyright (c) Odinid
  * @access public
  * @property-read array $arrRates
- * @property-read array $dtSkills
- * @property string $txtSkills
+ * @property-read array $dtSoftwares
+ * @property string $txtSoftwares
  */
-class Skills extends \Base\FormModel {
+class Softwares extends \Base\FormModel {
 
 	public function getPostName() {
-		return "UserSkills";
+		return "UserSoftwares";
 	}
 
 	protected function XSSPurify_Exceptions() {
 		return "ddlRate";
 	}
 
-	public $txtSkill;
+	public $txtSoftware;
 	public $ddlRate;
-	private $_txtSkills = null;
+	private $_txtSoftwares = null;
 
-	public function gettxtSkills() {
-		$txtSkills = &$this->_txtSkills;
-		foreach ($this->dtSkills as $drSkill) {
-			$txtSkills.=',' . $drSkill['Skill'];
+	public function gettxtSoftwares() {
+		$txtSoftwares = &$this->_txtSoftwares;
+		foreach ($this->dtSoftwares as $drSoftware) {
+			$txtSoftwares.=',' . $drSoftware['Software'];
 		}
-		return $txtSkills;
+		return $txtSoftwares;
 	}
 
-	public function settxtSkills($val) {
-		$this->_txtSkills = $val;
+	public function settxtSoftwares($val) {
+		$this->_txtSoftwares = $val;
 	}
 
-	//Skill Rates
+	//Software Rates
 	const Rate_Beginner = 'Beginner';
 	const Rate_Intermediate = 'Intermediate';
 	const Rate_Advanced = 'Advanced';
@@ -62,8 +62,8 @@ class Skills extends \Base\FormModel {
 	public function rules() {
 		$vl = \ValidationLimits\User::GetInstance();
 		return array(
-			array('txtSkill, ddlRate', 'required'),
-			array_merge(array('txtSkill', 'length'), $vl->LongTitle),
+			array('txtSoftware, ddlRate', 'required'),
+			array_merge(array('txtSoftware', 'length'), $vl->LongTitle),
 			array('ddlRate', 'in'
 				, 'range' => array_keys($this->arrRates)),
 		);
@@ -71,19 +71,19 @@ class Skills extends \Base\FormModel {
 
 	public function attributeLabels() {
 		return array(
-			'txtSkills' => \t2::Site_User('Skills'),
+			'txtSoftwares' => \t2::Site_User('Softwares'),
 			'ddlRate' => \t2::Site_User('Rate'),
 		);
 	}
 
-	public function getdtSkills() {
+	public function getdtSoftwares() {
 		static $dt = null;
 		if (!$dt) {
 			$dt = T\DB::GetTable(
-							"SELECT uskl.`SelfRate`, skl.`Skill`"
-							. " FROM `_user_skills` uskl"
-							. " INNER JOIN `_skills` skl ON skl.`ID`=uskl.`SkillID`"
-							. " WHERE uskl.`UID`=:uid"
+							"SELECT usft.`SelfRate`, sft.`Software`"
+							. " FROM `_user_softwares` usft"
+							. " INNER JOIN `_softwares` sft ON sft.`ID`=usft.`SoftwareID`"
+							. " WHERE usft.`UID`=:uid"
 							, array(
 						':uid' => self::$UserID,
 							)
@@ -97,33 +97,33 @@ class Skills extends \Base\FormModel {
 	 */
 	public static $UserID = null;
 	private static $IsValid = true;
-	private static $Skills = array();
+	private static $Softwares = array();
 	private static $arrTransactions = array();
 
 	/**
-	 * Deletes the unused skills(removed skills) of the tag list<br/>
+	 * Deletes the unused Softwares(removed Softwares) of the tag list<br/>
 	 * This method is called in self::Commit()
 	 * @return void
 	 */
-	private static function DeleteUnusedSkills() {
+	private static function DeleteUnusedSoftwares() {
 		$arrParams = array();
-		foreach (self::$Skills as $idx => $item) {
-			$arrParams[":skl$idx"] = $item;
+		foreach (self::$Softwares as $idx => $item) {
+			$arrParams[":sft$idx"] = $item;
 		}
 		$RemovableIDs = T\DB::GetField(
-						"SELECT GROUP_CONCAT(skl.`ID` SEPARATOR ',') AS IDs"
-						. " FROM `_user_skills` uskl"
-						. " INNER JOIN (SELECT 1) tmp ON uskl.`UID` = :uid"
-						. " INNER JOIN `_skills` skl ON skl.`ID` = uskl.`SkillID`"
+						"SELECT GROUP_CONCAT(sft.`ID` SEPARATOR ',') AS IDs"
+						. " FROM `_user_softwares` usft"
+						. " INNER JOIN (SELECT 1) tmp ON usft.`UID` = :uid"
+						. " INNER JOIN `_softwares` sft ON sft.`ID` = usft.`SoftwareID`"
 						. (count($arrParams) ?
-								" WHERE skl.`Skill` != " . implode(' AND skl.`Skill` != ', array_keys($arrParams)) :
+								" WHERE sft.`Software` != " . implode(' AND sft.`Software` != ', array_keys($arrParams)) :
 								"")
 						, array_merge($arrParams, array(':uid' => self::$UserID)));
 		if (!$RemovableIDs)
 			return;
 		$RemovableIDs = explode(',', $RemovableIDs);
 		self::$arrTransactions[] = array(
-			"DELETE FROM `_user_skills` WHERE `UID`=:uid AND (`SkillID` = " . implode(' OR `SkillID` = ', $RemovableIDs) . ")"
+			"DELETE FROM `_user_softwares` WHERE `UID`=:uid AND (`SoftwareID` = " . implode(' OR `SoftwareID` = ', $RemovableIDs) . ")"
 			, array(
 				':uid' => self::$UserID
 			)
@@ -141,11 +141,11 @@ class Skills extends \Base\FormModel {
 		if ($UserID)
 			self::$UserID = $UserID;
 		if (!self::$UserID)
-			throw new \Err(__METHOD__, 'UserID has not been set in Skill model');
+			throw new \Err(__METHOD__, 'UserID has not been set in Softwares model');
 		if (!self::$IsValid)
 			return false;
-		self::DeleteUnusedSkills();
-		\Tools\GCC::RogueSkills();
+		self::DeleteUnusedSoftwares();
+		\Tools\GCC::RogueSoftwares();
 		if (self::$arrTransactions) {
 			$Result = T\DB::Transaction(self::$arrTransactions);
 			self::$arrTransactions = array();
@@ -162,18 +162,18 @@ class Skills extends \Base\FormModel {
 			self::$IsValid = false;
 			return false;
 		}
-		self::$Skills[] = $this->txtSkill;
+		self::$Softwares[] = $this->txtSoftware;
 		return array(
 			array(
-				"INSERT INTO `_user_skills` SET"
+				"INSERT INTO `_user_softwares` SET"
 				. " `UID`=:uid"
-				. ", `SkillID`=skills_getCreatedSkillID(:skill)"
+				. ", `SoftwareID`=softwares_getCreatedSoftwareID(:software)"
 				. ", `SelfRate`=:selfrate"
 				. " ON DUPLICATE KEY UPDATE"
 				. " `SelfRate`=:selfrate"
 				, array(
 					':uid' => self::$UserID,
-					':skill' => $this->txtSkill,
+					':software' => $this->txtSoftware,
 					':selfrate' => $this->ddlRate,
 				)
 			)

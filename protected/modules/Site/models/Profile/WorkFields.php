@@ -8,82 +8,58 @@ use \Tools as T;
 /**
  * Set ::$UserID statically<br>
  * create multiple of this model (like a tabular form). Set attrs and call ->PushTransaction for each one<br>
- * finally by calling Skills::Commit statically all transactions will be committed if the validation result was valid (validation is automatically)<br>
+ * finally by calling WorkFields::Commit statically all transactions will be committed if the validation result was valid (validation is automatically)<br>
  * @author Abbas Ali Hashemian <info@namedin.com> <tondarweb@gmail.com> http://webdesignir.com
  * @package Odinid
  * @version 1
  * @copyright (c) Odinid
  * @access public
- * @property-read array $arrRates
- * @property-read array $dtSkills
- * @property string $txtSkills
+ * @property-read array $dtWorkFields
+ * @property string $txtWorkFields
  */
-class Skills extends \Base\FormModel {
+class WorkFields extends \Base\FormModel {
 
 	public function getPostName() {
-		return "UserSkills";
+		return "UserWorkFields";
 	}
 
-	protected function XSSPurify_Exceptions() {
-		return "ddlRate";
-	}
+	public $txtWorkField;
+	private $_txtWorkFields = null;
 
-	public $txtSkill;
-	public $ddlRate;
-	private $_txtSkills = null;
-
-	public function gettxtSkills() {
-		$txtSkills = &$this->_txtSkills;
-		foreach ($this->dtSkills as $drSkill) {
-			$txtSkills.=',' . $drSkill['Skill'];
+	public function gettxtWorkFields() {
+		$txtWorkFields = &$this->_txtWorkFields;
+		foreach ($this->dtWorkFields as $drWorkField) {
+			$txtWorkFields.=',' . $drWorkField['WorkField'];
 		}
-		return $txtSkills;
+		return $txtWorkFields;
 	}
 
-	public function settxtSkills($val) {
-		$this->_txtSkills = $val;
-	}
-
-	//Skill Rates
-	const Rate_Beginner = 'Beginner';
-	const Rate_Intermediate = 'Intermediate';
-	const Rate_Advanced = 'Advanced';
-	const Rate_Expert = 'Expert';
-
-	function getarrRates() {
-		return array(
-			self::Rate_Beginner => self::Rate_Beginner,
-			self::Rate_Intermediate => self::Rate_Intermediate,
-			self::Rate_Advanced => self::Rate_Advanced,
-			self::Rate_Expert => self::Rate_Expert,
-		);
+	public function settxtWorkFields($val) {
+		$this->_txtWorkFields = $val;
 	}
 
 	public function rules() {
 		$vl = \ValidationLimits\User::GetInstance();
 		return array(
-			array('txtSkill, ddlRate', 'required'),
-			array_merge(array('txtSkill', 'length'), $vl->LongTitle),
-			array('ddlRate', 'in'
-				, 'range' => array_keys($this->arrRates)),
+			array('txtWorkField', 'required'),
+			array_merge(array('txtWorkField', 'length'), $vl->LongTitle),
 		);
 	}
 
 	public function attributeLabels() {
 		return array(
-			'txtSkills' => \t2::Site_User('Skills'),
-			'ddlRate' => \t2::Site_User('Rate'),
+			'txtWorkFields' => \t2::Site_User('Work fields'),
 		);
 	}
 
-	public function getdtSkills() {
+	public function getdtWorkFields() {
 		static $dt = null;
 		if (!$dt) {
 			$dt = T\DB::GetTable(
-							"SELECT us.`SelfRate`, skl.`Skill`"
-							. " FROM `_user_skills` us"
-							. " INNER JOIN `_skills` skl ON skl.`ID`=us.`SkillID`"
-							. " WHERE us.`UID`=:uid"
+							"SELECT wfld.`WorkField`"
+							. " FROM `_user_workfields` uwfld"
+							. " INNER JOIN `_workfields` wfld ON wfld.`ID`=uwfld.`WorkFieldID`"
+							. " WHERE uwfld.`UID`=:uid"
 							, array(
 						':uid' => self::$UserID,
 							)
@@ -97,33 +73,33 @@ class Skills extends \Base\FormModel {
 	 */
 	public static $UserID = null;
 	private static $IsValid = true;
-	private static $Skills = array();
+	private static $WorkFields = array();
 	private static $arrTransactions = array();
 
 	/**
-	 * Deletes the unused skills(removed skills) of the tag list<br/>
+	 * Deletes the unused WorkFields(removed WorkFields) of the tag list<br/>
 	 * This method is called in self::Commit()
 	 * @return void
 	 */
-	private static function DeleteUnusedSkills() {
+	private static function DeleteUnusedWorkFields() {
 		$arrParams = array();
-		foreach (self::$Skills as $idx => $item) {
-			$arrParams[":skl$idx"] = $item;
+		foreach (self::$WorkFields as $idx => $item) {
+			$arrParams[":wfld$idx"] = $item;
 		}
 		$RemovableIDs = T\DB::GetField(
-						"SELECT GROUP_CONCAT(skl.`ID` SEPARATOR ',') AS IDs"
-						. " FROM `_user_skills` us"
-						. " INNER JOIN (SELECT 1) tmp ON us.`UID` = :uid"
-						. " INNER JOIN `_skills` skl ON skl.`ID` = us.`SkillID`"
+						"SELECT GROUP_CONCAT(wfld.`ID` SEPARATOR ',') AS IDs"
+						. " FROM `_user_workfields` uwfld"
+						. " INNER JOIN (SELECT 1) tmp ON uwfld.`UID` = :uid"
+						. " INNER JOIN `_workfields` wfld ON wfld.`ID` = uwfld.`WorkFieldID`"
 						. (count($arrParams) ?
-								" WHERE skl.`Skill` != " . implode(' AND skl.`Skill` != ', array_keys($arrParams)) :
+								" WHERE wfld.`WorkField` != " . implode(' AND wfld.`WorkField` != ', array_keys($arrParams)) :
 								"")
 						, array_merge($arrParams, array(':uid' => self::$UserID)));
 		if (!$RemovableIDs)
 			return;
 		$RemovableIDs = explode(',', $RemovableIDs);
 		self::$arrTransactions[] = array(
-			"DELETE FROM `_user_skills` WHERE `UID`=:uid AND (`SkillID` = " . implode(' OR `SkillID` = ', $RemovableIDs) . ")"
+			"DELETE FROM `_user_workfields` WHERE `UID`=:uid AND (`WorkFieldID` = " . implode(' OR `WorkFieldID` = ', $RemovableIDs) . ")"
 			, array(
 				':uid' => self::$UserID
 			)
@@ -141,11 +117,11 @@ class Skills extends \Base\FormModel {
 		if ($UserID)
 			self::$UserID = $UserID;
 		if (!self::$UserID)
-			throw new \Err(__METHOD__, 'UserID has not been set in Skill model');
+			throw new \Err(__METHOD__, 'UserID has not been set in WorkField model');
 		if (!self::$IsValid)
 			return false;
-		self::DeleteUnusedSkills();
-		\Tools\GCC::RogueSkills();
+		self::DeleteUnusedWorkFields();
+		\Tools\GCC::RogueWorkFields();
 		if (self::$arrTransactions) {
 			$Result = T\DB::Transaction(self::$arrTransactions);
 			self::$arrTransactions = array();
@@ -162,19 +138,15 @@ class Skills extends \Base\FormModel {
 			self::$IsValid = false;
 			return false;
 		}
-		self::$Skills[] = $this->txtSkill;
+		self::$WorkFields[] = $this->txtWorkField;
 		return array(
 			array(
-				"INSERT INTO `_user_skills` SET"
+				"INSERT IGNORE INTO `_user_workfields` SET"
 				. " `UID`=:uid"
-				. ", `SkillID`=skills_getCreatedSkillID(:skill)"
-				. ", `SelfRate`=:selfrate"
-				. " ON DUPLICATE KEY UPDATE"
-				. " `SelfRate`=:selfrate"
+				. ", `WorkFieldID`=workFields_getCreatedWorkFieldID(:wf)"
 				, array(
 					':uid' => self::$UserID,
-					':skill' => $this->txtSkill,
-					':selfrate' => $this->ddlRate,
+					':wf' => $this->txtWorkField,
 				)
 			)
 		);

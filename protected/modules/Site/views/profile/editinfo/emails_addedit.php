@@ -27,13 +27,13 @@
 							, $form->labelEx($Model, 'txtEmail')
 							, $form->error($Model, 'txtEmail', NULL, true))
 					?>
+					<div><?= $Model->PendingEmail ? t2::Site_User('Pending email') . ' : ' . $Model->PendingEmail : '' ?></div>
 					<?=
 					html::FieldContainer(
 							$form->checkBox($Model, 'chkIsPrivate')
 							, $form->labelEx($Model, 'chkIsPrivate')
 							, $form->error($Model, 'chkIsPrivate', NULL, true))
 					?>
-					<div><?= $Model->PendingEmail ? t2::Site_User('Pending email') . ' : ' . $Model->PendingEmail : '' ?></div>
 
 					<?=
 					html::ButtonContainer(

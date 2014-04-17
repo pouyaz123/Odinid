@@ -51,7 +51,7 @@ return array_merge(
 //	'Recover' => 'Recover'
 #change password
 //	'Current username' => 'Current username',
-	'Username change' => 'Username can get changed only once',
+	'Username changes' => 'Username changes : {0} of {1}',
 //	'Current password' => 'Current password',
 //	'New password' => 'New password',
 //	'Confirm new password' => 'Confirm new password',
@@ -86,6 +86,7 @@ return array_merge(
 #
 	'Update' => 'Update',
 //	'Basic info' => 'Basic info',
+//	'Availability' => 'Availability',
 	'Setting' => 'Account setting',
 //	'Phones' => 'Phones',
 //	'Emails' => 'Emails',
@@ -94,7 +95,9 @@ return array_merge(
 //	'Work permissions' => 'Work permissions',
 //	'Web addresses' => 'Web addresses',
 //	'Experiences' => 'Experiences',
+//	'Work fields' => 'Work fields',
 //	'Skills' => 'Skills',
+//	'Softwares' => 'Softwares',
 //	'Languages' => 'Languages',
 //	'Rate' => 'Rate',
 	'TagsHelp' => 'Separate by commas(,)',
