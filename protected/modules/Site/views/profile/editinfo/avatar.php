@@ -18,8 +18,52 @@ if ($form = $this->beginWidget('Widgets\ActiveForm', array(
 	<table class="FullW">
 		<tr>
 			<td style="width: 350px">
-				<? if ($UserAvatarID = $Model->FreshAvatarID): ?>
-					<?= cl_image_tag($UserAvatarID) ?>
+				<? if ($Model->FreshAvatarID): ?>
+					<div class="UserAvatar">
+						<?=
+						cl_image_tag($Model->AvatarID, array('id' => 'imgAvatar',
+							'width' => 256))
+						?>
+					</div>
+					<?= $form->hiddenField($Model, 'hdnCropDims') ?>
+					<script>
+						_t.RunScriptAfterLoad('jcrop/jquery.Jcrop.min', function() {
+							$('#imgAvatar').Jcrop({
+							aspectRatio: 0
+									, onSelect: function(c) {
+										$('#<?= $Model->PostName ?>_hdnCropDims').attr('value', c.x + ',' + c.y + ',' + c.x2 + ',' + c.y2)
+									}
+							, onRelease: function(c) {
+								$('#<?= $Model->PostName ?>_hdnCropDims').attr('value', '')
+							}
+							}
+		<? if ($Model->drAvatar['PictureCoords']): ?>
+								, function() {
+								this.animateTo([<?= $Model->drAvatar['PictureCoords'] ?>])
+								}
+		<? endif; ?>
+							)
+						})
+					</script>
+					<?=
+					html::ButtonContainer(
+							CHtml::button(\t2::site_site('Crop')
+									, array(
+								'name' => 'btnCrop',
+								'rel' => \html::AjaxElement('#divEditInfo') . ' ' . html::OnceClick,
+									)
+					))
+					?>
+					<?=
+					html::ButtonContainer(
+							CHtml::button(\t2::site_site('Delete')
+									, array(
+								'name' => 'btnDelete',
+								'rel' => \html::AjaxElement('#divEditInfo') . ' ' . html::OnceClick,
+								'onclick' => \html::PostbackConfirm_OnClick('Are you sure?'),
+									)
+					))
+					?>
 				<? endif; ?>
 				<?=
 				html::FieldContainer(
@@ -36,18 +80,6 @@ if ($form = $this->beginWidget('Widgets\ActiveForm', array(
 								)
 				))
 				?>
-				<? if ($UserAvatarID): ?>
-					<?=
-					html::ButtonContainer(
-							CHtml::button(\t2::site_site('Delete')
-									, array(
-								'name' => 'btnDelete',
-								'rel' => \html::AjaxElement('#divEditInfo') . ' ' . html::OnceClick,
-								'onclick' => \html::PostbackConfirm_OnClick('Are you sure?'),
-									)
-					))
-					?>
-				<? endif; ?>
 			</td>
 			<td class="BtmAlign">
 				<?= $form->errorSummary($Model) ?>

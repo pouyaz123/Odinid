@@ -950,9 +950,23 @@ $.superbox.settings = {
 		self::LoadJS('cloudinary/cloudinary');
 	}
 
+	static function jCrop_Load() {
+		self::LoadJS('jcrop/jquery.Jcrop.min');
+		self::LoadCSS('*/_js/jcrop/jquery.Jcrop.min.css');
+	}
+
 	static function Cloudinary_croshtmlurl() {
 		return '/_js/cloudinary/cloudinary_cors.html';
 	}
+
+	static function DatePicker_Load() {
+		self::LoadJS('jqUI/jquery.ui.widget.min');
+		self::LoadJS('jqUI/jquery.ui.datepicker.min');
+	}
+	
+//	static function DatePicker_InlineScript() {
+//		
+//	}
 
 //	static function MozillaRTL() {
 //		$UAgent = T\HTTP::RequestHeaders('User-Agent');

@@ -84,9 +84,10 @@ return array_merge(
 //	'txtTBALayoff' => \t2::Site_User('Layoff days (TBA)'),
 //	'txtRetirementPercent' => \t2::Site_User('Retirement percent'),
 #
-	'Update' => 'Update',
-	'Upload' => 'Upload',
-	'Delete' => 'Delete',
+//	'Update' => 'Update',
+//	'Upload' => 'Upload',
+//	'Crop' => 'Crop',
+//	'Delete' => 'Delete',
 //	'Basic info' => 'Basic info',
 //	'Avatar' => 'Avatar',
 //	'Availability' => 'Availability',
@@ -98,12 +99,18 @@ return array_merge(
 //	'Work permissions' => 'Work permissions',
 //	'Web addresses' => 'Web addresses',
 //	'Experiences' => 'Experiences',
+//	'Certificates' => 'Certificates',
 //	'Work fields' => 'Work fields',
 //	'Skills' => 'Skills',
 //	'Softwares' => 'Softwares',
 //	'Languages' => 'Languages',
 //	'Rate' => 'Rate',
 	'TagsHelp' => 'Separate by commas(,)',
+//	'Description' => 'Description',
+//	'Date' => 'Date',
+//	'From date' => 'From date',
+//	'To date' => 'To date',
+//	'To present' => 'To present',
 //	
 //	'Country' => 'Country',
 	'Division' => 'State | Province | Territory',
@@ -120,7 +127,7 @@ return array_merge(
 //	'Primary' => 'Primary',
 	'Company has been claimed previously' => 'This company with this domain has been claimed previously!',
 //	'The url's domain doesn't match to your email domain' => 'The url's domain doesn't match to your email domain'
-//	'Company web URL' => 'Company web URL'
+//	'Web URL' => 'Web URL'
 //	'ddlOperatingStatus' => \t2::Site_Company('Operating Status'),
 //	'ddlHowManyStaffs' => \t2::Site_Company('How Many Staffs'),
 //	'txtContactFirstName' => \t2::Site_Company('Contact First Name'),

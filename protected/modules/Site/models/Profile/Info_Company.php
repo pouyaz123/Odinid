@@ -71,7 +71,7 @@ class Info_Company extends \Base\FormModelBehavior {
 	public function onBeforeAttributeLabels(\CEvent $e) {
 		$e->params['arrAttrLabels'] = array_merge($e->params['arrAttrLabels'], array(
 			'txtCompanyTitle' => \t2::site_site('Title'),
-			'txtCompanyURL' => \t2::site_site('Company web URL'),
+			'txtCompanyURL' => \t2::site_site('Web URL'),
 			'ddlOperatingStatus' => \t2::site_site('Operating Status'),
 			'ddlHowManyStaffs' => \t2::site_site('How Many Staffs'),
 		));

@@ -61,6 +61,10 @@ class Experiences extends \Base\FormModel {
 	public $txtCountry;
 	public $txtDivision;
 	public $txtCity;
+	public $txtFromDate;
+	public $txtToDate;
+	public $chkToPresent;
+	public $txtDescription;
 	#
 	public $UserID;
 
@@ -129,6 +133,12 @@ class Experiences extends \Base\FormModel {
 				'SQL' => 'SELECT COUNT(*) FROM `_user_experiences` WHERE `CombinedID`=:val',
 				'on' => 'Edit, Delete'),
 			#
+			array('txtFromDate, txtToDate', 'date',
+				'format' => C\Regexp::DateFormat_Yii_FullDigit,
+				'on' => 'Add, Edit'),
+			array_merge(array('txtDescription', 'length',
+				'on' => 'Add, Edit'), $vl->Description),
+			#
 			array('txtCompanyTitle, txtJobTitle', 'required'
 				, 'on' => 'Add, Edit'),
 			array('txtCompanyURL', 'url',
@@ -138,7 +148,7 @@ class Experiences extends \Base\FormModel {
 			array_merge(array('txtCompanyTitle, txtJobTitle', 'length'
 				, 'on' => 'Add, Edit'), $vl->Title),
 			#
-			array('chkHealthInsurance, chkOvertimePay, chkRetirementAccount', 'boolean'
+			array('chkHealthInsurance, chkOvertimePay, chkRetirementAccount, chkToPresent', 'boolean'
 				, 'on' => 'Add, Edit'),
 			#
 			array_merge(array('txtSalaryAmount', 'numerical'
@@ -172,6 +182,10 @@ class Experiences extends \Base\FormModel {
 				'on' => 'Add, Edit'), $vl->City),
 		);
 	}
+	
+	public function ValidateDate($attr) {
+//		if($this->$attr && strtotime($this->$attr)>)
+	}
 
 	public function attributeLabels() {
 		return array(
@@ -183,7 +197,7 @@ class Experiences extends \Base\FormModel {
 			'ddlSalaryType' => \t2::General('Salary type'),
 			'ddlWorkCondition' => \t2::site_site('Work condition'),
 			'txtCompanyTitle' => \t2::site_site('Company title'),
-			'txtCompanyURL' => \t2::site_site('Company web URL'),
+			'txtCompanyURL' => \t2::site_site('Web URL'),
 			'txtJobTitle' => \t2::site_site('Job title'),
 			'txtSalaryAmount' => \t2::site_site('Salary amount'),
 			'txtTBALayoff' => \t2::site_site('Layoff days (TBA)'),
@@ -195,6 +209,11 @@ class Experiences extends \Base\FormModel {
 			'txtCountry' => \t2::site_site('Country'),
 			'txtDivision' => \t2::site_site('Division'),
 			'txtCity' => \t2::site_site('City'),
+			#
+			'txtFromDate' => \t2::site_site('From date'),
+			'txtToDate' => \t2::site_site('To date'),
+			'chkToPresent' => \t2::site_site('To present'),
+			'txtDescription' => \t2::site_site('Description'),
 		);
 	}
 
@@ -249,14 +268,16 @@ class Experiences extends \Base\FormModel {
 					. ", `TBALayoff`, `HealthInsurance`, `OvertimePay`, `WorkCondition`"
 					. ", `RetirementAccount`, `RAPercent`"
 					. ", `GeoCountryISO2`, `GeoDivisionCode`, `GeoCityID`"
-					. ", `UserCountryID`,`UserDivisionID`, `UserCityID`)"
+					. ", `UserCountryID`,`UserDivisionID`, `UserCityID`"
+					. ", `FromDate`, `ToDate`, `ToPresent`, `Description`)"
 					. " VALUE("
 					. "($strSQLPart_ID), :uid, companies_getCreatedCompanyID(:compid, :compttl, :compdom, :compdom_escaped, :compurl)"
 					. ", :jobttl, :lvl, :emptype, :saltype, :salamount"
 					. ", :tba, :insur, :ovrtpay, :wrkcnd"
 					. ", :retaccount, :retpercent"
 					. ", @expr_CountryISO2, @expr_DivisionCombined, @expr_CityID"
-					. ", @expr_UserCountryID, @expr_UserDivisionID, @expr_UserCityID)" :
+					. ", @expr_UserCountryID, @expr_UserDivisionID, @expr_UserCityID"
+					. ", :frmdt, :todt, :toprsnt, :desc)" :
 					"UPDATE `_user_experiences` SET "
 					. " `CompanyID`=companies_getCreatedCompanyID(:compid, :compttl, :compdom, :compdom_escaped, :compurl)"
 					. ", `JobTitle`=:jobttl, `Level`=:lvl, `EmploymentType`=:emptype, `SalaryType`=:saltype, `SalaryAmount`=:salamount"
@@ -264,6 +285,7 @@ class Experiences extends \Base\FormModel {
 					. ", `RetirementAccount`=:retaccount, `RAPercent`=:retpercent"
 					. ", `GeoCountryISO2`=@expr_CountryISO2, `GeoDivisionCode`=@expr_DivisionCombined, `GeoCityID`=@expr_CityID"
 					. ", `UserCountryID`=@expr_UserCountryID, `UserDivisionID`=@expr_UserDivisionID, `UserCityID`=@expr_UserCityID"
+					. ", `FromDate`=:frmdt, `ToDate`=:todt, `ToPresent`=:toprsnt, `Description`=:desc"
 					. " WHERE `CombinedID`=:combid AND `UID`=:uid"
 			, array(
 				':combid' => $this->hdnExperienceID,
@@ -286,6 +308,10 @@ class Experiences extends \Base\FormModel {
 				':wrkcnd' => $this->ddlWorkCondition? : null,
 				':retaccount' => $this->chkRetirementAccount,
 				':retpercent' => $this->txtRetirementPercent? : null,
+				':frmdt' => $this->txtFromDate? : null,
+				':todt' => !$this->chkToPresent && $this->txtToDate ? $this->txtToDate : null,
+				':toprsnt' => $this->chkToPresent? : 0,
+				':desc' => $this->txtDescription? : null,
 			)
 		);
 		$Result = T\DB::Transaction($Queries, NULL, function(\Exception $ex) {
@@ -382,6 +408,10 @@ class Experiences extends \Base\FormModel {
 				'txtCountry' => $dr['GeoCountryISO2'] ? : $dr['Country'],
 				'txtDivision' => $dr['GeoDivisionCode'] ? : $dr['Division'],
 				'txtCity' => $dr['GeoCityID'] ? : $dr['City'],
+				'txtFromDate' => $dr['FromDate'],
+				'txtToDate' => $dr['ToDate'],
+				'chkToPresent' => $dr['ToPresent'],
+				'txtDescription' => $dr['Description'],
 			);
 			$this->attributes = $arrAttrs;
 		}

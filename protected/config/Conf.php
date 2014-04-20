@@ -36,6 +36,15 @@ class Conf {
 
 	const PHPMailer_SMTP_stream_set_timeout_On = false;
 
+	//Cloudinary
+	static function CloudinaryConfig() {
+		return array(
+			"cloud_name" => "namedin",
+			"api_key" => "188865566362569",
+			"api_secret" => "3OsA4GcO6sMy858bvD02WGerGCY"
+		);
+	}
+
 	#Cache
 	#
 	

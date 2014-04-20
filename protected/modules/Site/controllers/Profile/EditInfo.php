@@ -12,6 +12,7 @@ class EditInfo extends \CAction {
 
 	public function run() {
 		$this->controller->pageTitle = \t2::SitePageTitle(\t2::site_site('Basic info'));
+		\html::DatePicker_Load();
 		$FormMode = \GPCS::GET('mode');
 
 		$Model = new \Site\models\Profile\Info($FormMode == 'availability' ? 'EditAvailability' : 'EditBasicInfo');

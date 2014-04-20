@@ -20,8 +20,8 @@ final class User extends Base {
 //	public $RecoveryCode = array('max' => 40);
 	//---- user info
 	public $UserObjective = array('max' => 1000);
-	public $UserSmallDesc = array('max' => 255);
-	public $UserDescription = array('max' => 2000);
+	public $SmallDesc = array('max' => 255);
+	public $Description = array('max' => 2000);
 
 	function getUserPicture() {
 		$Ext = \Consts\Regexp::PictureExt;

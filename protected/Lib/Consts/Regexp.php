@@ -43,12 +43,14 @@ final class Regexp {
 	 */
 	const SimpleWords = '/^[\w\s\-\,\.\'\`\(\)]+$/';
 	const ASCIIChars_Simple = '/^[\w\s\-\,\.\:\"\'\`\~\?\/\\\(\)\[\]\{\}\=\+\*\!\@\#\$\%\^\&\<\>]+$/';
+	const CropDims='/^(\d+\,){3}\d+$/';
 	#
 //	const Number = '/^(\-?\d+(\.\d+)?)?$/';
 //	const Integer = '/^(\-\d)?\d*$/';
 	const Phone = '/^[\d\+]?[\d\s\-]*$/';
 	#
-//	const DateTime = '/^\d\d\d\d\-\d\d\-\d\d\s\d\d:\d\d:\d\d$/';
+//	const DateTime = '/^\d{4}\-\d\d\-\d\d\s\d\d:\d\d:\d\d$/';
+	const DateFormat_FullDigit = '/^\d{4}\-\d\d\-\d\d$/';
 	const DateFormat_Yii_FullDigit = 'yyyy-MM-dd';
 	#
 //	const HttpRequestHeader_ModifiedSince = '/^[\w\,\s:\+\-]+$/';

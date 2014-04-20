@@ -19,6 +19,8 @@ use \Tools as T;
  */
 class Info_User extends \Base\FormModelBehavior {
 
+	const OldestYearLimitation = 120;
+
 	public function onBeforeXSSPurify_Exceptions(\CEvent $e) {
 		$e->params['arrXSSExceptions'] = array_merge($e->params['arrXSSExceptions'], array(
 			'txtBirthday',
@@ -33,6 +35,7 @@ class Info_User extends \Base\FormModelBehavior {
 	public $txtObjective;
 	public $txtSmallDesc;
 	public $txtDescription;
+
 //	public $filePicture;	//avatar is a separated model and action
 
 	const BDFormat_1 = 'mm/dd/yy';
@@ -62,9 +65,9 @@ class Info_User extends \Base\FormModelBehavior {
 			array_merge(array('txtObjective', 'length',
 				'except' => 'Delete'), $vl->UserObjective),
 			array_merge(array('txtSmallDesc', 'length',
-				'except' => 'Delete'), $vl->UserSmallDesc),
+				'except' => 'Delete'), $vl->SmallDesc),
 			array_merge(array('txtDescription', 'length',
-				'except' => 'Delete'), $vl->UserDescription),
+				'except' => 'Delete'), $vl->Description),
 				//mytodo 1 : filePicture (avatar of edit user info) - cloudinary
 //			array_merge(array('filePicture', 'file',
 //				'except' => 'Delete'), $vl->UserPicture),

@@ -38,7 +38,7 @@ class BaseController extends \CController {
 		\Output::AddIn_GeneralOutput(function($obj) {
 			\Base\DataGrid::LoadFiles();
 
-			$lnk = function($LngCat, $Label, $Route, $arrHtmlOptions = array()) {
+			$lnk = function($Label, $Route, $arrHtmlOptions = array()) {
 				return \CHtml::link(\t2::admin_admin($Label), $Route, $arrHtmlOptions);
 			};
 			$spn = function($Lable) {

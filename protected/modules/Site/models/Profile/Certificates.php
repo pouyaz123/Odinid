@@ -16,6 +16,8 @@ use \Tools as T;
  */
 class Certificates extends \Base\FormModel {
 
+	const OldestYearLimitation = 50;
+
 	public function getPostName() {
 		return "UserCertificates";
 	}
@@ -27,6 +29,8 @@ class Certificates extends \Base\FormModel {
 	//----- attrs
 	public $hdnCertificateID;
 	public $txtTitle;
+	public $txtDate;
+	public $txtDescription;
 	#
 	public $hdnInstitutionID;
 	public $txtInstitutionTitle;
@@ -58,6 +62,11 @@ class Certificates extends \Base\FormModel {
 				'on' => 'Add, Edit'), $vl->WebAddress),
 			array_merge(array('txtInstitutionTitle, txtTitle', 'length'
 				, 'on' => 'Add, Edit'), $vl->Title),
+			array('txtDate', 'date',
+				'format' => C\Regexp::DateFormat_Yii_FullDigit,
+				'on' => 'Add, Edit'),
+			array_merge(array('txtDescription', 'length',
+				'on' => 'Add, Edit'), $vl->Description),
 			#location
 			array('ddlCountry, ddlDivision, ddlCity, txtCountry, txtDivision, txtCity', 'match',
 				'pattern' => C\Regexp::SimpleWords,
@@ -74,8 +83,10 @@ class Certificates extends \Base\FormModel {
 	public function attributeLabels() {
 		return array(
 			'txtTitle' => \t2::site_site('Title'),
+			'txtDescription' => \t2::site_site('Description'),
+			'txtDate' => \t2::site_site('Date'),
 			'txtInstitutionTitle' => \t2::site_site('Institution title'),
-			'txtInstitutionURL' => \t2::site_site('Company web URL'),
+			'txtInstitutionURL' => \t2::site_site('Web URL'),
 			#location
 			'ddlCountry' => \t2::site_site('Country'),
 			'ddlDivision' => \t2::site_site('Division'),
@@ -104,20 +115,20 @@ class Certificates extends \Base\FormModel {
 				:country
 				, :division
 				, :city
-				, @expr_CountryISO2
-				, @expr_DivisionCombined
-				, @expr_DivisionCode
-				, @expr_CityID);
+				, @cert_CountryISO2
+				, @cert_DivisionCombined
+				, @cert_DivisionCode
+				, @cert_CityID);
 			CALL geo_getUserLocationIDs(
 				:country
 				, :division
 				, :city
-				, @expr_CountryISO2
-				, @expr_DivisionCombined
-				, @expr_CityID
-				, @expr_UserCountryID
-				, @expr_UserDivisionID
-				, @expr_UserCityID)"
+				, @cert_CountryISO2
+				, @cert_DivisionCombined
+				, @cert_CityID
+				, @cert_UserCountryID
+				, @cert_UserDivisionID
+				, @cert_UserCityID)"
 			, array(
 				':country' => ($this->txtCountry? : $this->ddlCountry)? : NULL,
 				':division' => ($this->txtDivision? : $this->ddlDivision)? : NULL,
@@ -132,48 +143,34 @@ class Certificates extends \Base\FormModel {
 		$Queries[] = array(
 			!$this->hdnCertificateID ?
 					"INSERT INTO `_user_certificates`("
-					. " `CombinedID`, `UID`, `CompanyID`"
-					. ", `JobTitle`, `Level`, `EmploymentType`, `SalaryType`, `SalaryAmount`"
-					. ", `TBALayoff`, `HealthInsurance`, `OvertimePay`, `WorkCondition`"
-					. ", `RetirementAccount`, `RAPercent`"
+					. " `CombinedID`, `UID`, `InstitutionID`"
+					. ", `Title`, `Date`, `Description`"
 					. ", `GeoCountryISO2`, `GeoDivisionCode`, `GeoCityID`"
 					. ", `UserCountryID`,`UserDivisionID`, `UserCityID`)"
 					. " VALUE("
-					. "($strSQLPart_ID), :uid, companies_getCreatedCompanyID(:compid, :compttl, :compdom, :compdom_escaped, :compulr)"
-					. ", :jobttl, :lvl, :emptype, :saltype, :salamount"
-					. ", :tba, :insur, :ovrtpay, :wrkcnd"
-					. ", :retaccount, :retpercent"
-					. ", @expr_CountryISO2, @expr_DivisionCombined, @expr_CityID"
-					. ", @expr_UserCountryID, @expr_UserDivisionID, @expr_UserCityID)" :
+					. " ($strSQLPart_ID), :uid, institutions_getCreatedInstitutionID(:instid, :instttl, :instdom, :instdom_escaped, :instulr)"
+					. ", :ttl, :date, :desc"
+					. ", @cert_CountryISO2, @cert_DivisionCombined, @cert_CityID"
+					. ", @cert_UserCountryID, @cert_UserDivisionID, @cert_UserCityID)" :
 					"UPDATE `_user_certificates` SET "
-					. " `CompanyID`=companies_getCreatedCompanyID(:compid, :compttl, :compdom, :compdom_escaped, :compulr)"
-					. ", `JobTitle`=:jobttl, `Level`=:lvl, `EmploymentType`=:emptype, `SalaryType`=:saltype, `SalaryAmount`=:salamount"
-					. ", `TBALayoff`=:tba, `HealthInsurance`=:insur, `OvertimePay`=:ovrtpay, `WorkCondition`=:wrkcnd"
-					. ", `RetirementAccount`=:retaccount, `RAPercent`=:retpercent"
-					. ", `GeoCountryISO2`=@expr_CountryISO2, `GeoDivisionCode`=@expr_DivisionCombined, `GeoCityID`=@expr_CityID"
-					. ", `UserCountryID`=@expr_UserCountryID, `UserDivisionID`=@expr_UserDivisionID, `UserCityID`=@expr_UserCityID"
+					. " `InstitutionID`=institutions_getCreatedInstitutionID(:instid, :instttl, :instdom, :instdom_escaped, :instulr)"
+					. ", `Title`=:ttl, `Date`=:date, `Description`:desc"
+					. ", `GeoCountryISO2`=@cert_CountryISO2, `GeoDivisionCode`=@cert_DivisionCombined, `GeoCityID`=@cert_CityID"
+					. ", `UserCountryID`=@cert_UserCountryID, `UserDivisionID`=@cert_UserDivisionID, `UserCityID`=@cert_UserCityID"
 					. " WHERE `CombinedID`=:combid AND `UID`=:uid"
 			, array(
 				':combid' => $this->hdnCertificateID,
 				':uid' => $this->UserID,
 				#
-				':compid' => $this->hdnInstitutionID? : null,
-				':compttl' => $this->txtInstitutionTitle? : null,
-				':compdom' => $Domain? : null,
-				':compdom_escaped' => $Domain ? T\DB::EscapeLikeWildCards($Domain) : null,
-				':compulr' => $this->txtInstitutionURL? : null,
+				':instid' => $this->hdnInstitutionID? : null,
+				':instttl' => $this->txtInstitutionTitle? : null,
+				':instdom' => $Domain? : null,
+				':instdom_escaped' => $Domain ? T\DB::EscapeLikeWildCards($Domain) : null,
+				':instulr' => $this->txtInstitutionURL? : null,
 				#
-				':jobttl' => $this->txtTitle? : null,
-				':lvl' => $this->ddlLevel? : null,
-				':emptype' => $this->ddlEmploymentType? : null,
-				':saltype' => $this->ddlSalaryType? : null,
-				':salamount' => $this->txtSalaryAmount? : null,
-				':tba' => $this->txtTBALayoff? : null,
-				':insur' => $this->chkHealthInsurance,
-				':ovrtpay' => $this->chkOvertimePay,
-				':wrkcnd' => $this->ddlWorkCondition? : null,
-				':retaccount' => $this->chkRetirementAccount,
-				':retpercent' => $this->txtRetirementPercent? : null,
+				':ttl' => $this->txtTitle? : null,
+				':date' => $this->txtDate? : null,
+				':desc' => $this->txtDescription? : null,
 			)
 		);
 		$Result = T\DB::Transaction($Queries, NULL, function(\Exception $ex) {
@@ -206,21 +203,21 @@ class Certificates extends \Base\FormModel {
 		static $arrDTs = array();
 		if (!isset($arrDTs[$StaticIndex]) || $refresh) {
 			$arrDTs[$StaticIndex] = T\DB::GetTable(
-							"SELECT uexp.*"
+							"SELECT ucert.*"
 							. ", IFNULL(gc.`AsciiName`, guc.`Country`) AS Country"
 							. ", IFNULL(gd.`AsciiName`, gud.`Division`) AS Division"
 							. ", IFNULL(gct.`AsciiName`, guct.`City`) AS City"
-							. ", ci.`Title` AS CompanyTitle"
-							. ", ci.`URL` AS CompanyURL"
-							. " FROM `_user_certificates` AS uexp"
-							. " INNER JOIN (SELECT 1) tmp ON " . ($ID ? " uexp.`CombinedID`=:id AND " : '') . " UID=:uid"
-							. " LEFT JOIN `_company_info` AS ci ON ci.`ID`=uexp.CompanyID"
-							. " LEFT JOIN `_geo_countries` AS gc ON gc.`ISO2`=uexp.`GeoCountryISO2`"
-							. " LEFT JOIN `_geo_divisions` AS gd ON gd.`CombinedCode`=uexp.`GeoDivisionCode`"
-							. " LEFT JOIN `_geo_cities` AS gct ON gct.`GeonameID` =uexp.`GeoCityID`"
-							. " LEFT JOIN `_geo_user_countries` AS guc ON guc.`ID`=uexp.`UserCountryID`"
-							. " LEFT JOIN `_geo_user_divisions` AS gud ON gud.`ID`=uexp.`UserDivisionID`"
-							. " LEFT JOIN `_geo_user_cities` AS guct ON guct.`ID`=uexp.`UserCityID`"
+							. ", ins.`Title` AS InstitutionTitle"
+							. ", ins.`URL` AS InstitutionURL"
+							. " FROM `_user_certificates` AS ucert"
+							. " INNER JOIN (SELECT 1) tmp ON " . ($ID ? " ucert.`CombinedID`=:id AND " : '') . " UID=:uid"
+							. " LEFT JOIN `_institutions` AS ins ON ins.`ID`=ucert.InstitutionID"
+							. " LEFT JOIN `_geo_countries` AS gc ON gc.`ISO2`=ucert.`GeoCountryISO2`"
+							. " LEFT JOIN `_geo_divisions` AS gd ON gd.`CombinedCode`=ucert.`GeoDivisionCode`"
+							. " LEFT JOIN `_geo_cities` AS gct ON gct.`GeonameID` =ucert.`GeoCityID`"
+							. " LEFT JOIN `_geo_user_countries` AS guc ON guc.`ID`=ucert.`UserCountryID`"
+							. " LEFT JOIN `_geo_user_divisions` AS gud ON gud.`ID`=ucert.`UserDivisionID`"
+							. " LEFT JOIN `_geo_user_cities` AS guct ON guct.`ID`=ucert.`UserCityID`"
 							, array(
 						':uid' => $this->UserID,
 						':id' => $ID,
@@ -248,21 +245,13 @@ class Certificates extends \Base\FormModel {
 			$dr = $dr[0];
 			$arrAttrs = array(
 				'hdnCertificateID' => $dr['CombinedID'],
-				'hdnInstitutionID' => $dr['CompanyID'],
-				'txtTitle' => $dr['JobTitle'],
-				'ddlLevel' => $dr['Level'],
-				'ddlEmploymentType' => $dr['EmploymentType'],
-				'ddlSalaryType' => $dr['SalaryType'],
-				'txtSalaryAmount' => $dr['SalaryAmount'],
-				'txtTBALayoff' => $dr['TBALayoff'],
-				'chkHealthInsurance' => $dr['HealthInsurance'],
-				'chkOvertimePay' => $dr['OvertimePay'],
-				'ddlWorkCondition' => $dr['WorkCondition'],
-				'chkRetirementAccount' => $dr['RetirementAccount'],
-				'txtRetirementPercent' => $dr['RAPercent'],
+				'hdnInstitutionID' => $dr['InstitutionID'],
+				'txtTitle' => $dr['Title'],
+				'txtDate' => $dr['Date'],
+				'txtDescription' => $dr['Description'],
 				#
-				'txtInstitutionTitle' => $dr['CompanyTitle'],
-				'txtInstitutionURL' => $dr['CompanyURL'],
+				'txtInstitutionTitle' => $dr['InstitutionTitle'],
+				'txtInstitutionURL' => $dr['InstitutionURL'],
 				#
 				'ddlCountry' => $dr['GeoCountryISO2'] ? : ($dr['Country'] ? '_other_' : ''),
 				'ddlDivision' => $dr['GeoDivisionCode'] ? : ($dr['Division'] ? '_other_' : ''),

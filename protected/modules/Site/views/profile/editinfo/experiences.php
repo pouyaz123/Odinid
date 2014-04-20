@@ -7,6 +7,8 @@
 	<tr class="LstHdr">
 		<td><?= $Model->getAttributeLabel('txtCompanyTitle') ?></td>
 		<td><?= $Model->getAttributeLabel('txtJobTitle') ?></td>
+		<td><?= $Model->getAttributeLabel('txtFromDate') ?></td>
+		<td><?= $Model->getAttributeLabel('txtToDate') ?></td>
 		<td><?= $Model->getAttributeLabel('ddlCountry') ?></td>
 		<td><?= $Model->getAttributeLabel('chkHealthInsurance') ?></td>
 		<td><?= $Model->getAttributeLabel('chkRetirementAccount') ?></td>
@@ -22,6 +24,8 @@
 			. ($dr['SalaryType'] ? $Model->getAttributeLabel('ddlSalaryType') . ' : ' . $dr['SalaryType'] . '<br/>' : '')
 			. ($dr['SalaryAmount'] ? $Model->getAttributeLabel('txtSalaryAmount') . ' : ' . $dr['SalaryAmount'] . '<br/>' : '')
 			?>"><?= $dr['JobTitle'] ?></td>
+			<td><?= $dr['FromDate'] ?></td>
+			<td><?= $dr['ToPresent'] ? t2::site_site('Present') : $dr['ToDate'] ?></td>
 			<td title="<?= $dr['City'] . ($dr['City'] && $dr['Division'] ? ' , ' : '') . $dr['Division'] ?>"><?= $dr['Country'] ?></td>
 			<td><input type="checkbox" <?= $dr['HealthInsurance'] ? "checked='checked'" : "" ?> disabled="disabled"/> </td>
 			<td title="<?= $dr['RAPercent'] ? $Model->getAttributeLabel('txtRetirementPercent') . ' : ' . $dr['RAPercent'] . '%' : '' ?>"><input type="checkbox" <?= $dr['RetirementAccount'] ? "checked='checked'" : "" ?> disabled="disabled"/> </td>

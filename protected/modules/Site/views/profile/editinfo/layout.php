@@ -19,6 +19,7 @@
 		<?= \CHtml::link(t2::site_site('Skills'), \Site\Consts\Routes::User_EditSkills()) ?>
 		| <?= \CHtml::link(t2::site_site('Softwares'), \Site\Consts\Routes::User_EditSoftwares()) ?>
 		| <?= \CHtml::link(t2::site_site('Languages'), \Site\Consts\Routes::User_EditLanguages()) ?>
+		| <?= \CHtml::link(t2::site_site('Certificates'), \Site\Consts\Routes::User_EditCertificates()) ?>
 		| <?= \CHtml::link(t2::site_site('Experiences'), \Site\Consts\Routes::User_EditExperiences()) ?>
 		| <?= \CHtml::link(t2::site_site('Work fields'), \Site\Consts\Routes::User_EditWorkFields()) ?>
 	</div>

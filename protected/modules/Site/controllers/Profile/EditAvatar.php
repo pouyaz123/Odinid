@@ -13,6 +13,7 @@ class EditAvatar extends \CAction {
 	public function run() {
 		$this->controller->pageTitle = \t2::SitePageTitle(\t2::site_site('Avatar'));
 		\Tools\Cloudinary\Cloudinary::Load();
+		\html::jCrop_Load();
 		$Model = new \Site\models\Profile\Avatar();
 		$Model->UserID = Login::GetSessionDR('ID');
 		if (\GPCS::POST('btnUpload')) {
@@ -21,6 +22,12 @@ class EditAvatar extends \CAction {
 		} elseif (\GPCS::POST('btnDelete')) {
 			$Model->scenario = 'Delete';
 			$Model->Delete();
+		} elseif (\GPCS::POST('btnCrop')) {
+			$Model->scenario = 'Crop';
+			$Model->attributes = \GPCS::POST($Model->PostName);
+			$Model->Crop();
+		} else {
+			$Model->SetForm();
 		}
 
 		\Output::Render($this->controller

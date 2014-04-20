@@ -21,11 +21,7 @@ class Cloudinary {
 			require_once 'src/Cloudinary.php';
 			require_once 'src/Uploader.php';
 			require_once 'src/Api.php';
-			\Cloudinary::config(array(
-				"cloud_name" => "namedin",
-				"api_key" => "188865566362569",
-				"api_secret" => "3OsA4GcO6sMy858bvD02WGerGCY"
-			));
+			\Cloudinary::config(\Conf::CloudinaryConfig());
 			$Loaded = true;
 		}
 	}

@@ -55,6 +55,17 @@ if ($form = $this->beginWidget('Widgets\ActiveForm', array(
 						, $form->labelEx($Model, 'txtBirthday')
 						, $form->error($Model, 'txtBirthday'))
 				?>
+				<script>
+					$("#<?= $Model->PostName ?>_txtBirthday").datepicker({
+						showOn: "both",
+						dateFormat: 'yy-mm-dd',
+						buttonText: '<span class="ui-icon ui-icon-calendar"></span>',
+						maxDate: "+0D",
+						changeMonth: true,
+						changeYear: true,
+						yearRange: '<?= date('Y') - Site\models\Profile\Info_User::OldestYearLimitation ?>:<?= date('Y') ?>'
+							});
+				</script>
 				<?=
 				html::FieldContainer(
 						\html::activeComboBox($Model, $form, 'ddlBirthdayFormat', $Model->arrBirthdayFormats

@@ -8,15 +8,15 @@ use Tools as T;
 /**
  * @author Abbas Hashemian <tondarweb@gmail.com>
  */
-class EditExperiences extends \CAction {
+class EditCertificates extends \CAction {
 
 	public function run() {
-		$this->controller->pageTitle = \t2::SitePageTitle(\t2::site_site('Experiences'));
+		$this->controller->pageTitle = \t2::SitePageTitle(\t2::site_site('Certificates'));
 		\html::TagIt_Load();
 		\html::jqUI_AutoComplete_Load();
 		\html::DatePicker_Load();
 
-		$Model = new \Site\models\Profile\Experiences('Add');
+		$Model = new \Site\models\Profile\Certificates('Add');
 		$Model->UserID = Login::GetSessionDR('ID');
 
 		$btnAdd = \GPCS::POST('btnAdd');
@@ -31,27 +31,27 @@ class EditExperiences extends \CAction {
 		elseif ($btnDelete)
 			$Model->scenario = 'Delete';
 
-		$ID = \GPCS::POST('hdnExperienceID');
+		$ID = \GPCS::POST('hdnCertificateID');
 		if ($btnDelete && !$ID) { //Delete button of the edit form. We will not assign whole form
-			$ID = \GPCS::POST('UserExperiences');
-			$ID = $ID ? $ID['hdnExperienceID'] : $ID;
+			$ID = \GPCS::POST('UserCertificates');
+			$ID = $ID ? $ID['hdnCertificateID'] : $ID;
 		}
 		if ($ID)
-			$Model->attributes = array('hdnExperienceID' => $ID);
+			$Model->attributes = array('hdnCertificateID' => $ID);
 
 		if ($btnAdd || $btnSaveEdit) {
-			$Model->attributes = \GPCS::POST('UserExperiences');
+			$Model->attributes = \GPCS::POST('UserCertificates');
 			$Model->Save();
 		} elseif ($btnEdit)
 			$Model->SetForm();
 		elseif ($btnDelete)
 			$Model->Delete();
-		else {//company name autocomplete
+		else {//institution name autocomplete
 			\Output::AddIn_AjaxOutput(function() {
 				$term = \GPCS::GET('term')? : \GPCS::POST('term');
 				if ($term) {
 					$dt = T\DB::GetTable("SELECT `Title`, `URL`, `ID`"
-									. " FROM `_company_info`"
+									. " FROM `_institutions`"
 									. " WHERE `Title` LIKE CONCAT(:term, '%') ESCAPE '" . T\DB::LikeEscapeChar . "'"
 									, array(':term' => T\DB::EscapeLikeWildCards($term)));
 					if ($dt) {
@@ -64,7 +64,7 @@ class EditExperiences extends \CAction {
 						echo json_encode($dt);
 					}
 				}
-			}, 'AutoComplete_UserExperiences_txtCompanyTitle');
+			}, 'AutoComplete_UserCertificates_txtInstitutionTitle');
 		}
 
 		$wdgGeoLocation = $this->controller->createWidget(
@@ -84,7 +84,7 @@ class EditExperiences extends \CAction {
 		/* @var $wdgGeoLocation \Widgets\GeoLocationFields\GeoLocationFields */
 		\Output::Render($this->controller
 				, ($btnEdit ?
-						'editinfo/experiences_addedit' : 'editinfo/experiences')
+						'editinfo/certificates_addedit' : 'editinfo/certificates')
 				, array(
 			'Model' => $Model,
 			'wdgGeoLocation' => $wdgGeoLocation,

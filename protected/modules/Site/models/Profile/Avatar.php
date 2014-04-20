@@ -28,26 +28,31 @@ class Avatar extends \Base\FormModel {
 	//----- attrs
 	public $fileAvatar;
 	public $hdnCropDims;
-#
-	public $UserID;
 
-	private function CheckUserID() {
-		if (!$this->UserID)
-			throw new \Err(__METHOD__, "UserID has not been set!");
-	}
+#
+
+	public $UserID;
 
 	public function rules() {
 		$vl = \ValidationLimits\User::GetInstance();
 		return array(
 			array_merge(array('fileAvatar', 'file',
 				'on' => 'Upload'), $vl->UserPicture),
+//			array('hdnCropDims', 'required',
+//				'on' => 'Crop'),
+			array('hdnCropDims', 'match', 'pattern' => C\Regexp::CropDims),
 		);
 	}
 
 	protected function afterValidate() {
 		$this->CheckUserID();
-		if ($this->scenario == 'Delete' && !$this->AvatarID)
+		if (($this->scenario == 'Delete' || $this->scenario == 'Crop') && !$this->AvatarID)
 			$this->addError('', '');
+	}
+
+	private function CheckUserID() {
+		if (!$this->UserID)
+			throw new \Err(__METHOD__, "UserID has not been set!");
 	}
 
 	public function attributeLabels() {
@@ -57,13 +62,14 @@ class Avatar extends \Base\FormModel {
 	}
 
 	public function Upload() {
+		$this->scenario = 'Upload';
 		if (!$this->validate())
 			return false;
 		if ($this->AvatarID)
 			$this->Delete();
 		$CldR = \Cloudinary\Uploader::upload($_FILES[$this->PostName]['tmp_name']['fileAvatar']
 						, array(
-					'public_id' => $this->getAvatarID("NEW", $PicUnqID)
+					'public_id' => $this->getAvatarID("NEW", $PicUnqID, false, 1)
 						)
 		);
 		if ($CldR && $CldR['public_id']) {
@@ -82,7 +88,7 @@ class Avatar extends \Base\FormModel {
 			return false;
 		$CldR = \Cloudinary\Uploader::destroy($this->AvatarID, array('invalidate' => true));
 		if ($CldR) {
-			T\DB::Execute("UPDATE `_user_info` SET `PictureUnique`=NULL WHERE `UID`=:uid"
+			T\DB::Execute("UPDATE `_user_info` SET `PictureUnique`=NULL, `PictureCoords`=NULL WHERE `UID`=:uid"
 					, array(':uid' => $this->UserID));
 		} else {
 			\Err::TraceMsg_Method(__METHOD__, "Cloudinary delete failed!", $CldR);
@@ -90,11 +96,25 @@ class Avatar extends \Base\FormModel {
 		}
 	}
 
+	public function Crop() {
+		$this->scenario = 'Crop';
+		if (!$this->validate() || !$this->AvatarID)
+			return false;
+		T\DB::Execute("INSERT INTO `_user_info`(`UID`, `PictureCoords`)"
+				. " VALUES(:uid, :coords)"
+				. " ON DUPLICATE KEY UPDATE"
+				. " `PictureCoords`=:coords"
+				, array(
+			':uid' => $this->UserID,
+			':coords' => $this->hdnCropDims? : null,
+		));
+	}
+
 	public function getdrAvatar($Refresh = false) {
 		static $dr = null;
 		if (!$dr || $Refresh) {
 			$this->CheckUserID();
-			$dr = T\DB::GetRow("SELECT `UID`, `PictureUnique` FROM `_user_info` WHERE `UID`=:uid"
+			$dr = T\DB::GetRow("SELECT `UID`, `PictureUnique`, `PictureCoords` FROM `_user_info` WHERE `UID`=:uid"
 							, array(':uid' => $this->UserID));
 		}
 		return $dr;
@@ -102,27 +122,32 @@ class Avatar extends \Base\FormModel {
 
 	const UploadPath = 'Avatars/';
 
-	public function getAvatarID($New = false, &$Unique = null, $Refresh = false) {
-		$dr = $this->getdrAvatar($Refresh);
-		if (!$New && (!$dr || !$dr['PictureUnique']))
-			return null;
-		if ($New)
-			$Unique = uniqid();
-		return self::UploadPath . $this->UserID . '_' . ($New ? $Unique : $dr['PictureUnique']);
+	public function getAvatarID($GenerateNewOne = false, &$UniqueKey = null, $Refresh = false) {
+		static $ID = null;
+		if (!$ID || $Refresh || $GenerateNewOne) {
+			if ($GenerateNewOne)
+				$UniqueKey = uniqid(); //reference
+			else {
+				$dr = $this->getdrAvatar($Refresh);
+				if (!$dr || !$dr['PictureUnique'])
+					return null;
+			}
+			$ID = self::UploadPath . $this->UserID . '_' . ($GenerateNewOne ? $UniqueKey : $dr['PictureUnique']);
+		}
+		return $ID;
 	}
 
-	public function getFreshAvatarID() {
+	public function getFreshAvatarID(&$UnqID = null) {
 		return $this->getAvatarID(false, $UnqID, TRUE);
 	}
 
 	public function SetForm() {
-//		$dr = $this->getdrUser();
-//		if ($dr) {
-//			$arrAttrs = array(
-//				'fileAvatar' => $dr['BlockMature'],
-//			);
-//			$this->attributes = $arrAttrs;
-//		}
+		$dr = $this->getdrAvatar();
+		if ($dr) {
+			$arrAttrs = array(
+				'hdnCropDims' => $dr['PictureCoords'],
+			);
+			$this->attributes = $arrAttrs;
+		}
 	}
-
 }

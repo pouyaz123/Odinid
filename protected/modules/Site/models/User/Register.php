@@ -133,7 +133,7 @@ class Register extends \Base\FormModel {
 			#artist
 			'txtInvitationCode' => \t2::site_site('Invitation code'),
 			#Company
-			'txtCompanyURL' => \t2::site_site('Company web URL'),
+			'txtCompanyURL' => \t2::site_site('Web URL'),
 			#location
 			'ddlCountry' => \t2::site_site('Country'),
 			'ddlDivision' => \t2::site_site('Division'),
