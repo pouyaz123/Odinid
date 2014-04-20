@@ -46,7 +46,7 @@
 					?>
 					<?=
 					html::ButtonContainer(
-							CHtml::submitButton(\t2::Site_User('Reset password')
+							CHtml::submitButton(\t2::site_site('Reset password')
 									, array(
 								'name' => 'btnRecover',
 								'rel' => \html::AjaxElement('#divRecoverForm')

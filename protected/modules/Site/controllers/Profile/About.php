@@ -12,7 +12,7 @@ class About extends \CAction {
 
 	public function run() {
 		$Username = T\Basics::ucwords_ASCIISafe(\GPCS::GET('username'));
-		$this->controller->pageTitle = \t2::SitePageTitle('tr_common', \CHtml::encode($Username));
+		$this->controller->pageTitle = \t2::SitePageTitle(\CHtml::encode($Username));
 
 		$Model = new \Site\models\Profile\Info('viewInfo');
 		$Model->Username = $Username;

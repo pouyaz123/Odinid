@@ -81,19 +81,19 @@ class Msg {
 		if (!$Title) {
 			switch ($Type) {
 				case self::Prompt_Info:
-					$Title = \t2::Site_Common('Note');
+					$Title = \t2::site_site('Note');
 					break;
 				case self::Prompt_Success:
-					$Title = \t2::Site_Common('Success');
+					$Title = \t2::site_site('Success');
 					break;
 				case self::Prompt_Warning:
-					$Title = \t2::Site_Common('Warning');
+					$Title = \t2::site_site('Warning');
 					break;
 				case self::Prompt_Error:
-					$Title = \t2::Site_Common('Error');
+					$Title = \t2::site_site('Error');
 					break;
 				default :
-					$Title = \t2::Site_Common('Note');
+					$Title = \t2::site_site('Note');
 			}
 		}
 		$Title = addslashes($Title);

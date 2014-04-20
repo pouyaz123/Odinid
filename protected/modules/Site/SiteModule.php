@@ -35,7 +35,7 @@ class SiteModule extends \CWebModule {
 		\t2::InitializeTranslation(\Conf::$SiteModuleLangs);
 
 		#main title
-		\Yii::app()->name = \t2::Site_Common('Odinid');
+		\Yii::app()->name = \t2::site_site('Odinid');
 	}
 
 	/**

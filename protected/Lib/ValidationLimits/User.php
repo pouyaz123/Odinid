@@ -25,11 +25,13 @@ final class User extends Base {
 
 	function getUserPicture() {
 		$Ext = \Consts\Regexp::PictureExt;
-		return array(
-			'minSize' => 5120, 'maxSize' => 1048576, 'maxFiles' => 1,
+		$arrPicLimits = array(
+			'minSize' => 2048, 'maxSize' => 1048576, 'maxFiles' => 1,
 			'types' => $Ext ? str_replace('|', ',', $Ext) : null,
-			'mimeTypes' => $Ext ? 'image/' . str_replace('|', ',image/', $Ext) : null
 		);
+		if (extension_loaded('pecl'))
+			$arrPicLimits['mimeTypes'] = $Ext ? 'image/' . str_replace('|', ',image/', $Ext) : null;
+		return $arrPicLimits;
 	}
 
 	//---- totally common
@@ -50,7 +52,7 @@ final class User extends Base {
 	public $PostalCode = array('max' => 30);
 	//---- contact
 	public $Phone = array('max' => 25);
-	public $CustomType = array('max' => 20);//has been used for web address type
+	public $CustomType = array('max' => 20); //has been used for web address type
 	//---- residency
 	public $ResidencyVisa = array('max' => 50);
 	//---- resume

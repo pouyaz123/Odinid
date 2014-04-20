@@ -48,7 +48,7 @@ class WorkFields extends \Base\FormModel {
 
 	public function attributeLabels() {
 		return array(
-			'txtWorkFields' => \t2::Site_User('Work fields'),
+			'txtWorkFields' => \t2::site_site('Work fields'),
 		);
 	}
 

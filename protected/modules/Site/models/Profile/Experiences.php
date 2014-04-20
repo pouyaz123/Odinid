@@ -175,26 +175,26 @@ class Experiences extends \Base\FormModel {
 
 	public function attributeLabels() {
 		return array(
-			'chkHealthInsurance' => \t2::Site_User('Health insurance'),
-			'chkOvertimePay' => \t2::Site_User('Overtime pay'),
-			'chkRetirementAccount' => \t2::Site_User('Retirement account'),
-			'ddlLevel' => \t2::Site_User('Level'),
-			'ddlEmploymentType' => \t2::Site_User('Employment type'),
+			'chkHealthInsurance' => \t2::site_site('Health insurance'),
+			'chkOvertimePay' => \t2::site_site('Overtime pay'),
+			'chkRetirementAccount' => \t2::site_site('Retirement account'),
+			'ddlLevel' => \t2::site_site('Level'),
+			'ddlEmploymentType' => \t2::site_site('Employment type'),
 			'ddlSalaryType' => \t2::General('Salary type'),
-			'ddlWorkCondition' => \t2::Site_User('Work condition'),
-			'txtCompanyTitle' => \t2::Site_User('Company title'),
-			'txtCompanyURL' => \t2::Site_Company('Company web URL'),
-			'txtJobTitle' => \t2::Site_User('Job title'),
-			'txtSalaryAmount' => \t2::Site_User('Salary amount'),
-			'txtTBALayoff' => \t2::Site_User('Layoff days (TBA)'),
-			'txtRetirementPercent' => \t2::Site_User('Retirement percent'),
+			'ddlWorkCondition' => \t2::site_site('Work condition'),
+			'txtCompanyTitle' => \t2::site_site('Company title'),
+			'txtCompanyURL' => \t2::site_site('Company web URL'),
+			'txtJobTitle' => \t2::site_site('Job title'),
+			'txtSalaryAmount' => \t2::site_site('Salary amount'),
+			'txtTBALayoff' => \t2::site_site('Layoff days (TBA)'),
+			'txtRetirementPercent' => \t2::site_site('Retirement percent'),
 			#location
-			'ddlCountry' => \t2::Site_Common('Country'),
-			'ddlDivision' => \t2::Site_Common('Division'),
-			'ddlCity' => \t2::Site_Common('City'),
-			'txtCountry' => \t2::Site_Common('Country'),
-			'txtDivision' => \t2::Site_Common('Division'),
-			'txtCity' => \t2::Site_Common('City'),
+			'ddlCountry' => \t2::site_site('Country'),
+			'ddlDivision' => \t2::site_site('Division'),
+			'ddlCity' => \t2::site_site('City'),
+			'txtCountry' => \t2::site_site('Country'),
+			'txtDivision' => \t2::site_site('Division'),
+			'txtCity' => \t2::site_site('City'),
 		);
 	}
 
@@ -251,14 +251,14 @@ class Experiences extends \Base\FormModel {
 					. ", `GeoCountryISO2`, `GeoDivisionCode`, `GeoCityID`"
 					. ", `UserCountryID`,`UserDivisionID`, `UserCityID`)"
 					. " VALUE("
-					. "($strSQLPart_ID), :uid, companies_getCreatedCompanyID(:compid, :compttl, :compdom, :compdom_escaped, :compulr)"
+					. "($strSQLPart_ID), :uid, companies_getCreatedCompanyID(:compid, :compttl, :compdom, :compdom_escaped, :compurl)"
 					. ", :jobttl, :lvl, :emptype, :saltype, :salamount"
 					. ", :tba, :insur, :ovrtpay, :wrkcnd"
 					. ", :retaccount, :retpercent"
 					. ", @expr_CountryISO2, @expr_DivisionCombined, @expr_CityID"
 					. ", @expr_UserCountryID, @expr_UserDivisionID, @expr_UserCityID)" :
 					"UPDATE `_user_experiences` SET "
-					. " `CompanyID`=companies_getCreatedCompanyID(:compid, :compttl, :compdom, :compdom_escaped, :compulr)"
+					. " `CompanyID`=companies_getCreatedCompanyID(:compid, :compttl, :compdom, :compdom_escaped, :compurl)"
 					. ", `JobTitle`=:jobttl, `Level`=:lvl, `EmploymentType`=:emptype, `SalaryType`=:saltype, `SalaryAmount`=:salamount"
 					. ", `TBALayoff`=:tba, `HealthInsurance`=:insur, `OvertimePay`=:ovrtpay, `WorkCondition`=:wrkcnd"
 					. ", `RetirementAccount`=:retaccount, `RAPercent`=:retpercent"
@@ -273,7 +273,7 @@ class Experiences extends \Base\FormModel {
 				':compttl' => $this->txtCompanyTitle? : null,
 				':compdom' => $Domain? : null,
 				':compdom_escaped' => $Domain ? T\DB::EscapeLikeWildCards($Domain) : null,
-				':compulr' => $this->txtCompanyURL? : null,
+				':compurl' => $this->txtCompanyURL? : null,
 				#
 				':jobttl' => $this->txtJobTitle? : null,
 				':lvl' => $this->ddlLevel? : null,
@@ -289,7 +289,7 @@ class Experiences extends \Base\FormModel {
 			)
 		);
 		$Result = T\DB::Transaction($Queries, NULL, function(\Exception $ex) {
-					\html::ErrMsg_Exit(\t2::Site_Common('Failed! Plz retry.'));
+					\html::ErrMsg_Exit(\t2::site_site('Failed! Plz retry.'));
 				});
 		if ($Result)
 			$this->scenario = 'Edit';

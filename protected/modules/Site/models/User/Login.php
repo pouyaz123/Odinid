@@ -50,9 +50,9 @@ class Login extends \Base\FormModel {
 
 	public function attributeLabels() {
 		return array(
-			'txtUsername' => \t2::Site_User('Username'),
-			'txtPassword' => \t2::Site_User('Password'),
-			'chkRemember' => \t2::Site_User('Remember me'),
+			'txtUsername' => \t2::site_site('Username'),
+			'txtPassword' => \t2::site_site('Password'),
+			'chkRemember' => \t2::site_site('Remember me'),
 			'txtCaptcha' => \t2::General('Captcha code'),
 		);
 	}
@@ -85,9 +85,9 @@ class Login extends \Base\FormModel {
 				));
 				self::MakeItLoggedIn($drUser, $this->chkRemember, $LoginIP, $LoginTime);
 			} elseif (!$drUser)
-				$this->addError('', \t2::Site_User('Invalid username or password'));
+				$this->addError('', \t2::site_site('Invalid username or password'));
 			elseif ($drUser['Status'] !== C\User::Status_Active)
-				$this->addError('', \t2::Site_User('Plz activate your account first'));
+				$this->addError('', \t2::site_site('Plz activate your account first'));
 		}
 		return $IsTrue;
 	}

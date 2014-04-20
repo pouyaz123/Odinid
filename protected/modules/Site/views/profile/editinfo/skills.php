@@ -33,7 +33,7 @@
 							, $form->labelEx($Model, 'txtSkills')
 							, $form->error($Model, 'txtSkills'))
 					?>
-					<div><?= t2::Site_User('TagsHelp') ?></div>
+					<div><?= t2::site_site('TagsHelp') ?></div>
 					<script>
 _t.RunScriptAfterLoad('tagit/tag-it.min', function() {
 	_t.RunScriptAfterLoad('balloon/jquery.balloon.min', function() {
@@ -94,7 +94,7 @@ _t.RunScriptAfterLoad('tagit/tag-it.min', function() {
 
 					<?=
 					html::ButtonContainer(
-							CHtml::submitButton(\t2::Site_User('Edit')
+							CHtml::submitButton(\t2::site_site('Edit')
 									, array(
 								'name' => 'btnSaveEdit',
 								'rel' => \html::AjaxElement('#divEditInfo') . ' ' . \html::OnceClick,

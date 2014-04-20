@@ -88,11 +88,11 @@ class t2 {
 	 * @param type $language
 	 * @return type
 	 */
-	static function AdminPageTitle($category, $message, $params = array(), $source = null, $language = null) {
+	static function AdminPageTitle($message, $params = array(), $source = null, $language = null) {
 		self::$_AdminLoaded = true;
 		if (self::$_SiteLoaded)
 			throw new \Err(__METHOD__, self::$Err_ConflictUsage, func_get_args());
-		return self::PageTitle('Admin', $category, $message, $params, $source, $language);
+		return self::PageTitle('Admin', 'tr_admin', $message, $params, $source, $language);
 	}
 
 	/**
@@ -104,11 +104,11 @@ class t2 {
 	 * @param type $language
 	 * @return type
 	 */
-	static function SitePageTitle($category, $message, $params = array(), $source = null, $language = null) {
+	static function SitePageTitle($message, $params = array(), $source = null, $language = null) {
 		self::$_SiteLoaded = true;
 		if (self::$_AdminLoaded)
 			throw new \Err(__METHOD__, self::$Err_ConflictUsage, func_get_args());
-		return self::PageTitle('Site', $category, $message, $params, $source, $language);
+		return self::PageTitle('Site', 'tr_site', $message, $params, $source, $language);
 	}
 
 //	 * @deprecated since version 1.1 due to easy to use functions : Site_Common, ...

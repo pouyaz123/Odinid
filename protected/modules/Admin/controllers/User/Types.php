@@ -14,7 +14,7 @@ class Types extends \CAction {
 	public function run() {
 		$ctrl = $this->controller;
 		/* @var $ctrl \Admin\controllers\UserController */
-		$ctrl->pageTitle = \t2::AdminPageTitle('tr_common', 'User types');
+		$ctrl->pageTitle = \t2::AdminPageTitle('User types');
 
 		$dg = $this->DataGrid($ctrl);
 
@@ -32,7 +32,7 @@ class Types extends \CAction {
 						'chkIsDefault' => \GPCS::POST('IsDefault'),
 					);
 				};
-		$dg = \html::DataGrid_Ready1('dgTypes', 'Admin', 'tr_common')
+		$dg = \html::DataGrid_Ready1('dgTypes', 'Admin', 'tr_admin')
 				->DataKey('ID')
 				->Options(
 						\html::DataGridConfig()
@@ -42,7 +42,7 @@ class Types extends \CAction {
 				->SetColumns(
 				\html::DataGridColumn()
 				->index('t.ID')
-				->header(\t2::Admin_Common('ID'))
+				->header(\t2::admin_admin('ID'))
 				->width('50px')
 				#
 				, \html::DataGridColumn()
@@ -75,7 +75,7 @@ class Types extends \CAction {
 				#
 				, \html::DataGridColumn()
 				->index('Actions')
-				->header(\t2::Admin_Common('Actions'))
+				->header(\t2::admin_admin('Actions'))
 				->search(false)
 				->editable(FALSE)
 				->sortable(false)
@@ -91,10 +91,10 @@ class Types extends \CAction {
 									$url = \Yii::app()->createUrl(T\HTTP::URL_InsertGetParams(\Admin\Consts\Routes::User_Permissions, "TypeID={$dr['ID']}"));
 									$dt[$idx]['Actions'] = $DGP->DataGrid->GetActionColButtons($dr['ID'], "LnkBtn", $dr['IsUsed'])
 											. "<a class='LnkBtn' href='$url'
-													rel='AjaxElement:#divUserPermissions' title='" . \t2::Admin_User('Edit Permissions') . "'>
+													rel='AjaxElement:#divUserPermissions' title='" . \t2::admin_admin('Edit Permissions') . "'>
 														<img src='/_img/admin/icons/EditPermisions.gif'/>
 													</a>"
-											. ($dr['IsUsed'] ? '<div class="Info" title="' . \t2::Admin_User("In-use user types can't be removed") . '"></div>' : '');
+											. ($dr['IsUsed'] ? '<div class="Info" title="' . \t2::admin_admin("In-use user types can't be removed") . '"></div>' : '');
 								}
 							return $dt;
 						})

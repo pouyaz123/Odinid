@@ -115,17 +115,17 @@ class Info_Residencies extends \Base\FormModelBehavior {
 		$dt = $this->dtResidencies;
 		if (!$this->hdnResidencyID) {//means in add mode not edit mode
 			if (count($dt) >= T\Settings::GetValue('MaxUserResidencies'))
-				$this->owner->addError('', \t2::Site_Common('You have reached the maximum'));
+				$this->owner->addError('', \t2::site_site('You have reached the maximum'));
 			return;
 		}
 	}
 
 	public function onBeforeAttributeLabels(\CEvent $e) {
 		$e->params['arrAttrLabels'] = array_merge($e->params['arrAttrLabels'], array(
-			'ddlCountry' => \t2::Site_User('Country'),
-			'txtCountry' => \t2::Site_User('Country'),
-			'rdoResidencyStatus' => \t2::Site_User('Residency Status'),
-			'txtVisaType' => \t2::Site_User('Visa Type'),
+			'ddlCountry' => \t2::site_site('Country'),
+			'txtCountry' => \t2::site_site('Country'),
+			'rdoResidencyStatus' => \t2::site_site('Residency Status'),
+			'txtVisaType' => \t2::site_site('Visa Type'),
 		));
 	}
 

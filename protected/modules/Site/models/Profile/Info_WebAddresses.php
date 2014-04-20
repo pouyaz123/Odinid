@@ -93,16 +93,16 @@ class Info_WebAddresses extends \Base\FormModelBehavior {
 		$owner = $this->owner;
 		if (!$this->hdnWebAddrID) {//means in add mode not edit mode
 			if (count($dt) >= T\Settings::GetValue('MaxUserContacts'))
-				$owner->addError('', \t2::Site_Common('You have reached the maximum'));
+				$owner->addError('', \t2::site_site('You have reached the maximum'));
 			return;
 		}
 	}
 
 	public function onBeforeAttributeLabels(\CEvent $e) {
 		$e->params['arrAttrLabels'] = array_merge($e->params['arrAttrLabels'], array(
-			'txtWebAddress' => \t2::Site_User('Web address'),
-			'ddlWebAddrType' => \t2::Site_User('Web address type'),
-			'txtCustomType' => \t2::Site_User('Web address type'),
+			'txtWebAddress' => \t2::site_site('Web address'),
+			'ddlWebAddrType' => \t2::site_site('Web address type'),
+			'txtCustomType' => \t2::site_site('Web address type'),
 		));
 	}
 

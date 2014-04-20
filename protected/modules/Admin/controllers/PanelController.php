@@ -32,9 +32,9 @@ class PanelController extends \Admin\Components\BaseController {
 		if (\Admin\models\AdminLogin::IsLoggedIn())
 			T\HTTP::Redirect_Immediately(
 					$this->createAbsoluteUrl(\Conf::AdminHomeRoute)
-					, \t2::Admin_User("Logged in successfully"));
+					, \t2::admin_admin("Logged in successfully"));
 
-		$this->pageTitle = \t2::AdminPageTitle('tr_common', 'Login');
+		$this->pageTitle = \t2::AdminPageTitle('Login');
 
 		$Model = new \Admin\models\AdminLogin('Login');
 		$Post = \GPCS::POST('Login');
@@ -43,7 +43,7 @@ class PanelController extends \Admin\Components\BaseController {
 			if ($Model->Login()) {
 				T\HTTP::Redirect_Immediately(
 						$this->createAbsoluteUrl(\Conf::AdminHomeRoute)
-						, \t2::Admin_User("Logged in successfully"));
+						, \t2::admin_admin("Logged in successfully"));
 			}
 		}
 		\Output::Render($this, 'login', array('Model' => $Model), 'formLogin');
@@ -55,7 +55,7 @@ class PanelController extends \Admin\Components\BaseController {
 	}
 
 	public function actionCartable() {
-		$this->pageTitle = \t2::AdminPageTitle('tr_common', 'Cartable');
+		$this->pageTitle = \t2::AdminPageTitle('Cartable');
 		\html::PushStateScript();
 		$LastLoginTStamp = \Admin\models\AdminLogin::GetSessionDR('LastLoginTStamp');
 		if ($LastLoginTStamp)

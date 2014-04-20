@@ -33,7 +33,7 @@
 					?>
 					<?=
 					html::ButtonContainer(
-							CHtml::button(\t2::Site_User('Edit')
+							CHtml::button(\t2::site_site('Edit')
 									, array(
 								'name' => 'btnEdit',
 								'rel' => \html::AjaxElement('#divEditLocation', NULL, "hdnLocationID={$dr['CombinedID']}") . \html::SimpleAjaxPanel,
@@ -42,7 +42,7 @@
 					?>
 					<?=
 					html::ButtonContainer(
-							CHtml::button(\t2::Site_User('Delete')
+							CHtml::button(\t2::site_site('Delete')
 									, array(
 								'name' => 'btnDelete',
 								'rel' => \html::AjaxElement('#divEditInfo', NULL, "hdnLocationID={$dr['CombinedID']}") . ' ' . html::OnceClick,

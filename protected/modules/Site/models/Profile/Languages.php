@@ -71,8 +71,8 @@ class Languages extends \Base\FormModel {
 
 	public function attributeLabels() {
 		return array(
-			'txtLanguages' => \t2::Site_User('Languages'),
-			'ddlRate' => \t2::Site_User('Rate'),
+			'txtLanguages' => \t2::site_site('Languages'),
+			'ddlRate' => \t2::site_site('Rate'),
 		);
 	}
 

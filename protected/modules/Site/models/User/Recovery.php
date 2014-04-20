@@ -83,11 +83,11 @@ class Recovery extends \Base\FormModel {
 
 	public function attributeLabels() {
 		return array(
-			'txtRecoveryCode' => \t2::Site_User('Recovery code'),
-			'txtNewPassword' => \t2::Site_User('New password'),
-			'txtNewPasswordRepeat' => \t2::Site_User('Confirm new password'),
-			'txtEmail' => \t2::Site_User('Email'),
-			'txtEmailRepeat' => \t2::Site_User('Confirm email'),
+			'txtRecoveryCode' => \t2::site_site('Recovery code'),
+			'txtNewPassword' => \t2::site_site('New password'),
+			'txtNewPasswordRepeat' => \t2::site_site('Confirm new password'),
+			'txtEmail' => \t2::site_site('Email'),
+			'txtEmailRepeat' => \t2::site_site('Confirm email'),
 			'txtCaptcha' => \t2::General('Captcha code'),
 		);
 	}
@@ -107,7 +107,7 @@ class Recovery extends \Base\FormModel {
 		T\GCC::UserRecoveries();
 
 		if (!$this->_drRecoveryRow) {
-			$this->addError('txtRecoveryCode', \t2::Site_User('Invalid recovery code'));
+			$this->addError('txtRecoveryCode', \t2::site_site('Invalid recovery code'));
 			return false;
 		}
 		return true;
@@ -150,7 +150,7 @@ class Recovery extends \Base\FormModel {
 						)
 		);
 		if (!$Result) {
-			\html::ErrMsg_Exit(\t2::Site_Common('Failed! Plz retry.'));
+			\html::ErrMsg_Exit(\t2::site_site('Failed! Plz retry.'));
 			return FALSE;
 		} else {
 			self::SendRecoveryEmail($Code, $this->txtEmail, $drUser['Username']);
@@ -188,7 +188,7 @@ class Recovery extends \Base\FormModel {
 		$Queries[] = array("DELETE FROM `_user_recoveries` WHERE `Code`=:code"
 			, array(':code' => $this->txtRecoveryCode));
 		$Result = T\DB::Transaction($Queries, $CommonParams, function(\Exception $ex) {
-					\html::ErrMsg_Exit(\t2::Site_User('Recovery failed!'));
+					\html::ErrMsg_Exit(\t2::site_site('Recovery failed!'));
 				});
 		return $Result ? true : false;
 	}
@@ -197,7 +197,7 @@ class Recovery extends \Base\FormModel {
 		$MS = T\SendMail::GetConfiguredMailSender();
 		$MS->AddAddress($Email, $Name);
 		if (!$MS->Send2(
-						\t2::Site_User('Recovery link')
+						\t2::site_site('Recovery link')
 						, T\SendMail::GetEmailTemplate('recovery', null, array(
 							'Code' => $RecoveryCode,
 							'CodeUrl' => \Yii::app()->createAbsoluteUrl(T\HTTP::URL_InsertGetParams(\Site\Consts\Routes::UserRecoveryCode, "code=$RecoveryCode")),
@@ -207,7 +207,7 @@ class Recovery extends \Base\FormModel {
 						))
 				)) {
 			\Err::TraceMsg_Method(__METHOD__, "Failed to send the user recovery link", func_get_args());
-			\html::ErrMsg_Exit(\t2::Site_User('Failed to send recovery link!'));
+			\html::ErrMsg_Exit(\t2::site_site('Failed to send recovery link!'));
 		}
 	}
 

@@ -10,21 +10,9 @@
  * @access public
  */
 class t2 {
-	static function Site_Common($message, $params = array(), $source = null, $language = null) {
+	static function site_site($message, $params = array(), $source = null, $language = null) {
 	}
 
-	static function Site_User($message, $params = array(), $source = null, $language = null) {
-	}
-
-	static function Site_Artist($message, $params = array(), $source = null, $language = null) {
-	}
-
-	static function Site_Company($message, $params = array(), $source = null, $language = null) {
-	}
-
-	static function Admin_Common($message, $params = array(), $source = null, $language = null) {
-	}
-
-	static function Admin_User($message, $params = array(), $source = null, $language = null) {
+	static function admin_admin($message, $params = array(), $source = null, $language = null) {
 	}
 }

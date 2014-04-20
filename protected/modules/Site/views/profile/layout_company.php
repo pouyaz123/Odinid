@@ -19,7 +19,7 @@ $drCurrentLocation = $Model->drCurrentLocation;
 			<tr>
 				<td>
 					<?=
-					\t2::Site_User('User location', array(
+					\t2::site_site('User location', array(
 						'{City}' => $drCurrentLocation['City'],
 						'{Division}' => !is_numeric($drCurrentLocation['DivisionCode']) ?
 								$drCurrentLocation['DivisionCode'] : $drCurrentLocation['Division'],
@@ -52,19 +52,19 @@ $drCurrentLocation = $Model->drCurrentLocation;
 <div class="MainMenuColumn"
 	<div>
 		<div>
-			<? \t2::Site_User('Following') ?>
+			<? \t2::site_site('Following') ?>
 			<div>
 				following count here
 			</div>
 		</div>
 		<div>
-			<? \t2::Site_User('Followers') ?>
+			<? \t2::site_site('Followers') ?>
 			<div>
 				Followers count here
 			</div>
 		</div>
 		<div>
-			<? \t2::Site_User('Favorites') ?>
+			<? \t2::site_site('Favorites') ?>
 			<div>
 				Favorites count here
 			</div>

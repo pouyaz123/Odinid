@@ -43,7 +43,7 @@
 		?>
 		<?=
 		html::ButtonContainer(
-				CHtml::submitButton(\t2::Site_Common('Login')
+				CHtml::submitButton(\t2::site_site('Login')
 						, array(
 					'name' => 'btnLogin',
 					'rel' => \html::AjaxElement('#divLoginForm')

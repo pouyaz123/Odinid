@@ -11,7 +11,7 @@ use \Site\models\User\Login;
 class EditEmails extends \CAction {
 
 	public function run() {
-		$this->controller->pageTitle = \t2::SitePageTitle('tr_common', \t2::Site_User('Emails'));
+		$this->controller->pageTitle = \t2::SitePageTitle(\t2::site_site('Emails'));
 
 		$Model = new \Site\models\Profile\Info('Add');
 		$Model->Username = Login::GetSessionDR('Username');
@@ -64,7 +64,7 @@ class EditEmails extends \CAction {
 							, $Model->ActivationEmail
 							, $Model->Username
 							, false)) {
-				T\Msg::GMsg_Add(\t2::Site_User("Failed to send activation link!"), T\Msg::ErrorCSS);
+				T\Msg::GMsg_Add(\t2::site_site("Failed to send activation link!"), T\Msg::ErrorCSS);
 				T\Msg::GMsg_Show(T\Msg::Prompt_Error);
 			}
 		}

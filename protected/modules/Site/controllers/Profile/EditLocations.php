@@ -10,7 +10,7 @@ use \Site\models\User\Login;
 class EditLocations extends \CAction {
 
 	public function run() {
-		$this->controller->pageTitle = \t2::SitePageTitle('tr_common', \t2::Site_User('Locations'));
+		$this->controller->pageTitle = \t2::SitePageTitle(\t2::site_site('Locations'));
 
 		$Model = new \Site\models\Profile\Info('Add');
 		$Model->Username = Login::GetSessionDR('Username');

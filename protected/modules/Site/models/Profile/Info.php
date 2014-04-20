@@ -23,7 +23,6 @@ use \Tools as T;
  * @property string $txtObjective
  * @property string $txtSmallDesc
  * @property string $txtDescription
- * @property string $filePicture
  * -----Artist Behavior
  * @property string $ddlGender
  * @property string $txtFirstName
@@ -175,7 +174,7 @@ class Info extends \Base\FormModel_BehaviorHost {
 			$Username = &$this->Username;
 			if (!$Username || !preg_match(C\Regexp::Username, $Username) ||
 					preg_match(C\Regexp::Username_InvalidCases(), $Username))
-				throw new \CHttpException(404, \t2::Site_Common('Requested profile was not found'));
+				throw new \CHttpException(404, \t2::site_site('Requested profile was not found'));
 
 			$drUser = T\DB::Query(
 							"SELECT"
@@ -194,7 +193,7 @@ class Info extends \Base\FormModel_BehaviorHost {
 							)
 			);
 			if (!$drUser || !$drUser->count())
-				throw new \CHttpException(404, \t2::Site_Common('Requested profile was not found'));
+				throw new \CHttpException(404, \t2::site_site('Requested profile was not found'));
 			$drUser = $drUser->readObject('\Site\models\Profile\UserDataRow', array());
 		}
 		return $drUser;
@@ -224,8 +223,7 @@ class Info extends \Base\FormModel_BehaviorHost {
 									. ", ui.BirthdayViewFormat"
 									. ", ui.Objective"
 									. ", ui.SmallDesc"
-									. ", ui.Description"
-									. ", ui.Picture" : ""
+									. ", ui.Description" : ""
 							)
 							. ($Info_Artist ?
 									", ai.`Gender`"
@@ -337,7 +335,6 @@ class UserDataRow extends \Base\ConfigArray {
  * @property-read string $Objective
  * @property-read string $SmallDesc
  * @property-read string $Description
- * @property-read string $Picture
  * ----- artist information
  * @property-read string $Gender
  * @property-read string $FirstName

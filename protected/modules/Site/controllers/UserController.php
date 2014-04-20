@@ -27,9 +27,9 @@ class UserController extends \Site\Components\BaseController {
 		if (\Site\models\User\Login::IsLoggedIn())
 			T\HTTP::Redirect_Immediately(
 					$this->createAbsoluteUrl(\Conf::UserHomeRoute())
-					, \t2::Site_User("Logged in successfully"));
+					, \t2::site_site("Logged in successfully"));
 
-		$this->pageTitle = \t2::SitePageTitle('tr_common', 'Login');
+		$this->pageTitle = \t2::SitePageTitle(\t2::site_site('Login'));
 
 		$Model = new \Site\models\User\Login('Login');
 		$Post = \GPCS::POST('Login');
@@ -38,7 +38,7 @@ class UserController extends \Site\Components\BaseController {
 			if ($Model->Login()) {
 				T\HTTP::Redirect_Immediately(
 						$this->createAbsoluteUrl(\Conf::UserHomeRoute())
-						, \t2::Site_User("Logged in successfully"));
+						, \t2::site_site("Logged in successfully"));
 			}
 		}
 		\Output::Render($this, 'login', array('Model' => $Model), 'formLogin');

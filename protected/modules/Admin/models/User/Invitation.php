@@ -59,11 +59,11 @@ class Invitation extends \Base\FormModel {
 	 */
 	public function attributeLabels() {
 		return array(
-			'txtCode' => \t2::Admin_Common('Code'),
-			'ddlUserTypeID' => \t2::Admin_User('User type'),
-			'txtUserTypeExpDate' => \t2::Admin_User('User Type Expiration'),
-			'txtInvitationExpDate' => \t2::Admin_User('Invitation Expiration'),
-			'txtDescription' => \t2::Admin_Common('Description'),
+			'txtCode' => \t2::admin_admin('Code'),
+			'ddlUserTypeID' => \t2::admin_admin('User type'),
+			'txtUserTypeExpDate' => \t2::admin_admin('User Type Expiration'),
+			'txtInvitationExpDate' => \t2::admin_admin('Invitation Expiration'),
+			'txtDescription' => \t2::admin_admin('Description'),
 		);
 	}
 
@@ -126,7 +126,7 @@ class Invitation extends \Base\FormModel {
 			foreach ($IDs as $ID)
 				$Queries[] = array("DELETE FROM `_user_invitations` WHERE `ID`=:id", array(':id' => $ID));
 			T\DB::Transaction($Queries, NULL, function() {
-				\html::ErrMsg_Exit(\t2::Admin_Common('Deletion failed'));
+				\html::ErrMsg_Exit(\t2::admin_admin('Deletion failed'));
 			});
 		}
 	}

@@ -71,8 +71,8 @@ class Softwares extends \Base\FormModel {
 
 	public function attributeLabels() {
 		return array(
-			'txtSoftwares' => \t2::Site_User('Softwares'),
-			'ddlRate' => \t2::Site_User('Rate'),
+			'txtSoftwares' => \t2::site_site('Softwares'),
+			'ddlRate' => \t2::site_site('Rate'),
 		);
 	}
 

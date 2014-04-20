@@ -13,7 +13,7 @@ class Plans extends \CAction {
 	public function run() {
 		$ctrl = $this->controller;
 		/* @var $ctrl \Admin\controllers\UserController */
-		$ctrl->pageTitle = \t2::AdminPageTitle('tr_common', 'User plans');
+		$ctrl->pageTitle = \t2::AdminPageTitle('User plans');
 
 //		$dg = $this->DataGrid($ctrl);
 

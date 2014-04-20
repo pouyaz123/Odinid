@@ -21,35 +21,16 @@ class Certificates extends \Base\FormModel {
 	}
 
 	protected function XSSPurify_Exceptions() {
-		return "hdnCertificateID"
-				. ", UID"
-				. ", ddlLevel"
-				. ", ddlEmploymentType"
-				. ", ddlSalaryType"
-				. ", ddlWorkCondition"
-				. ", chkHealthInsurance"
-				. ", chkOvertimePay"
-				. ", chkRetirementAccount";
+		return "hdnCertificateID";
 	}
 
 	//----- attrs
 	public $hdnCertificateID;
-	public $chkHealthInsurance = false;
-	public $chkOvertimePay = false;
-	public $chkRetirementAccount = false;
+	public $txtTitle;
 	#
-	public $ddlLevel;
-	public $ddlEmploymentType;
-	public $ddlSalaryType;
-	public $ddlWorkCondition;
-	#
-	public $hdnCompanyID;
-	public $txtCompanyTitle;
-	public $txtCompanyURL;
-	public $txtJobTitle;
-	public $txtSalaryAmount;
-	public $txtTBALayoff;
-	public $txtRetirementPercent;
+	public $hdnInstitutionID;
+	public $txtInstitutionTitle;
+	public $txtInstitutionURL;
 	//geolocations
 	public $ddlCountry;
 	public $ddlDivision;
@@ -66,40 +47,17 @@ class Certificates extends \Base\FormModel {
 			array('hdnCertificateID', 'required',
 				'on' => 'Edit, Delete'),
 			array('hdnCertificateID', 'IsExist',
-				'SQL' => 'SELECT COUNT(*) FROM `_user_experiences` WHERE `CombinedID`=:val',
+				'SQL' => 'SELECT COUNT(*) FROM `_user_certificates` WHERE `CombinedID`=:val',
 				'on' => 'Edit, Delete'),
 			#
-			array('txtCompanyTitle, txtJobTitle', 'required'
+			array('txtInstitutionTitle, txtTitle', 'required'
 				, 'on' => 'Add, Edit'),
-			array('txtCompanyURL', 'url',
+			array('txtInstitutionURL', 'url',
 				'on' => 'Add, Edit'),
-			array_merge(array('txtCompanyURL', 'length',
+			array_merge(array('txtInstitutionURL', 'length',
 				'on' => 'Add, Edit'), $vl->WebAddress),
-			array_merge(array('txtCompanyTitle, txtJobTitle', 'length'
+			array_merge(array('txtInstitutionTitle, txtTitle', 'length'
 				, 'on' => 'Add, Edit'), $vl->Title),
-			#
-			array('chkHealthInsurance, chkOvertimePay, chkRetirementAccount', 'boolean'
-				, 'on' => 'Add, Edit'),
-			#
-			array_merge(array('txtSalaryAmount', 'numerical'
-				, 'on' => 'Add, Edit'), $vl->ExperienceSalaryAmount),
-			array_merge(array('txtTBALayoff', 'numerical'
-				, 'on' => 'Add, Edit'), $vl->ExperienceTBALayoff),
-			array_merge(array('txtRetirementPercent', 'numerical'
-				, 'on' => 'Add, Edit'), $vl->ExperienceRetirementAccountPercent),
-			#
-			array('ddlLevel', 'in'
-				, 'range' => array_keys($this->arrLevels)
-				, 'on' => 'Add, Edit'),
-			array('ddlEmploymentType', 'in'
-				, 'range' => array_keys($this->arrEmployTypes)
-				, 'on' => 'Add, Edit'),
-			array('ddlSalaryType', 'in'
-				, 'range' => array_keys($this->arrSalaryTypes)
-				, 'on' => 'Add, Edit'),
-			array('ddlWorkCondition', 'in'
-				, 'range' => array_keys($this->arrWorkConditions)
-				, 'on' => 'Add, Edit'),
 			#location
 			array('ddlCountry, ddlDivision, ddlCity, txtCountry, txtDivision, txtCity', 'match',
 				'pattern' => C\Regexp::SimpleWords,
@@ -115,26 +73,16 @@ class Certificates extends \Base\FormModel {
 
 	public function attributeLabels() {
 		return array(
-			'chkHealthInsurance' => \t2::Site_User('Health insurance'),
-			'chkOvertimePay' => \t2::Site_User('Overtime pay'),
-			'chkRetirementAccount' => \t2::Site_User('Retirement account'),
-			'ddlLevel' => \t2::Site_User('Level'),
-			'ddlEmploymentType' => \t2::Site_User('Employment type'),
-			'ddlSalaryType' => \t2::General('Salary type'),
-			'ddlWorkCondition' => \t2::Site_User('Work condition'),
-			'txtCompanyTitle' => \t2::Site_User('Company title'),
-			'txtCompanyURL' => \t2::Site_Company('Company web URL'),
-			'txtJobTitle' => \t2::Site_User('Job title'),
-			'txtSalaryAmount' => \t2::Site_User('Salary amount'),
-			'txtTBALayoff' => \t2::Site_User('Layoff days (TBA)'),
-			'txtRetirementPercent' => \t2::Site_User('Retirement percent'),
+			'txtTitle' => \t2::site_site('Title'),
+			'txtInstitutionTitle' => \t2::site_site('Institution title'),
+			'txtInstitutionURL' => \t2::site_site('Company web URL'),
 			#location
-			'ddlCountry' => \t2::Site_Common('Country'),
-			'ddlDivision' => \t2::Site_Common('Division'),
-			'ddlCity' => \t2::Site_Common('City'),
-			'txtCountry' => \t2::Site_Common('Country'),
-			'txtDivision' => \t2::Site_Common('Division'),
-			'txtCity' => \t2::Site_Common('City'),
+			'ddlCountry' => \t2::site_site('Country'),
+			'ddlDivision' => \t2::site_site('Division'),
+			'ddlCity' => \t2::site_site('City'),
+			'txtCountry' => \t2::site_site('Country'),
+			'txtDivision' => \t2::site_site('Division'),
+			'txtCity' => \t2::site_site('City'),
 		);
 	}
 
@@ -144,7 +92,7 @@ class Certificates extends \Base\FormModel {
 		$Queries = array();
 		if (!$this->hdnCertificateID) {
 			$strSQLPart_ID = T\DB::GetNewID_Combined(
-							'_user_experiences'
+							'_user_certificates'
 							, 'CombinedID'
 							, 'UID=:uid'
 							, array($this->UserID)
@@ -177,13 +125,13 @@ class Certificates extends \Base\FormModel {
 			)
 		);
 		$Domain = '';
-		if ($this->txtCompanyURL) {
-			$Domain = parse_url($this->txtCompanyURL, PHP_URL_HOST);
+		if ($this->txtInstitutionURL) {
+			$Domain = parse_url($this->txtInstitutionURL, PHP_URL_HOST);
 			$Domain = ltrim($Domain, 'www.');
 		}
 		$Queries[] = array(
 			!$this->hdnCertificateID ?
-					"INSERT INTO `_user_experiences`("
+					"INSERT INTO `_user_certificates`("
 					. " `CombinedID`, `UID`, `CompanyID`"
 					. ", `JobTitle`, `Level`, `EmploymentType`, `SalaryType`, `SalaryAmount`"
 					. ", `TBALayoff`, `HealthInsurance`, `OvertimePay`, `WorkCondition`"
@@ -197,7 +145,7 @@ class Certificates extends \Base\FormModel {
 					. ", :retaccount, :retpercent"
 					. ", @expr_CountryISO2, @expr_DivisionCombined, @expr_CityID"
 					. ", @expr_UserCountryID, @expr_UserDivisionID, @expr_UserCityID)" :
-					"UPDATE `_user_experiences` SET "
+					"UPDATE `_user_certificates` SET "
 					. " `CompanyID`=companies_getCreatedCompanyID(:compid, :compttl, :compdom, :compdom_escaped, :compulr)"
 					. ", `JobTitle`=:jobttl, `Level`=:lvl, `EmploymentType`=:emptype, `SalaryType`=:saltype, `SalaryAmount`=:salamount"
 					. ", `TBALayoff`=:tba, `HealthInsurance`=:insur, `OvertimePay`=:ovrtpay, `WorkCondition`=:wrkcnd"
@@ -209,13 +157,13 @@ class Certificates extends \Base\FormModel {
 				':combid' => $this->hdnCertificateID,
 				':uid' => $this->UserID,
 				#
-				':compid' => $this->hdnCompanyID? : null,
-				':compttl' => $this->txtCompanyTitle? : null,
+				':compid' => $this->hdnInstitutionID? : null,
+				':compttl' => $this->txtInstitutionTitle? : null,
 				':compdom' => $Domain? : null,
 				':compdom_escaped' => $Domain ? T\DB::EscapeLikeWildCards($Domain) : null,
-				':compulr' => $this->txtCompanyURL? : null,
+				':compulr' => $this->txtInstitutionURL? : null,
 				#
-				':jobttl' => $this->txtJobTitle? : null,
+				':jobttl' => $this->txtTitle? : null,
 				':lvl' => $this->ddlLevel? : null,
 				':emptype' => $this->ddlEmploymentType? : null,
 				':saltype' => $this->ddlSalaryType? : null,
@@ -229,7 +177,7 @@ class Certificates extends \Base\FormModel {
 			)
 		);
 		$Result = T\DB::Transaction($Queries, NULL, function(\Exception $ex) {
-					\html::ErrMsg_Exit(\t2::Site_Common('Failed! Plz retry.'));
+					\html::ErrMsg_Exit(\t2::site_site('Failed! Plz retry.'));
 				});
 		if ($Result)
 			$this->scenario = 'Edit';
@@ -240,7 +188,7 @@ class Certificates extends \Base\FormModel {
 		$this->scenario = 'Delete';
 		if (!$this->validate())
 			return false;
-		$Result = T\DB::Execute("DELETE FROM `_user_experiences` WHERE `CombinedID`=:combid AND `UID`=:uid"
+		$Result = T\DB::Execute("DELETE FROM `_user_certificates` WHERE `CombinedID`=:combid AND `UID`=:uid"
 						, array(
 					':combid' => $this->hdnCertificateID,
 					':uid' => $this->UserID,
@@ -264,7 +212,7 @@ class Certificates extends \Base\FormModel {
 							. ", IFNULL(gct.`AsciiName`, guct.`City`) AS City"
 							. ", ci.`Title` AS CompanyTitle"
 							. ", ci.`URL` AS CompanyURL"
-							. " FROM `_user_experiences` AS uexp"
+							. " FROM `_user_certificates` AS uexp"
 							. " INNER JOIN (SELECT 1) tmp ON " . ($ID ? " uexp.`CombinedID`=:id AND " : '') . " UID=:uid"
 							. " LEFT JOIN `_company_info` AS ci ON ci.`ID`=uexp.CompanyID"
 							. " LEFT JOIN `_geo_countries` AS gc ON gc.`ISO2`=uexp.`GeoCountryISO2`"
@@ -300,8 +248,8 @@ class Certificates extends \Base\FormModel {
 			$dr = $dr[0];
 			$arrAttrs = array(
 				'hdnCertificateID' => $dr['CombinedID'],
-				'hdnCompanyID' => $dr['CompanyID'],
-				'txtJobTitle' => $dr['JobTitle'],
+				'hdnInstitutionID' => $dr['CompanyID'],
+				'txtTitle' => $dr['JobTitle'],
 				'ddlLevel' => $dr['Level'],
 				'ddlEmploymentType' => $dr['EmploymentType'],
 				'ddlSalaryType' => $dr['SalaryType'],
@@ -313,8 +261,8 @@ class Certificates extends \Base\FormModel {
 				'chkRetirementAccount' => $dr['RetirementAccount'],
 				'txtRetirementPercent' => $dr['RAPercent'],
 				#
-				'txtCompanyTitle' => $dr['CompanyTitle'],
-				'txtCompanyURL' => $dr['CompanyURL'],
+				'txtInstitutionTitle' => $dr['CompanyTitle'],
+				'txtInstitutionURL' => $dr['CompanyURL'],
 				#
 				'ddlCountry' => $dr['GeoCountryISO2'] ? : ($dr['Country'] ? '_other_' : ''),
 				'ddlDivision' => $dr['GeoDivisionCode'] ? : ($dr['Division'] ? '_other_' : ''),

@@ -27,7 +27,7 @@
 					?>
 					<?=
 					html::ButtonContainer(
-							CHtml::submitButton(\t2::Site_User('Activate')
+							CHtml::submitButton(\t2::site_site('Activate')
 									, array(
 								'name' => 'btnActivate',
 								'rel' => \html::AjaxElement('#divActivationForm')

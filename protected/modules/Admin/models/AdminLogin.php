@@ -48,9 +48,9 @@ class AdminLogin extends \Base\FormModel {
 	 */
 	public function attributeLabels() {
 		return array(
-			'txtUsername' => \t2::Admin_User('Username'),
-			'txtPassword' => \t2::Admin_User('Password'),
-			'chkRemember' => \t2::Admin_User('Remember me'),
+			'txtUsername' => \t2::admin_admin('Username'),
+			'txtPassword' => \t2::admin_admin('Password'),
+			'chkRemember' => \t2::admin_admin('Remember me'),
 			'txtCaptcha' => \t2::General('Captcha code'),
 		);
 	}
@@ -83,7 +83,7 @@ class AdminLogin extends \Base\FormModel {
 				));
 				self::MakeItLoggedIn($drUser, $this->chkRemember, $LoginIP, $LoginTime);
 			} else
-				$this->addError('', \t2::Admin_User('Invalid username or password'));
+				$this->addError('', \t2::admin_admin('Invalid username or password'));
 		}
 		return $drUser? : false;
 	}

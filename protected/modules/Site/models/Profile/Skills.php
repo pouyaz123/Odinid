@@ -71,8 +71,8 @@ class Skills extends \Base\FormModel {
 
 	public function attributeLabels() {
 		return array(
-			'txtSkills' => \t2::Site_User('Skills'),
-			'ddlRate' => \t2::Site_User('Rate'),
+			'txtSkills' => \t2::site_site('Skills'),
+			'ddlRate' => \t2::site_site('Rate'),
 		);
 	}
 

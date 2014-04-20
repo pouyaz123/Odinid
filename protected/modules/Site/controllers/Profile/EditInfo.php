@@ -11,8 +11,7 @@ use Site\models\User\Register;
 class EditInfo extends \CAction {
 
 	public function run() {
-		$this->controller->pageTitle = \t2::SitePageTitle('tr_common'
-						, \t2::Site_User('Basic info'));
+		$this->controller->pageTitle = \t2::SitePageTitle(\t2::site_site('Basic info'));
 		$FormMode = \GPCS::GET('mode');
 
 		$Model = new \Site\models\Profile\Info($FormMode == 'availability' ? 'EditAvailability' : 'EditBasicInfo');

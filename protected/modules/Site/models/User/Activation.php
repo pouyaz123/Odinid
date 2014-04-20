@@ -78,9 +78,9 @@ class Activation extends \Base\FormModel {
 
 	public function attributeLabels() {
 		return array(
-			'txtActivationCode' => \t2::Site_User('Activation code'),
-			'txtEmail' => \t2::Site_User('Email'),
-			'txtEmailRepeat' => \t2::Site_User('Confirm email'),
+			'txtActivationCode' => \t2::site_site('Activation code'),
+			'txtEmail' => \t2::site_site('Email'),
+			'txtEmailRepeat' => \t2::site_site('Confirm email'),
 			'txtCaptcha' => \t2::General('Captcha code'),
 		);
 	}
@@ -102,7 +102,7 @@ class Activation extends \Base\FormModel {
 		T\GCC::UserRecoveries();
 
 		if (!$this->_drActivationRow)
-			$this->addError('txtActivationCode', \t2::Site_User('Invalid activation code'));
+			$this->addError('txtActivationCode', \t2::site_site('Invalid activation code'));
 	}
 
 	function Activate() {
@@ -148,7 +148,7 @@ class Activation extends \Base\FormModel {
 			, array(':email' => $drActvt['Email']));
 		$Result = T\DB::Transaction($Queries, $CommonParams, function(\Exception $ex) {
 					\Err::DebugBreakPoint($ex);
-					\html::ErrMsg_Exit(\t2::Site_User('Activation failed!'));
+					\html::ErrMsg_Exit(\t2::site_site('Activation failed!'));
 				});
 		return $Result ? true : false;
 	}
@@ -182,7 +182,7 @@ class Activation extends \Base\FormModel {
 						)
 		);
 		if (!$Result) {
-			\html::ErrMsg_Exit(\t2::Site_Common('Failed! Plz retry.'));
+			\html::ErrMsg_Exit(\t2::site_site('Failed! Plz retry.'));
 			return FALSE;
 		} else {
 			self::SendActivationEmail($Code, $this->txtEmail, $Username);
@@ -194,7 +194,7 @@ class Activation extends \Base\FormModel {
 		$MS = T\SendMail::GetConfiguredMailSender();
 		$MS->AddAddress($Email, $Name);
 		if (!$MS->Send2(
-						\t2::Site_User('Activation link') . " ($Name)"
+						\t2::site_site('Activation link') . " ($Name)"
 						, T\SendMail::GetEmailTemplate('activation', null, array(
 							'Code' => $ActivationCode,
 							'CodeUrl' => \Yii::app()->createAbsoluteUrl(T\HTTP::URL_InsertGetParams(\Site\Consts\Routes::UserActivation, "code=$ActivationCode")),
@@ -204,7 +204,7 @@ class Activation extends \Base\FormModel {
 						))
 				)) {
 			if ($AnyFailureMsg)
-				\html::ErrMsg_Exit(\t2::Site_User('Failed to send activation link! Resend'));
+				\html::ErrMsg_Exit(\t2::site_site('Failed to send activation link! Resend'));
 			\Err::TraceMsg_Method(__METHOD__, "Failed to send the user activation link", func_get_args());
 			return false;
 		}

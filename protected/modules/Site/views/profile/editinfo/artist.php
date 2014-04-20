@@ -88,7 +88,7 @@ if ($form = $this->beginWidget('Widgets\ActiveForm', array(
 				?>
 				<?=
 				html::ButtonContainer(
-						CHtml::submitButton(\t2::Site_User('Update')
+						CHtml::submitButton(\t2::site_site('Update')
 								, array(
 							'name' => 'btnUpdate',
 							'rel' => \html::AjaxElement('#divEditInfo')

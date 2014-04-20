@@ -124,23 +124,23 @@ class Register extends \Base\FormModel {
 
 	public function attributeLabels() {
 		return array(
-			'ddlAccountType' => \t2::Site_User('Account type'),
-			'txtEmail' => \t2::Site_User('Email'),
-			'txtEmailRepeat' => \t2::Site_User('Confirm email'),
-			'txtUsername' => \t2::Site_User('Username'),
-			'txtPassword' => \t2::Site_User('Password'),
+			'ddlAccountType' => \t2::site_site('Account type'),
+			'txtEmail' => \t2::site_site('Email'),
+			'txtEmailRepeat' => \t2::site_site('Confirm email'),
+			'txtUsername' => \t2::site_site('Username'),
+			'txtPassword' => \t2::site_site('Password'),
 			'txtCaptcha' => \t2::General('Captcha code'),
 			#artist
-			'txtInvitationCode' => \t2::Site_User('Invitation code'),
+			'txtInvitationCode' => \t2::site_site('Invitation code'),
 			#Company
-			'txtCompanyURL' => \t2::Site_Company('Company web URL'),
+			'txtCompanyURL' => \t2::site_site('Company web URL'),
 			#location
-			'ddlCountry' => \t2::Site_User('Country'),
-			'ddlDivision' => \t2::Site_User('Division'),
-			'ddlCity' => \t2::Site_User('City'),
-			'txtCountry' => \t2::Site_User('Country'),
-			'txtDivision' => \t2::Site_User('Division'),
-			'txtCity' => \t2::Site_User('City'),
+			'ddlCountry' => \t2::site_site('Country'),
+			'ddlDivision' => \t2::site_site('Division'),
+			'ddlCity' => \t2::site_site('City'),
+			'txtCountry' => \t2::site_site('Country'),
+			'txtDivision' => \t2::site_site('Division'),
+			'txtCity' => \t2::site_site('City'),
 //			'txtAddress1' => \t2::Site_User('Address 1'),
 //			'txtAddress2' => \t2::Site_User('Address 2'),
 		);
@@ -154,7 +154,7 @@ class Register extends \Base\FormModel {
 						. " AND (ISNULL(`InvitationExpDate`) OR `InvitationExpDate`='' OR `InvitationExpDate`>UTC_DATE())"
 						, array(':code' => $this->txtInvitationCode));
 		if (!$this->_drUserType)
-			$this->addError('txtInvitationCode', \t2::Site_User('Invalid invitation code'));
+			$this->addError('txtInvitationCode', \t2::site_site('Invalid invitation code'));
 	}
 
 	function IsClaimedCompanyDomain($attr) {
@@ -163,7 +163,7 @@ class Register extends \Base\FormModel {
 			$Domain = $Domain[1];
 			$URLDomain = parse_url($this->txtCompanyURL, PHP_URL_HOST);
 			if (!preg_match(C\Regexp::CompanyURLDomain(preg_quote($Domain, '/')), $URLDomain))
-				$this->addError($attr, \t2::Site_Company("The url's domain doesn't match to your email domain"));
+				$this->addError($attr, \t2::site_site("The url's domain doesn't match to your email domain"));
 			else {
 				$this->_CompanyDomain = $Domain;
 				$this->_drCompanyInfo = T\DB::GetRow(
@@ -172,7 +172,7 @@ class Register extends \Base\FormModel {
 								. " WHERE `Domain`=:domain"
 								, array(':domain' => $Domain));
 				if ($this->_drCompanyInfo && $this->_drCompanyInfo['OwnerUID'])
-					$this->addError($attr, \t2::Site_Company('Company has been claimed previously'));
+					$this->addError($attr, \t2::site_site('Company has been claimed previously'));
 			}
 		}
 	}
@@ -313,7 +313,7 @@ class Register extends \Base\FormModel {
 			);
 		}
 		$Result = T\DB::Transaction($Queries, $CommonParams, function(\Exception $ex) {
-					\html::ErrMsg_Exit(\t2::Site_User('Registration failed!'));
+					\html::ErrMsg_Exit(\t2::site_site('Registration failed!'));
 				});
 		return $Result ? true : false;
 	}

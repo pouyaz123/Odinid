@@ -1,6 +1,6 @@
 <?php
 return array_merge(
-		\t2::GetCommonLangResourceArray('en/tr_user')
+		\t2::GetCommonLangResourceArray('en/tr_common')
 		, array(
 //	'Sign in' => 'Sign in',
 //	'Sign up' => 'Sign up',
@@ -85,7 +85,10 @@ return array_merge(
 //	'txtRetirementPercent' => \t2::Site_User('Retirement percent'),
 #
 	'Update' => 'Update',
+	'Upload' => 'Upload',
+	'Delete' => 'Delete',
 //	'Basic info' => 'Basic info',
+//	'Avatar' => 'Avatar',
 //	'Availability' => 'Availability',
 	'Setting' => 'Account setting',
 //	'Phones' => 'Phones',
@@ -115,5 +118,32 @@ return array_merge(
 //	'Add new' => 'Add new',
 //	'Set as primary' => 'Set as primary',
 //	'Primary' => 'Primary',
+	'Company has been claimed previously' => 'This company with this domain has been claimed previously!',
+//	'The url's domain doesn't match to your email domain' => 'The url's domain doesn't match to your email domain'
+//	'Company web URL' => 'Company web URL'
+//	'ddlOperatingStatus' => \t2::Site_Company('Operating Status'),
+//	'ddlHowManyStaffs' => \t2::Site_Company('How Many Staffs'),
+//	'txtContactFirstName' => \t2::Site_Company('Contact First Name'),
+//	'txtContactLastName' => \t2::Site_Company('Contact Last Name'),
+//	'txtContactJobTitle' => \t2::Site_Company('Contact Job Title'),
+//	'Rates' => 'Rates,
+//	#
+//	'Requested profile was not found' => 'Requested profile was not found',
+//	'Gender' => 'Gender',
+//	'Female' => 'Female',
+//	'Man' => 'Man',
+//	'First name' => 'First name',
+//	'txtLastName' => 'Last name',
+//	'Mid name' => 'Mid name',
+//	'Talent search visibility' => 'Talent search visibility',
+//	'Relocate internally' => 'Relocate internally',
+//	'Relocate externally' => 'Relocate externally',
+//	'Hire availability date' => 'Hire availability date',
+//	'Hire availability type' => 'Hire availability type',
+//	'Full' => 'Full',
+//	'Part' => 'Part',
+//	'Intern' => 'Intern',
+//	'Contract' => 'Contract',
+//	'Home' => 'Home',
 		)
 );

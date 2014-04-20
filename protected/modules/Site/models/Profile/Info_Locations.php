@@ -83,7 +83,7 @@ class Info_Locations extends \Base\FormModelBehavior {
 		$dt = $this->dtLocations;
 		if (!$this->hdnLocationID) {//means in add mode not edit mode
 			if (count($dt) >= T\Settings::GetValue('MaxUserLocations'))
-				$this->owner->addError('', \t2::Site_Common('You have reached the maximum'));
+				$this->owner->addError('', \t2::site_site('You have reached the maximum'));
 			return false;
 		}
 		foreach ($dt as $dr) {
@@ -95,23 +95,23 @@ class Info_Locations extends \Base\FormModelBehavior {
 					($dr['GeoCityID'] == $this->ddlCity || $dr['City'] == $this->txtCity) &&
 					$dr['Address1'] == $this->txtAddress1 && $dr['Address2'] == $this->txtAddress2
 			)
-				$this->owner->addError('', \t2::Site_User('This geographical location has been used previously'));
+				$this->owner->addError('', \t2::site_site('This geographical location has been used previously'));
 		}
 	}
 
 	public function onBeforeAttributeLabels(\CEvent $e) {
 		$e->params['arrAttrLabels'] = array_merge($e->params['arrAttrLabels'], array(
-			'ddlCountry' => \t2::Site_User('Country'),
-			'ddlDivision' => \t2::Site_User('Division'),
-			'ddlCity' => \t2::Site_User('City'),
-			'txtCountry' => \t2::Site_User('Country'),
-			'txtDivision' => \t2::Site_User('Division'),
-			'txtCity' => \t2::Site_User('City'),
-			'txtAddress1' => \t2::Site_User('Address 1'),
-			'txtAddress2' => \t2::Site_User('Address 2'),
-			'txtPostalCode' => \t2::Site_User('Postal code'),
-			'chkIsCurrentLocation' => \t2::Site_User('Is current location'),
-			'chkIsBillingLocation' => \t2::Site_User('Is billing location'),
+			'ddlCountry' => \t2::site_site('Country'),
+			'ddlDivision' => \t2::site_site('Division'),
+			'ddlCity' => \t2::site_site('City'),
+			'txtCountry' => \t2::site_site('Country'),
+			'txtDivision' => \t2::site_site('Division'),
+			'txtCity' => \t2::site_site('City'),
+			'txtAddress1' => \t2::site_site('Address 1'),
+			'txtAddress2' => \t2::site_site('Address 2'),
+			'txtPostalCode' => \t2::site_site('Postal code'),
+			'chkIsCurrentLocation' => \t2::site_site('Is current location'),
+			'chkIsBillingLocation' => \t2::site_site('Is billing location'),
 		));
 	}
 

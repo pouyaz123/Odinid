@@ -12,7 +12,7 @@ use \Tools as T;
 class EditSoftwares extends \CAction {
 
 	public function run() {
-		$this->controller->pageTitle = \t2::SitePageTitle('tr_common', \t2::Site_User('Softwares'));
+		$this->controller->pageTitle = \t2::SitePageTitle(\t2::site_site('Softwares'));
 		\html::TagIt_Load();
 		\html::Balloon_Load();
 		\html::jqUI_AutoComplete_Load();

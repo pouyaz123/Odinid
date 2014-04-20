@@ -40,7 +40,7 @@
 					?>
 					<?=
 					html::ButtonContainer(
-							CHtml::submitButton(\t2::Site_User('Resend')
+							CHtml::submitButton(\t2::site_site('Resend')
 									, array(
 								'name' => 'btnResendActivationLink',
 								'rel' => \html::AjaxElement('#divResendActivationLinkForm')

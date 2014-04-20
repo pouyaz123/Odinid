@@ -16,7 +16,7 @@
 			))):
 		/* @var $form Widgets\ActiveForm */
 		?>
-		<?= $Model->scenario == 'Edit' ? \CHtml::link(t2::Site_User('Add new'), \Site\Consts\Routes::User_EditEmails()) : '' ?>
+		<?= $Model->scenario == 'Edit' ? \CHtml::link(t2::site_site('Add new'), \Site\Consts\Routes::User_EditEmails()) : '' ?>
 		<table class="FullW">
 			<tr>
 				<td style="width: 350px">
@@ -27,7 +27,7 @@
 							, $form->labelEx($Model, 'txtEmail')
 							, $form->error($Model, 'txtEmail', NULL, true))
 					?>
-					<div><?= $Model->PendingEmail ? t2::Site_User('Pending email') . ' : ' . $Model->PendingEmail : '' ?></div>
+					<div><?= $Model->PendingEmail ? t2::site_site('Pending email') . ' : ' . $Model->PendingEmail : '' ?></div>
 					<?=
 					html::FieldContainer(
 							$form->checkBox($Model, 'chkIsPrivate')
@@ -37,7 +37,7 @@
 
 					<?=
 					html::ButtonContainer(
-							CHtml::submitButton(\t2::Site_User($Model->scenario == 'Edit' ? 'Edit' : 'Add')
+							CHtml::submitButton(\t2::site_site($Model->scenario == 'Edit' ? 'Edit' : 'Add')
 									, array(
 								'name' => $Model->scenario == 'Edit' ? 'btnSaveEdit' : 'btnAdd',
 								'rel' => \html::AjaxElement('#divEditInfo') . ' ' . html::OnceClick
@@ -47,7 +47,7 @@
 					<?=
 					$Model->scenario == 'Edit' && !$Model->IsPrimaryEmailEdit ?
 							html::ButtonContainer(
-									CHtml::button(\t2::Site_User('Delete')
+									CHtml::button(\t2::site_site('Delete')
 											, array(
 										'name' => 'btnDelete',
 										'rel' => \html::AjaxElement('#divEditInfo') . ' ' . html::OnceClick,

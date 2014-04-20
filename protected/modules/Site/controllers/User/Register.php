@@ -44,12 +44,12 @@ class Register extends \CAction {
 				);
 				/* @var $wdgGeoLocation \Widgets\GeoLocationFields\GeoLocationFields */
 				\html::PushStateScript(Routes::UserRegister . '?type=company');
-				$this->controller->pageTitle = \t2::SitePageTitle('tr_user', 'Register Company');
+				$this->controller->pageTitle = \t2::SitePageTitle(\t2::site_site('Register Company'));
 				break;
 			case Model::UserAccountType_Artist:
 				$Model->scenario = 'ArtistRegister';
 				\html::PushStateScript(Routes::UserRegister . '?type=artist');
-				$this->controller->pageTitle = \t2::SitePageTitle('tr_user', 'Register Artist');
+				$this->controller->pageTitle = \t2::SitePageTitle(\t2::site_site('Register Artist'));
 				break;
 		}
 		#
@@ -68,9 +68,9 @@ class Register extends \CAction {
 					, $Model->txtUsername);
 			\Output::Render($this->controller, '../messages/success'
 					, array(
-				'msg' => \t2::Site_User('Registered successfully')
+				'msg' => \t2::site_site('Registered successfully')
 				. ' <br/> '
-				. \t2::Site_User('Activation link sent successfully')
+				. \t2::site_site('Activation link sent successfully')
 					)
 			);
 		} else

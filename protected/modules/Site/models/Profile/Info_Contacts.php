@@ -99,20 +99,20 @@ class Info_Contacts extends \Base\FormModelBehavior {
 		$owner = $this->owner;
 		if (!$this->hdnContactID) {//means in add mode not edit mode
 			if (count($dt) >= T\Settings::GetValue('MaxUserContacts'))
-				$owner->addError('', \t2::Site_Common('You have reached the maximum'));
+				$owner->addError('', \t2::site_site('You have reached the maximum'));
 			return;
 		}
 	}
 
 	public function onBeforeAttributeLabels(\CEvent $e) {
 		$e->params['arrAttrLabels'] = array_merge($e->params['arrAttrLabels'], array(
-			'txtPhone' => \t2::Site_User('Phone'),
-			'ddlPhoneType' => \t2::Site_User('Phone Type'),
-			'chkIsPrivate' => \t2::Site_User('Private'),
+			'txtPhone' => \t2::site_site('Phone'),
+			'ddlPhoneType' => \t2::site_site('Phone Type'),
+			'chkIsPrivate' => \t2::site_site('Private'),
 			#
-			'txtContactFirstName' => \t2::Site_Company('Contact First Name'),
-			'txtContactLastName' => \t2::Site_Company('Contact Last Name'),
-			'txtContactJobTitle' => \t2::Site_Company('Contact Job Title'),
+			'txtContactFirstName' => \t2::site_site('Contact First Name'),
+			'txtContactLastName' => \t2::site_site('Contact Last Name'),
+			'txtContactJobTitle' => \t2::site_site('Contact Job Title'),
 		));
 	}
 

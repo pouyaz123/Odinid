@@ -70,10 +70,10 @@ class Info_Company extends \Base\FormModelBehavior {
 
 	public function onBeforeAttributeLabels(\CEvent $e) {
 		$e->params['arrAttrLabels'] = array_merge($e->params['arrAttrLabels'], array(
-			'txtCompanyTitle' => \t2::Site_Common('Title'),
-			'txtCompanyURL' => \t2::Site_Company('Company web URL'),
-			'ddlOperatingStatus' => \t2::Site_Company('Operating Status'),
-			'ddlHowManyStaffs' => \t2::Site_Company('How Many Staffs'),
+			'txtCompanyTitle' => \t2::site_site('Title'),
+			'txtCompanyURL' => \t2::site_site('Company web URL'),
+			'ddlOperatingStatus' => \t2::site_site('Operating Status'),
+			'ddlHowManyStaffs' => \t2::site_site('How Many Staffs'),
 		));
 	}
 
@@ -85,7 +85,7 @@ class Info_Company extends \Base\FormModelBehavior {
 			$Domain = $Domain[1];
 			$URLDomain = parse_url($this->txtCompanyURL, PHP_URL_HOST);
 			if (!preg_match(C\Regexp::CompanyURLDomain(preg_quote($Domain, '/')), $URLDomain))
-				$owner->addError($attr, \t2::Site_Company("The url's domain doesn't match to your email domain"));
+				$owner->addError($attr, \t2::site_site("The url's domain doesn't match to your email domain"));
 			else {
 				$this->_CompanyDomain = $Domain;
 				$drCompanyInfo = T\DB::GetRow(
@@ -96,7 +96,7 @@ class Info_Company extends \Base\FormModelBehavior {
 				if ($drCompanyInfo &&
 						$drCompanyInfo['OwnerUID'] &&
 						$drCompanyInfo['OwnerUID'] != $owner->drUser->ID)
-					$owner->addError($attr, \t2::Site_Company('Company has been claimed previously'));
+					$owner->addError($attr, \t2::site_site('Company has been claimed previously'));
 			}
 		}
 	}

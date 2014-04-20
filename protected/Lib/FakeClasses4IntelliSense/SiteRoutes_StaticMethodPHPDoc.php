@@ -21,6 +21,10 @@ class Routes {
 		
 	}
 
+	static function User_EditAvatar($Username = null) {
+		
+	}
+
 	static function User_EditContacts($Username = null) {
 		
 	}
@@ -40,6 +44,7 @@ class Routes {
 	static function User_EditSkills($Username = null) {
 		
 	}
+
 	static function User_EditSoftwares($Username = null) {
 		
 	}

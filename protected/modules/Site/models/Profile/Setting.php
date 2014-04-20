@@ -67,11 +67,11 @@ class Setting extends \Base\FormModel {
 
 	public function attributeLabels() {
 		return array(
-			'txtUsername' => \t2::Site_User('Username'),
-			'txtCurrentPassword' => \t2::Site_User('Current password'),
-			'txtNewPassword' => \t2::Site_User('New password'),
-			'txtNewPasswordRepeat' => \t2::Site_User('Confirm new password'),
-			'chkBlockMatureContent' => \t2::Site_User('Block mature content'),
+			'txtUsername' => \t2::site_site('Username'),
+			'txtCurrentPassword' => \t2::site_site('Current password'),
+			'txtNewPassword' => \t2::site_site('New password'),
+			'txtNewPasswordRepeat' => \t2::site_site('Confirm new password'),
+			'chkBlockMatureContent' => \t2::site_site('Block mature content'),
 		);
 	}
 
@@ -86,13 +86,13 @@ class Setting extends \Base\FormModel {
 						)
 		);
 		if (!$drUser['CorrectPW']) {
-			$this->addError('txtCurrentPassword', \t2::Site_User('Invalid password'));
+			$this->addError('txtCurrentPassword', \t2::site_site('Invalid password'));
 			return false;
 		}
 		$IsUNChange = ($this->txtUsername && $drUser['Username'] != $this->txtUsername);
 		if ($IsUNChange && $drUser['UNChangeCount'] >= self::MaxUsernameChanges) {
 			$IsUNChange = false;
-			$this->addError('txtUsername', \t2::Site_Common('You have reached the maximum'));
+			$this->addError('txtUsername', \t2::site_site('You have reached the maximum'));
 		}
 		$Query = array();
 		if ($IsUNChange || $this->txtNewPassword) {

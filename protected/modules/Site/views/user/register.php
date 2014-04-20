@@ -76,7 +76,7 @@ use Site\models\User\Register as Model;
 									if (Email && URL && Domain && (URL.indexOf('http://') > -1 || URL.indexOf('https://') > -1)) {
 										$('#divDomainMsg').html(
 												!URL.find2find_substr('://').find2find_substr('', '/').match(new RegExp('<?= trim(Consts\Regexp::CompanyURLDomain("' + $.ui.autocomplete.escapeRegex(Domain) + '"), '/') ?>', "i"))
-												? '<?= addslashes(t2::Site('tr_company', "The url's domain doesn't match to your email domain")) ?>'
+												? '<?= addslashes(t2::Site('tr_site', "The url's domain doesn't match to your email domain")) ?>'
 												: '')
 									}
 								}
@@ -104,7 +104,7 @@ use Site\models\User\Register as Model;
 					?>
 					<?=
 					html::ButtonContainer(
-							CHtml::submitButton(\t2::Site_User('Register')
+							CHtml::submitButton(\t2::site_site('Register')
 									, array(
 								'name' => 'btnRegister',
 								'rel' => \html::AjaxElement('#divRegisterForm')

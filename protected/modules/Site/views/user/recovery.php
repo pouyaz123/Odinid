@@ -40,7 +40,7 @@
 					?>
 					<?=
 					html::ButtonContainer(
-							CHtml::submitButton(\t2::Site_User('Recover')
+							CHtml::submitButton(\t2::site_site('Recover')
 									, array(
 								'name' => 'btnSendRecoveryLink',
 								'rel' => \html::AjaxElement('#divSendRecoveryLinkForm')

@@ -946,6 +946,14 @@ $.superbox.settings = {
 		\html::LoadJS('balloon/jquery.balloon.min');
 	}
 
+	static function Cloudinary_Load() {
+		self::LoadJS('cloudinary/cloudinary');
+	}
+
+	static function Cloudinary_croshtmlurl() {
+		return '/_js/cloudinary/cloudinary_cors.html';
+	}
+
 //	static function MozillaRTL() {
 //		$UAgent = T\HTTP::RequestHeaders('User-Agent');
 //		return

@@ -26,7 +26,7 @@ class AdminModule extends \CWebModule {
 		\t2::InitializeTranslation(\Conf::$AdminModuleLangs);
 
 		#main title
-		\Yii::app()->name = \t2::Admin_Common('Admin Main Title');
+		\Yii::app()->name = \t2::admin_admin('Admin Main Title');
 	}
 
 	/**

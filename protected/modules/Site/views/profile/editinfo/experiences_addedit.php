@@ -15,7 +15,7 @@
 			))):
 		/* @var $form Widgets\ActiveForm */
 		?>
-		<?= $Model->scenario == 'Edit' ? \CHtml::link(t2::Site_User('Add new'), \Site\Consts\Routes::User_EditExperiences()) : '' ?>
+		<?= $Model->scenario == 'Edit' ? \CHtml::link(t2::site_site('Add new'), \Site\Consts\Routes::User_EditExperiences()) : '' ?>
 		<table class="FullW">
 			<tr>
 				<td style="width: 350px">
@@ -157,7 +157,7 @@ _t.RunScriptAfterLoad('tagit/tag-it.min', function() {
 
 					<?=
 					html::ButtonContainer(
-							CHtml::submitButton(\t2::Site_User($Model->scenario == 'Edit' ? 'Edit' : 'Add')
+							CHtml::submitButton(\t2::site_site($Model->scenario == 'Edit' ? 'Edit' : 'Add')
 									, array(
 								'name' => $Model->scenario == 'Edit' ? 'btnSaveEdit' : 'btnAdd',
 								'rel' => \html::AjaxElement('#divEditInfo') . ' ' . \html::OnceClick
@@ -167,7 +167,7 @@ _t.RunScriptAfterLoad('tagit/tag-it.min', function() {
 					<?=
 					$Model->scenario == 'Edit' ?
 							html::ButtonContainer(
-									CHtml::button(\t2::Site_User('Delete')
+									CHtml::button(\t2::site_site('Delete')
 											, array(
 										'name' => 'btnDelete',
 										'rel' => \html::AjaxElement('#divEditInfo') . ' ' . html::OnceClick,

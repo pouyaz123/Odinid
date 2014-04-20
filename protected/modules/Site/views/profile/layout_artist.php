@@ -3,7 +3,7 @@
 /* @var $Model \Site\models\Profile\Info */
 ?>
 <? if (\Site\models\User\Login::IsLoggedIn()): ?>
-	<div><?= \CHtml::link(t2::Site_User('Basic info'), \Site\Consts\Routes::User_EditInfo()) ?></div>
+	<div><?= \CHtml::link(t2::site_site('Basic info'), \Site\Consts\Routes::User_EditInfo()) ?></div>
 <? endif; ?>
 <div class="LeftCol">
 	<div>
@@ -21,7 +21,7 @@
 			<tr>
 				<td>
 					<?=
-					($drCurrentLocation = $Model->drCurrentLocation) ? \t2::Site_User('User location', array(
+					($drCurrentLocation = $Model->drCurrentLocation) ? \t2::site_site('User location', array(
 						'{City}' => $drCurrentLocation['City'],
 						'{Division}' => !is_numeric($drCurrentLocation['DivisionCode']) ?
 								$drCurrentLocation['DivisionCode'] : $drCurrentLocation['Division'],
@@ -54,19 +54,19 @@
 <div class="RightCol">
 	<div>
 		<div>
-			<? \t2::Site_User('Following') ?>
+			<? \t2::site_site('Following') ?>
 			<div>
 				following count here
 			</div>
 		</div>
 		<div>
-			<? \t2::Site_User('Followers') ?>
+			<? \t2::site_site('Followers') ?>
 			<div>
 				Followers count here
 			</div>
 		</div>
 		<div>
-			<? \t2::Site_User('Favorites') ?>
+			<? \t2::site_site('Favorites') ?>
 			<div>
 				Favorites count here
 			</div>

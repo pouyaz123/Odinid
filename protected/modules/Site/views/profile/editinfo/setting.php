@@ -31,8 +31,8 @@ if ($form = $this->beginWidget('Widgets\ActiveForm', array(
 						, $form->labelEx($Model, 'txtUsername')
 						, $form->error($Model, 'txtUsername'))
 				?>
-				<div><?= t2::Site_User('Current username') . ' : ' . $Model->drUser['Username'] ?></div>
-				<div><?= t2::Site_User('Username changes', array('{0}' => $Model->drUser['UNChangeCount'], '{1}' => \Site\models\Profile\Setting::MaxUsernameChanges)) ?></div>
+				<div><?= t2::site_site('Current username') . ' : ' . $Model->drUser['Username'] ?></div>
+				<div><?= t2::site_site('Username changes', array('{0}' => $Model->drUser['UNChangeCount'], '{1}' => \Site\models\Profile\Setting::MaxUsernameChanges)) ?></div>
 				<?=
 				html::FieldContainer(
 						$form->passwordField($Model, 'txtNewPassword')
@@ -53,7 +53,7 @@ if ($form = $this->beginWidget('Widgets\ActiveForm', array(
 				?>
 				<?=
 				html::ButtonContainer(
-						CHtml::submitButton(\t2::Site_User('Update')
+						CHtml::submitButton(\t2::site_site('Update')
 								, array(
 							'name' => 'btnUpdate',
 							'rel' => \html::AjaxElement('#divEditInfo')
@@ -62,7 +62,7 @@ if ($form = $this->beginWidget('Widgets\ActiveForm', array(
 				?>
 			</td>
 			<td class="BtmAlign">
-				<? /* = $form->errorSummary($Model) */ ?>
+				<?= $form->errorSummary($Model) ?>
 			</td>
 		</tr>
 	</table>

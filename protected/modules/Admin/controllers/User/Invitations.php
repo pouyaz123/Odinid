@@ -14,7 +14,7 @@ class Invitations extends \CAction {
 	public function run() {
 		$ctrl = $this->controller;
 		/* @var $ctrl \Admin\controllers\UserController */
-		$ctrl->pageTitle = \t2::AdminPageTitle('tr_common', 'Invitations');
+		$ctrl->pageTitle = \t2::AdminPageTitle('Invitations');
 
 		$dg = $this->DataGrid($ctrl);
 
@@ -38,7 +38,7 @@ class Invitations extends \CAction {
 						$ActiveUserTypes
 						, 'ID'
 						, 'Title');
-		$dg = \html::DataGrid_Ready1('dgInvitations', 'Admin', 'tr_common')
+		$dg = \html::DataGrid_Ready1('dgInvitations', 'Admin', 'tr_admin')
 				->DataKey('ID')
 				->SetNavigator(array(
 					'del' => true
@@ -51,7 +51,7 @@ class Invitations extends \CAction {
 				->SetColumns(
 				\html::DataGridColumn()
 				->index('ID')
-				->header(\t2::Admin_Common('ID'))
+				->header(\t2::admin_admin('ID'))
 				->width('50px')
 				#
 				, \html::DataGridColumn()
@@ -99,7 +99,7 @@ class Invitations extends \CAction {
 				#
 				, \html::DataGridColumn()
 				->index('Actions')
-				->header(\t2::Admin_Common('Actions'))
+				->header(\t2::admin_admin('Actions'))
 				->search(false)
 				->editable(FALSE)
 				->sortable(false)

@@ -23,7 +23,7 @@ class Info_User extends \Base\FormModelBehavior {
 		$e->params['arrXSSExceptions'] = array_merge($e->params['arrXSSExceptions'], array(
 			'txtBirthday',
 			'ddlBirthdayFormat',
-			'filePicture',
+//			'filePicture',
 		));
 	}
 
@@ -33,7 +33,7 @@ class Info_User extends \Base\FormModelBehavior {
 	public $txtObjective;
 	public $txtSmallDesc;
 	public $txtDescription;
-	public $filePicture;
+//	public $filePicture;	//avatar is a separated model and action
 
 	const BDFormat_1 = 'mm/dd/yy';
 	const BDFormat_2 = 'dd/mm/yy';
@@ -73,12 +73,12 @@ class Info_User extends \Base\FormModelBehavior {
 
 	public function onBeforeAttributeLabels(\CEvent $e) {
 		$e->params['arrAttrLabels'] = array_merge($e->params['arrAttrLabels'], array(
-			'txtBirthday' => \t2::Site_User('Birthday'),
-			'ddlBirthdayFormat' => \t2::Site_User('Birthday view'),
-			'txtObjective' => \t2::Site_User('Objective'),
-			'txtSmallDesc' => \t2::Site_Common('Small description'),
-			'txtDescription' => \t2::Site_Common('Description'),
-			'filePicture' => \t2::Site_Common('Picture'),
+			'txtBirthday' => \t2::site_site('Birthday'),
+			'ddlBirthdayFormat' => \t2::site_site('Birthday view'),
+			'txtObjective' => \t2::site_site('Objective'),
+			'txtSmallDesc' => \t2::site_site('Small description'),
+			'txtDescription' => \t2::site_site('Description'),
+//			'filePicture' => \t2::site_site('Picture'),
 		));
 	}
 
@@ -95,14 +95,14 @@ class Info_User extends \Base\FormModelBehavior {
 						. ", `Objective`=:objective"
 						. ", `SmallDesc`=:smalldesc"
 						. ", `Description`=:description"
-						. ", `Picture`=:pic"
+//						. ", `Picture`=:pic"
 						. " ON DUPLICATE KEY UPDATE "
 						. " `Birthday`=:birthday"
 						. ", `BirthdayViewFormat`=:bdtype"
 						. ", `Objective`=:objective"
 						. ", `SmallDesc`=:smalldesc"
 						. ", `Description`=:description"
-						. ", `Picture`=:pic"
+//						. ", `Picture`=:pic"
 						, array(
 							':uid' => $owner->drUser->ID,
 							':birthday' => $this->txtBirthday? : null,
@@ -127,7 +127,7 @@ class Info_User extends \Base\FormModelBehavior {
 				'txtObjective' => $drInfo->Objective,
 				'txtSmallDesc' => $drInfo->SmallDesc,
 				'txtDescription' => $drInfo->Description,
-				'filePicture' => $drInfo->Picture,
+//				'filePicture' => $drInfo->Picture,
 			);
 			$owner->attributes = $arrAttrs;
 		}

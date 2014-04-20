@@ -39,20 +39,20 @@ class BaseController extends \CController {
 			\Base\DataGrid::LoadFiles();
 
 			$lnk = function($LngCat, $Label, $Route, $arrHtmlOptions = array()) {
-				return \CHtml::link(\t2::Admin($LngCat, $Label), $Route, $arrHtmlOptions);
+				return \CHtml::link(\t2::admin_admin($Label), $Route, $arrHtmlOptions);
 			};
 			$spn = function($Lable) {
 				return "<span>$Lable</span>";
 			};
 			$obj->menu = array(
-				array('text' => $lnk('tr_common', 'Logout', Routes::Logout, array('rel' => \html::AjaxExcept))),
-				array('text' => $lnk('tr_common', 'Cartable', Routes::Cartable)),
-				array('text' => $spn(\t2::Admin_Common('Users')),
+				array('text' => $lnk('Logout', Routes::Logout, array('rel' => \html::AjaxExcept))),
+				array('text' => $lnk('Cartable', Routes::Cartable)),
+				array('text' => $spn(\t2::admin_admin('Users')),
 					'children' => array(
-						array('text' => $lnk('tr_common', 'User types', Routes::User_Types)),
-						array('text' => $lnk('tr_common', 'Invitations', Routes::User_Invitations)),
-						array('text' => $lnk('tr_common', 'User plans', Routes::User_Plans)),
-						array('text' => $lnk('tr_common', 'User list', Routes::User_List)),
+						array('text' => $lnk('User types', Routes::User_Types)),
+						array('text' => $lnk('Invitations', Routes::User_Invitations)),
+						array('text' => $lnk('User plans', Routes::User_Plans)),
+						array('text' => $lnk('User list', Routes::User_List)),
 					)
 				),
 			);

@@ -45,8 +45,8 @@ class Info_Artist extends \Base\FormModelBehavior {
 
 	function getarrGenders() {
 		return array(
-			self::Gender_Female => \t2::Site_Artist('Female'),
-			self::Gender_Male => \t2::Site_Artist('Man'),
+			self::Gender_Female => \t2::site_site('Female'),
+			self::Gender_Male => \t2::site_site('Man'),
 		);
 	}
 
@@ -68,11 +68,11 @@ class Info_Artist extends \Base\FormModelBehavior {
 
 	function getarrHireAvailabilityTypes() {
 		return array(
-			self::HAT_Contract => \t2::Site_Artist(self::HAT_Contract),
-			self::HAT_Full => \t2::Site_Artist(self::HAT_Full),
-			self::HAT_Home => \t2::Site_Artist(self::HAT_Home),
-			self::HAT_Intern => \t2::Site_Artist(self::HAT_Intern),
-			self::HAT_Part => \t2::Site_Artist(self::HAT_Part),
+			self::HAT_Contract => \t2::site_site(self::HAT_Contract),
+			self::HAT_Full => \t2::site_site(self::HAT_Full),
+			self::HAT_Home => \t2::site_site(self::HAT_Home),
+			self::HAT_Intern => \t2::site_site(self::HAT_Intern),
+			self::HAT_Part => \t2::site_site(self::HAT_Part),
 		);
 	}
 
@@ -106,16 +106,16 @@ class Info_Artist extends \Base\FormModelBehavior {
 
 	public function onBeforeAttributeLabels(\CEvent $e) {
 		$e->params['arrAttrLabels'] = array_merge($e->params['arrAttrLabels'], array(
-			'ddlGender' => \t2::Site_Artist('Gender'),
-			'txtFirstName' => \t2::Site_Artist('First name'),
-			'txtLastName' => \t2::Site_Artist('Last name'),
-			'txtMidName' => \t2::Site_Artist('Mid name'),
-			'txtArtistTitle' => \t2::Site_Common('Title'),
-			'chkTalentSearchVisibility' => \t2::Site_Artist('Talent search visibility'),
-			'chkRelocateInternally' => \t2::Site_Artist('Relocate internally'),
-			'chkRelocateExternally' => \t2::Site_Artist('Relocate externally'),
-			'txtHireAvailabilityDate' => \t2::Site_Artist('Hire availability date'),
-			'ddlHireAvailabilityType' => \t2::Site_Artist('Hire availability type'),
+			'ddlGender' => \t2::site_site('Gender'),
+			'txtFirstName' => \t2::site_site('First name'),
+			'txtLastName' => \t2::site_site('Last name'),
+			'txtMidName' => \t2::site_site('Mid name'),
+			'txtArtistTitle' => \t2::site_site('Title'),
+			'chkTalentSearchVisibility' => \t2::site_site('Talent search visibility'),
+			'chkRelocateInternally' => \t2::site_site('Relocate internally'),
+			'chkRelocateExternally' => \t2::site_site('Relocate externally'),
+			'txtHireAvailabilityDate' => \t2::site_site('Hire availability date'),
+			'ddlHireAvailabilityType' => \t2::site_site('Hire availability type'),
 		));
 	}
 
