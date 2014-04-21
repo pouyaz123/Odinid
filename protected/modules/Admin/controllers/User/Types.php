@@ -18,7 +18,6 @@ class Types extends \CAction {
 
 		$dg = $this->DataGrid($ctrl);
 
-		\html::PushStateScript();
 		\Output::Render($ctrl, 'types', array('dg' => $dg));
 	}
 

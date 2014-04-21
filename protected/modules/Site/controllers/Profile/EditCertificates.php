@@ -88,8 +88,77 @@ class EditCertificates extends \CAction {
 				, array(
 			'Model' => $Model,
 			'wdgGeoLocation' => $wdgGeoLocation,
+			'dg' => $this->DataGrid($this->controller, $Model),
 				)
 		);
+	}
+
+	/**
+	 * 
+	 * @param \Site\controllers\Profile\EditCertificates $ctrl
+	 * @param \Site\models\Profile\Certificates $Model
+	 * @return \Base\DataGrid
+	 */
+	private function DataGrid(\Site\controllers\ProfileController $ctrl, \Site\models\Profile\Certificates $Model) {
+		$dg = \html::DataGrid_Ready2('dgCertificates', 'Site', 'tr_site')
+				->DataKey('CombinedID')
+				->Options(
+						\html::DataGridConfig()
+						->caption($ctrl->pageTitle)
+				)
+				->SetColumns(
+				\html::DataGridColumn()
+				->index('ins.Title')
+				->name('InstitutionTitle')
+				->header($Model->getAttributeLabel('txtInstitutionTitle'))
+				#
+				, \html::DataGridColumn()
+				->index('Country')
+				->whereclause_leftside('IFNULL(gc.`AsciiName`, guc.`Country`)')
+				->name('Country')
+				->header($Model->getAttributeLabel('ddlCountry'))
+				#
+				, \html::DataGridColumn()
+				->index('Title')
+				->header($Model->getAttributeLabel('txtTitle'))
+				#
+				, \html::DataGridColumn()
+				->index('Date')
+				->header($Model->getAttributeLabel('txtDate'))
+				#
+				, \html::DataGridColumn()
+				->index('Actions')
+				->header(\t2::site_site('Actions'))
+				->search(false)
+				->editable(FALSE)
+				->sortable(false)
+				->title(false)
+				->width('75px')
+		);
+		$dg
+				->SelectQuery(function(\Base\DataGridParams $DGP)use($Model) {
+					$dt = $Model->getdtCertificates(NULL, true, $DGP);
+					if ($dt)
+						foreach ($dt as $idx => $dr) {
+							$dt[$idx]['InstitutionTitle'] = "<div title='{$dt[$idx]['InstitutionURL']}'>{$dt[$idx]['InstitutionTitle']}</div>";
+							$dt[$idx]['Country'] = "<div title='" . $dr['City'] . ($dr['City'] && $dr['Division'] ? ' , ' : '') . $dr['Division'] . "'>{$dr['Country']}</div>";
+							$dt[$idx]['Actions'] = $DGP->DataGrid->GetActionColButtons($dr['CombinedID'], "LnkBtn", false, true)
+									. \html::ButtonContainer(
+											\CHtml::button(\t2::site_site('Edit')
+													, array(
+												'name' => 'btnEdit',
+												'rel' => \html::AjaxElement('#divEditCertificates', NULL, "hdnCertificateID={$dr['CombinedID']}") . \html::SimpleAjaxPanel,
+													)
+							));
+						}
+					return $dt;
+				})
+				->DeleteQuery(function(\Base\DataGridParams $DGP)use($Model) {
+					$Model->scenario = 'Delete';
+					$Model->attributes = array('hdnCertificateID' => $DGP->RowID);
+					return $Model->Delete();
+				});
+		return $dg;
 	}
 
 }

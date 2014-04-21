@@ -51,7 +51,8 @@ final class Regexp {
 	#
 //	const DateTime = '/^\d{4}\-\d\d\-\d\d\s\d\d:\d\d:\d\d$/';
 	const DateFormat_FullDigit = '/^\d{4}\-\d\d\-\d\d$/';
-	const DateFormat_Yii_FullDigit = 'yyyy-MM-dd';
+	const YearFormat_FullDigit = '/^\d{4}$/';
+	const Yii_DateFormat_FullDigit = 'yyyy-MM-dd';
 	#
 //	const HttpRequestHeader_ModifiedSince = '/^[\w\,\s:\+\-]+$/';
 //	const Language = '/^[\w\-\s]*$/';

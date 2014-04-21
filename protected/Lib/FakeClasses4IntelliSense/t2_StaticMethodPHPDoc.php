@@ -10,9 +10,21 @@
  * @access public
  */
 class t2 {
+
 	static function site_site($message, $params = array(), $source = null, $language = null) {
+		
 	}
 
 	static function admin_admin($message, $params = array(), $source = null, $language = null) {
+		
 	}
+
+	static function yii($message, $params = array(), $source = null, $language = null) {
+		
+	}
+
+	static function zii($message, $params = array(), $source = null, $language = null) {
+		
+	}
+
 }

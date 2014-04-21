@@ -17,7 +17,6 @@ class Users extends \CAction {
 
 //		$dg = $this->DataGrid($ctrl);
 
-		\html::PushStateScript();
 		\Output::Render($ctrl, 'users'/*, array('dg' => $dg)*/);
 	}
 

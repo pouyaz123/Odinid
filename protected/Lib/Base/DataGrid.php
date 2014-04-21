@@ -955,7 +955,8 @@ function(id){
  * @method \Base\DataGridColumn hidden($boolean)
  * 	//	Defines if this column is hidden at initialization.	false
  * @method \Base\DataGridColumn index($string)
- *  //!!!!!Will be used to value the "name" if was not set(just right side of dot "prj.ID"->"ID") and for where clause if "whereclause" was not set<br/>
+ *  //!!!!!(just right side of dot "prj.ID"->"ID") Will be used as default value of the "name" if was not set and for where clause if "whereclause" was not set and for sort(ORDER)<br/>
+ *  //BE CAREFUL to not use '`' (tbl.`Col` is wrong)
  * 	//	Set the index name when sorting. Passed as sidx parameter.	empty string
  * @method \Base\DataGridColumn jsonmap($string)
  * 	//	Defines the json mapping for the column in the incoming json string. See Retrieving Data 	none
@@ -1035,7 +1036,7 @@ class DataGridColumn extends ConfigArray {
  * 	//	Determines where the contents of the cell are saved. Possible values are remote and clientArray. See Cell Editing for more details.	'remote'	Yes
  * @method \Base\DataGridConfig cellurl($string)
  * 	//	the url where the cell is to be saved. See Cell Editing for more details	null	Yes
- * @method \Base\DataGridConfig cmTemplate($object)
+ * @method \Base\DataGridConfig cmTemplate(array|object $array)
  * 	// 	Defines a set of properties which override the default values in colModel. For example if you want to make all columns not sortable, then only one propery here can be specified instead of specifying it in all columns in colModel 	null 	No
  * @method \Base\DataGridConfig colModel($array)
  * 	//	Array which describes the parameters of the columns.This is the most important part of the grid. For a full description of all valid values see colModel API. 	empty array	No

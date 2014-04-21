@@ -175,15 +175,36 @@
 							, $form->error($Model, 'chkToPresent'))
 					?>
 					<script>
-						$("#<?= $Model->PostName ?>_txtFromDate, #<?= $Model->PostName ?>_txtToDate").datepicker({
-							showOn: "both",
-							dateFormat: 'yy-mm-dd',
-							buttonText: '<span class="ui-icon ui-icon-calendar"></span>',
-							maxDate: "+0D",
-							changeMonth: true,
-							changeYear: true,
-							yearRange: '<?= date('Y') - Site\models\Profile\Certificates::OldestYearLimitation ?>:<?= date('Y') ?>'
-								});
+(function() {
+	var frmJQSlct = "#<?= $Model->PostName ?>_txtFromDate"
+			, toJQSlct = "#<?= $Model->PostName ?>_txtToDate"
+			, opts = {
+				showOn: "both",
+				dateFormat: 'yy-mm-dd',
+				buttonText: '<span class="ui-icon ui-icon-calendar"></span>',
+				maxDate: "+0D",
+				changeMonth: true,
+				changeYear: true,
+				numberOfMonths: 1,
+				onSelect: function(selectedDate) {
+					var isTo = $(this).is(toJQSlct)
+					$(isTo ? frmJQSlct : toJQSlct).datepicker("option", isTo ? "maxDate" : "minDate", selectedDate);
+				},
+				yearRange: '<?= date('Y') - Site\models\Profile\Experiences::OldestYearLimitation ?>:<?= date('Y') ?>'};
+	$(frmJQSlct).datepicker(opts);
+	$(toJQSlct).datepicker(opts);
+})()
+<?/*
+$("#<?= $Model->PostName ?>_txtFromDate, #<?= $Model->PostName ?>_txtToDate").datepicker({
+	showOn: "both",
+	dateFormat: 'yy-mm-dd',
+	buttonText: '<span class="ui-icon ui-icon-calendar"></span>',
+	maxDate: "+0D",
+	changeMonth: true,
+	changeYear: true,
+	yearRange: '<?= date('Y') - Site\models\Profile\Experiences::OldestYearLimitation ?>:<?= date('Y') ?>'
+		});
+ */?>
 					</script>
 					<?=
 					html::FieldContainer(

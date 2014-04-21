@@ -16,7 +16,7 @@ return array_merge(
 //	'Description' => 'Description',
 	#
 //	'Actions' => 'Actions',
-	'Inline edit' => 'Inline edit (Double click)',
+//	'Inline edit' => 'Inline edit (Double click)',
 //	'Delete' => 'Delete',
 //	'Save' => 'Save',
 //	'Cancel' => 'Cancel',

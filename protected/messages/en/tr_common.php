@@ -26,5 +26,12 @@ return array(
 //	'Your last login IP : ' => 'Your last login IP : ',
 //	'Your last login Time : ' => 'Your last login Time : ',
 //	'Logged in successfully' => 'Logged in successfully ...',
+#Datagrid
+//	'Actions' => 'Actions',
+	'Inline edit' => 'Inline edit (Double click)',
+//	'Delete' => 'Delete',
+//	'Save' => 'Save',
+//	'Cancel' => 'Cancel',
+//	'Save all editing items' => 'Save all editing items',
 
 );

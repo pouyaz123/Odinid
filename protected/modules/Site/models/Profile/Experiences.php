@@ -20,6 +20,8 @@ use \Tools as T;
  */
 class Experiences extends \Base\FormModel {
 
+	const OldestYearLimitation = 75;
+
 	public function getPostName() {
 		return "UserExperiences";
 	}
@@ -134,7 +136,9 @@ class Experiences extends \Base\FormModel {
 				'on' => 'Edit, Delete'),
 			#
 			array('txtFromDate, txtToDate', 'date',
-				'format' => C\Regexp::DateFormat_Yii_FullDigit,
+				'format' => C\Regexp::Yii_DateFormat_FullDigit,
+				'on' => 'Add, Edit'),
+			array('txtFromDate, txtToDate', 'ValidateDate',
 				'on' => 'Add, Edit'),
 			array_merge(array('txtDescription', 'length',
 				'on' => 'Add, Edit'), $vl->Description),
@@ -182,9 +186,25 @@ class Experiences extends \Base\FormModel {
 				'on' => 'Add, Edit'), $vl->City),
 		);
 	}
-	
+
 	public function ValidateDate($attr) {
-//		if($this->$attr && strtotime($this->$attr)>)
+		if ($this->$attr &&
+				preg_match(C\Regexp::DateFormat_FullDigit, $this->$attr) &&
+				strtotime($this->$attr . ' +0000') > time())
+			$this->addError($attr, \t2::yii('{attribute} "{value}" is invalid.'
+							, array('{attribute}' => $this->getAttributeLabel($attr), '{value}' => $this->$attr)));
+	}
+
+	protected function afterValidate() {
+		if ($this->txtFromDate && $this->txtToDate &&
+				preg_match(C\Regexp::DateFormat_FullDigit, $this->txtFromDate) &&
+				preg_match(C\Regexp::DateFormat_FullDigit, $this->txtToDate) &&
+				strtotime($this->txtFromDate . ' +0000') > strtotime($this->txtToDate . ' +0000')) {
+			$this->addError('txtFromDate', \t2::yii('{attribute} "{value}" is invalid.'
+							, array('{attribute}' => $this->getAttributeLabel('txtFromDate'), '{value}' => $this->txtFromDate)));
+			$this->addError('txtToDate', \t2::yii('{attribute} "{value}" is invalid.'
+							, array('{attribute}' => $this->getAttributeLabel('txtToDate'), '{value}' => $this->txtToDate)));
+		}
 	}
 
 	public function attributeLabels() {
@@ -337,12 +357,16 @@ class Experiences extends \Base\FormModel {
 		return $Result;
 	}
 
-	public function getdtExperiences($ID = NULL, $refresh = false) {
+	public function getdtExperiences($ID = NULL, $refresh = false, \Base\DataGridParams $DGP = NULL) {
 		$StaticIndex = $ID;
 		if (!$StaticIndex)
 			$StaticIndex = "ALL";
 		static $arrDTs = array();
 		if (!isset($arrDTs[$StaticIndex]) || $refresh) {
+			if ($DGP) {
+				$AllCount = T\DB::GetField('SELECT COUNT(*) FROM `_user_experiences`');
+				$Limit = $DGP->QueryLimitParams($AllCount, $ref_LimitIdx, $ref_LimitLen);
+			}
 			$arrDTs[$StaticIndex] = T\DB::GetTable(
 							"SELECT uexp.*"
 							. ", IFNULL(gc.`AsciiName`, guc.`Country`) AS Country"
@@ -359,6 +383,10 @@ class Experiences extends \Base\FormModel {
 							. " LEFT JOIN `_geo_user_countries` AS guc ON guc.`ID`=uexp.`UserCountryID`"
 							. " LEFT JOIN `_geo_user_divisions` AS gud ON gud.`ID`=uexp.`UserDivisionID`"
 							. " LEFT JOIN `_geo_user_cities` AS guct ON guct.`ID`=uexp.`UserCityID`"
+							. ($DGP ?
+									"  WHERE {$DGP->SQLWhereClause}"
+									. "  ORDER BY {$DGP->Sort}"
+									. "  LIMIT $Limit" : "")
 							, array(
 						':uid' => $this->UserID,
 						':id' => $ID,

@@ -63,7 +63,9 @@ class Certificates extends \Base\FormModel {
 			array_merge(array('txtInstitutionTitle, txtTitle', 'length'
 				, 'on' => 'Add, Edit'), $vl->Title),
 			array('txtDate', 'date',
-				'format' => C\Regexp::DateFormat_Yii_FullDigit,
+				'format' => C\Regexp::Yii_DateFormat_FullDigit,
+				'on' => 'Add, Edit'),
+			array('txtDate', 'ValidateDate',
 				'on' => 'Add, Edit'),
 			array_merge(array('txtDescription', 'length',
 				'on' => 'Add, Edit'), $vl->Description),
@@ -78,6 +80,14 @@ class Certificates extends \Base\FormModel {
 			array_merge(array('ddlCity, txtCity', 'length',
 				'on' => 'Add, Edit'), $vl->City),
 		);
+	}
+
+	public function ValidateDate($attr) {
+		if ($this->$attr &&
+				preg_match(C\Regexp::DateFormat_FullDigit, $this->$attr) &&
+				strtotime($this->$attr . ' +0000') > time())
+			$this->addError($attr, \t2::yii('{attribute} "{value}" is invalid.'
+							, array('{attribute}' => $this->getAttributeLabel($attr), '{value}' => $this->$attr)));
 	}
 
 	public function attributeLabels() {
@@ -196,12 +206,16 @@ class Certificates extends \Base\FormModel {
 		return $Result;
 	}
 
-	public function getdtCertificates($ID = NULL, $refresh = false) {
+	public function getdtCertificates($ID = NULL, $refresh = false, \Base\DataGridParams $DGP = NULL) {
 		$StaticIndex = $ID;
 		if (!$StaticIndex)
 			$StaticIndex = "ALL";
 		static $arrDTs = array();
 		if (!isset($arrDTs[$StaticIndex]) || $refresh) {
+			if ($DGP) {
+				$AllCount = T\DB::GetField('SELECT COUNT(*) FROM `_user_certificates`');
+				$Limit = $DGP->QueryLimitParams($AllCount, $ref_LimitIdx, $ref_LimitLen);
+			}
 			$arrDTs[$StaticIndex] = T\DB::GetTable(
 							"SELECT ucert.*"
 							. ", IFNULL(gc.`AsciiName`, guc.`Country`) AS Country"
@@ -218,6 +232,10 @@ class Certificates extends \Base\FormModel {
 							. " LEFT JOIN `_geo_user_countries` AS guc ON guc.`ID`=ucert.`UserCountryID`"
 							. " LEFT JOIN `_geo_user_divisions` AS gud ON gud.`ID`=ucert.`UserDivisionID`"
 							. " LEFT JOIN `_geo_user_cities` AS guct ON guct.`ID`=ucert.`UserCityID`"
+							. ($DGP ?
+									"  WHERE {$DGP->SQLWhereClause}"
+									. "  ORDER BY {$DGP->Sort}"
+									. "  LIMIT $Limit" : "")
 							, array(
 						':uid' => $this->UserID,
 						':id' => $ID,

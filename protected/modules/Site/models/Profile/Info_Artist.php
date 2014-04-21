@@ -96,7 +96,7 @@ class Info_Artist extends \Base\FormModelBehavior {
 			array('chkTalentSearchVisibility, chkRelocateInternally, chkRelocateExternally', 'boolean',
 				'except' => 'Delete'),
 			array('txtHireAvailabilityDate', 'date',
-				'format' => C\Regexp::DateFormat_Yii_FullDigit,
+				'format' => C\Regexp::Yii_DateFormat_FullDigit,
 				'except' => 'Delete'),
 			array('ddlHireAvailabilityType', 'in',
 				'range' => array_keys($this->arrHireAvailabilityTypes),

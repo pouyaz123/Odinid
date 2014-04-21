@@ -55,7 +55,7 @@ class Info_User extends \Base\FormModelBehavior {
 		$vl = \ValidationLimits\User::GetInstance();
 		$e->params['arrRules'] = array_merge($e->params['arrRules'], array(
 			array('txtBirthday', 'date',
-				'format' => C\Regexp::DateFormat_Yii_FullDigit,
+				'format' => C\Regexp::Yii_DateFormat_FullDigit,
 				'except' => 'Delete'),
 			array('ddlBirthdayFormat', 'required',
 				'except' => 'Delete'),
@@ -72,6 +72,14 @@ class Info_User extends \Base\FormModelBehavior {
 //			array_merge(array('filePicture', 'file',
 //				'except' => 'Delete'), $vl->UserPicture),
 		));
+	}
+
+	public function afterValidate($event) {
+		if ($this->owner->scenario != 'Delete' && $this->txtBirthday &&
+				preg_match(C\Regexp::DateFormat_FullDigit, $this->txtBirthday) &&
+				strtotime($this->txtBirthday . ' +0000') > time())
+			$this->owner->addError('txtBirthday', \t2::yii('{attribute} "{value}" is invalid.'
+							, array('{attribute}' => $this->owner->getAttributeLabel('txtBirthday'), '{value}' => $this->txtBirthday)));
 	}
 
 	public function onBeforeAttributeLabels(\CEvent $e) {

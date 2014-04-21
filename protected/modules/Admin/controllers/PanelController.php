@@ -56,7 +56,6 @@ class PanelController extends \Admin\Components\BaseController {
 
 	public function actionCartable() {
 		$this->pageTitle = \t2::AdminPageTitle('Cartable');
-		\html::PushStateScript();
 		$LastLoginTStamp = \Admin\models\AdminLogin::GetSessionDR('LastLoginTStamp');
 		if ($LastLoginTStamp)
 			$LastLoginTStamp = gmdate('r', $LastLoginTStamp);

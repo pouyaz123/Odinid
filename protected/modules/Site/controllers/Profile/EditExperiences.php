@@ -88,8 +88,97 @@ class EditExperiences extends \CAction {
 				, array(
 			'Model' => $Model,
 			'wdgGeoLocation' => $wdgGeoLocation,
+			'dg' => $this->DataGrid($this->controller, $Model),
 				)
 		);
+	}
+
+	/**
+	 * 
+	 * @param \Site\controllers\Profile\EditExperiences $ctrl
+	 * @param \Site\models\Profile\Experiences $Model
+	 * @return \Base\DataGrid
+	 */
+	private function DataGrid(\Site\controllers\ProfileController $ctrl, \Site\models\Profile\Experiences $Model) {
+		$dg = \html::DataGrid_Ready2('dgExperiences', 'Site', 'tr_site')
+				->DataKey('CombinedID')
+				->Options(
+						\html::DataGridConfig()
+						->caption($ctrl->pageTitle)
+				)
+				->SetColumns(
+				/* <td><?= $Model->getAttributeLabel('txtCompanyTitle') ?></td>
+				  <td><?= $Model->getAttributeLabel('ddlCountry') ?></td>
+				  <td><?= $Model->getAttributeLabel('txtJobTitle') ?></td>
+				  <td><?= $Model->getAttributeLabel('txtFromDate') ?></td>
+				  <td><?= $Model->getAttributeLabel('txtToDate') ?></td>
+				  <td><?= $Model->getAttributeLabel('chkHealthInsurance') ?></td>
+				  <td><?= $Model->getAttributeLabel('chkRetirementAccount') ?></td>
+				  <td></td> */
+				\html::DataGridColumn()
+				->index('ci.Title')
+				->name('CompanyTitle')
+				->header($Model->getAttributeLabel('txtCompanyTitle'))
+				#
+				, \html::DataGridColumn()
+				->index('Country')
+				->whereclause_leftside('IFNULL(gc.`AsciiName`, guc.`Country`)')
+				->name('Country')
+				->header($Model->getAttributeLabel('ddlCountry'))
+				#
+				, \html::DataGridColumn()
+				->index('JobTitle')
+				->header($Model->getAttributeLabel('txtJobTitle'))
+				#
+				, \html::DataGridColumn()
+				->index('FromDate')
+				->header($Model->getAttributeLabel('txtFromDate'))
+				#
+				, \html::DataGridColumn()
+				->index('ToDate')
+				->header($Model->getAttributeLabel('txtToDate'))
+				#
+				, \html::DataGridColumn()
+				->index('HealthInsurance')
+				->type('checkbox')
+				->header($Model->getAttributeLabel('chkHealthInsurance'))
+				#
+				, \html::DataGridColumn()
+				->index('RetirementAccount')
+				->type('checkbox')
+				->header($Model->getAttributeLabel('chkRetirementAccount'))
+				#
+				, \html::DataGridColumn()
+				->index('Actions')
+				->header(\t2::site_site('Actions'))
+				->search(false)
+				->editable(FALSE)
+				->sortable(false)
+				->title(false)
+				->width('100px')
+		);
+		$dg
+				->SelectQuery(function(\Base\DataGridParams $DGP)use($Model) {
+					$dt = $Model->getdtExperiences(NULL, true, $DGP);
+					if ($dt)
+						foreach ($dt as $idx => $dr) {
+							$dt[$idx]['Actions'] = $DGP->DataGrid->GetActionColButtons($dr['CombinedID'], "LnkBtn", false, true)
+									. \html::ButtonContainer(
+											\CHtml::button(\t2::site_site('Edit')
+													, array(
+												'name' => 'btnEdit',
+												'rel' => \html::AjaxElement('#divEditExperiences', NULL, "hdnExperienceID={$dr['CombinedID']}") . \html::SimpleAjaxPanel,
+													)
+							));
+						}
+					return $dt;
+				})
+				->DeleteQuery(function(\Base\DataGridParams $DGP)use($Model) {
+					$Model->scenario = 'Delete';
+					$Model->attributes = array('hdnExperienceID' => $DGP->RowID);
+					return $Model->Delete();
+				});
+		return $dg;
 	}
 
 }

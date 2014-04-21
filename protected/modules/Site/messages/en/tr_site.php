@@ -100,6 +100,7 @@ return array_merge(
 //	'Web addresses' => 'Web addresses',
 //	'Experiences' => 'Experiences',
 //	'Certificates' => 'Certificates',
+//	'Awards' => 'Awards',
 //	'Work fields' => 'Work fields',
 //	'Skills' => 'Skills',
 //	'Softwares' => 'Softwares',

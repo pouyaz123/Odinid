@@ -60,9 +60,13 @@ class t2 {
 		$Module = trim(strstr($name, '_', true), '_');
 		$Category = trim(strstr($name, '_'), '_');
 //		}
-		$Category = strtolower('tr_' . $Category);
+		if ($Category != 'yii' && $Category != 'zii')
+			$Category = strtolower('tr_' . $Category);
 		array_unshift($arguments, $Category);
-		return call_user_func_array(array(__CLASS__, $Module), $arguments);
+		if ($Module)
+			return call_user_func_array(array(__CLASS__, $Module), $arguments);
+		else
+			return call_user_func_array(array('Yii', 't'), $arguments);
 	}
 
 	/**

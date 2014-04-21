@@ -80,6 +80,6 @@ class Conf {
 		return \Site\Consts\Routes::User_Profile();
 	}
 
-	const jQTheme = 'redmond';
+	const jQTheme = 'smoothness';
 
 }

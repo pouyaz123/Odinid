@@ -34,6 +34,7 @@ final class html {
 	}
 
 	/**
+	 * more complex for admin (versus site)
 	 * @param str $ID
 	 * @param str $Theme
 	 * @return \Base\DataGrid 
@@ -64,6 +65,42 @@ final class html {
 									, 'sortable' => true
 									, 'editoptions' => array('class' => 'CenterAlign')
 								))
+		);
+	}
+
+	/**
+	 * simpler for site (versus admin)
+	 * @param str $ID
+	 * @param str $Theme
+	 * @return \Base\DataGrid 
+	 */
+	public static function DataGrid_Ready2($ID, $strTranslationModule = NULL, $strTranslationCat = NULL, $Theme = \Conf::jQTheme) {
+		return \html::DataGrid($ID, $Theme)
+						->Resources(\Base\DataGrid::$arrGrpahicalButtonsResource, $strTranslationModule, $strTranslationCat)
+						->SetFilterBar(array('searchOnEnter' => false))
+						->SetNavigator(array(
+							'search' => true
+							, 'edit' => false
+							, 'del' => false
+							, 'saveall' => false
+							, 'add' => false
+						))
+						->Resizable()
+						->SetDblClickEdit()
+						->setTableClasses('MidAlign')
+						->Options(
+								\html::DataGridConfig()
+								->autowidth(true)
+//								->multiselect(true)
+								->cmTemplate(array(
+									'align' => 'center'
+									, 'title' => false
+									, 'search' => true
+									, 'editable' => false
+									, 'sortable' => true
+									, 'editoptions' => array('class' => 'CenterAlign')
+								))
+						->direction(\t2::General('LTR_RTL'))
 		);
 	}
 
@@ -963,11 +1000,10 @@ $.superbox.settings = {
 		self::LoadJS('jqUI/jquery.ui.widget.min');
 		self::LoadJS('jqUI/jquery.ui.datepicker.min');
 	}
-	
+
 //	static function DatePicker_InlineScript() {
 //		
 //	}
-
 //	static function MozillaRTL() {
 //		$UAgent = T\HTTP::RequestHeaders('User-Agent');
 //		return

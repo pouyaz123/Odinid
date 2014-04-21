@@ -1,12 +1,15 @@
 <?php
 /* @var $this \Site\controllers\ProfileController */
 /* @var $Model \Site\models\Profile\Certificates */
+/* @var $dg \Base\DataGrid */
 ?>
 <? $this->beginContent('Site.views.profile.editinfo.layout') ?>
+<?= $dg ?>
 <table class="FullW OLst">
 	<tr class="LstHdr">
 		<td><?= $Model->getAttributeLabel('txtInstitutionTitle') ?></td>
 		<td><?= $Model->getAttributeLabel('txtTitle') ?></td>
+		<td><?= $Model->getAttributeLabel('txtDate') ?></td>
 		<td><?= $Model->getAttributeLabel('ddlCountry') ?></td>
 		<td></td>
 	</tr>
@@ -15,6 +18,7 @@
 		<tr <?= html::AltRow() ?>>
 			<td title="<?= $dr['InstitutionURL'] ?>"><?= $dr['InstitutionTitle'] ?></td>
 			<td><?= $dr['Title'] ?></td>
+			<td><?= $dr['Date'] ?></td>
 			<td title="<?= $dr['City'] . ($dr['City'] && $dr['Division'] ? ' , ' : '') . $dr['Division'] ?>"><?= $dr['Country'] ?></td>
 			<td>
 				<?
