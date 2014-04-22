@@ -1,9 +1,11 @@
 <?php
 /* @var $this \Site\controllers\ProfileController */
 /* @var $Model \Site\models\Profile\Info */
+/* @var $dg \Base\DataGrid */
 ?>
 <? $this->beginContent('Site.views.profile.editinfo.layout') ?>
-<table class="FullW OLst">
+<?= $dg ?>
+<?/*<table class="FullW OLst">
 	<tr class="LstHdr">
 		<td><?= $Model->getAttributeLabel('ddlCountry') ?></td>
 		<td><?= $Model->getAttributeLabel('ddlDivision') ?></td>
@@ -14,9 +16,10 @@
 	</tr>
 	<? foreach ($Model->dtFreshLocations as $dr): ?>
 		<tr <?= html::AltRow() ?> title="<?=
-		($dr['Address1'] ? $Model->getAttributeLabel('txtAddress1') . ' : ' . $dr['Address1'] . '<br/>' : '')
-		. ($dr['Address2'] ? $Model->getAttributeLabel('txtAddress2') . ' : ' . $dr['Address2'] . '<br/>' : '')
-		. ($dr['PostalCode'] ? $Model->getAttributeLabel('txtPostalCode') . ' : ' . $dr['PostalCode'] . '<br/>' : '')
+		CHtml::encode(
+				($dr['Address1'] ? $Model->getAttributeLabel('txtAddress1') . ' : ' . $dr['Address1'] . '<br/>' : '')
+				. ($dr['Address2'] ? $Model->getAttributeLabel('txtAddress2') . ' : ' . $dr['Address2'] . '<br/>' : '')
+				. ($dr['PostalCode'] ? $Model->getAttributeLabel('txtPostalCode') . ' : ' . $dr['PostalCode'] . '<br/>' : ''))
 		?>">
 			<td><?= $dr['Country'] ?></td>
 			<td><?= $dr['Division'] ?></td>
@@ -29,7 +32,7 @@
 					'id' => 'EditLocation',
 					'method' => 'POST',
 						))):
-					/* @var $form Widgets\ActiveForm */
+					/* @var $form Widgets\ActiveForm * /
 					?>
 					<?=
 					html::ButtonContainer(
@@ -51,10 +54,10 @@
 					))
 					?>
 				<? endif; ?>
-	<? $this->endWidget(); ?>
+				<? $this->endWidget(); ?>
 			</td>
 		</tr>
-<? endforeach; ?>
-</table>
+	<? endforeach; ?>
+</table>*/?>
 <? require 'locations_addedit.php'; ?>
 <? $this->endContent(); ?>

@@ -4,8 +4,8 @@
 /* @var $dg \Base\DataGrid */
 ?>
 <? $this->beginContent('Site.views.profile.editinfo.layout') ?>
-<?/*= $dg */?>
-<table class="FullW OLst">
+<?= $dg ?>
+<?/*<table class="FullW OLst">
 	<tr class="LstHdr">
 		<td><?= $Model->getAttributeLabel('txtCompanyTitle') ?></td>
 		<td><?= $Model->getAttributeLabel('ddlCountry') ?></td>
@@ -37,7 +37,7 @@
 					'id' => 'EditExperiences',
 					'method' => 'POST',
 						))):
-					/* @var $form Widgets\ActiveForm */
+					/* @var $form Widgets\ActiveForm * /
 					?>
 					<?=
 					html::ButtonContainer(
@@ -63,6 +63,6 @@
 			</td>
 		</tr>
 	<? endforeach; ?>
-</table>
+</table>*/ ?>
 <? require 'experiences_addedit.php'; ?>
 <? $this->endContent(); ?>

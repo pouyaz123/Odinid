@@ -23,7 +23,9 @@ class Certificates extends \Base\FormModel {
 	}
 
 	protected function XSSPurify_Exceptions() {
-		return "hdnCertificateID";
+		return "hdnCertificateID"
+				. ", txtDate"
+				. ", hdnInstitutionID";
 	}
 
 	//----- attrs
@@ -152,22 +154,22 @@ class Certificates extends \Base\FormModel {
 		}
 		$Queries[] = array(
 			!$this->hdnCertificateID ?
-					"INSERT INTO `_user_certificates`("
+					"INSERT IGNORE INTO `_user_certificates`("
 					. " `CombinedID`, `UID`, `InstitutionID`"
 					. ", `Title`, `Date`, `Description`"
 					. ", `GeoCountryISO2`, `GeoDivisionCode`, `GeoCityID`"
 					. ", `UserCountryID`,`UserDivisionID`, `UserCityID`)"
 					. " VALUE("
-					. " ($strSQLPart_ID), :uid, institutions_getCreatedInstitutionID(:instid, :instttl, :instdom, :instdom_escaped, :instulr)"
+					. " @cert_ID:=($strSQLPart_ID), :uid, @cert_InstitutionID:=institutions_getCreatedInstitutionID(:instid, :instttl, :instdom, :instdom_escaped, :instulr)"
 					. ", :ttl, :date, :desc"
 					. ", @cert_CountryISO2, @cert_DivisionCombined, @cert_CityID"
 					. ", @cert_UserCountryID, @cert_UserDivisionID, @cert_UserCityID)" :
 					"UPDATE `_user_certificates` SET "
-					. " `InstitutionID`=institutions_getCreatedInstitutionID(:instid, :instttl, :instdom, :instdom_escaped, :instulr)"
-					. ", `Title`=:ttl, `Date`=:date, `Description`:desc"
+					. " `InstitutionID`=@cert_InstitutionID:=institutions_getCreatedInstitutionID(:instid, :instttl, :instdom, :instdom_escaped, :instulr)"
+					. ", `Title`=:ttl, `Date`=:date, `Description`=:desc"
 					. ", `GeoCountryISO2`=@cert_CountryISO2, `GeoDivisionCode`=@cert_DivisionCombined, `GeoCityID`=@cert_CityID"
 					. ", `UserCountryID`=@cert_UserCountryID, `UserDivisionID`=@cert_UserDivisionID, `UserCityID`=@cert_UserCityID"
-					. " WHERE `CombinedID`=:combid AND `UID`=:uid"
+					. " WHERE `CombinedID`=(@cert_ID:=:combid) AND `UID`=:uid"
 			, array(
 				':combid' => $this->hdnCertificateID,
 				':uid' => $this->UserID,
@@ -186,8 +188,14 @@ class Certificates extends \Base\FormModel {
 		$Result = T\DB::Transaction($Queries, NULL, function(\Exception $ex) {
 					\html::ErrMsg_Exit(\t2::site_site('Failed! Plz retry.'));
 				});
-		if ($Result)
+		if ($Result) {
 			$this->scenario = 'Edit';
+			if (!$this->hdnCertificateID || !$this->hdnInstitutionID) {
+				$dr = T\DB::GetRow("SELECT @cert_ID AS CombinedID, @cert_InstitutionID AS InstitutionID");
+				$this->hdnCertificateID = $dr['CombinedID'];
+				$this->hdnInstitutionID = $dr['InstitutionID'];
+			}
+		}
 		return $Result ? true : false;
 	}
 
@@ -213,7 +221,8 @@ class Certificates extends \Base\FormModel {
 		static $arrDTs = array();
 		if (!isset($arrDTs[$StaticIndex]) || $refresh) {
 			if ($DGP) {
-				$AllCount = T\DB::GetField('SELECT COUNT(*) FROM `_user_certificates`');
+				$AllCount = T\DB::GetField('SELECT COUNT(*) FROM `_user_certificates` WHERE `UID`=:uid'
+								, array(':uid' => $this->UserID));
 				$Limit = $DGP->QueryLimitParams($AllCount, $ref_LimitIdx, $ref_LimitLen);
 			}
 			$arrDTs[$StaticIndex] = T\DB::GetTable(

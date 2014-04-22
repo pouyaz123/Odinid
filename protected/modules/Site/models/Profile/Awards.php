@@ -13,6 +13,7 @@ use \Tools as T;
  * @access public
  * @property-read array $dtAwards
  * @property-read array $dtFreshAwards
+ * @property-read array $arrYears
  */
 class Awards extends \Base\FormModel {
 
@@ -23,7 +24,9 @@ class Awards extends \Base\FormModel {
 	}
 
 	protected function XSSPurify_Exceptions() {
-		return "hdnAwardID";
+		return "hdnAwardID"
+				. ", ddlYear"
+				. ", hdnOrganizationID";
 	}
 
 	//----- attrs
@@ -37,6 +40,16 @@ class Awards extends \Base\FormModel {
 	public $txtOrganizationURL;
 	#
 	public $UserID;
+
+	public function getarrYears() {
+		$CurrentYear = gmdate('Y');
+		$Result = array();
+		for ($x = 0; $x < self::OldestYearLimitation; $x++) {
+			$Result[$CurrentYear - $x] = ($CurrentYear - $x);
+			ksort($Result);
+		}
+		return $Result;
+	}
 
 	public function rules() {
 		$vl = \ValidationLimits\User::GetInstance();
@@ -75,7 +88,7 @@ class Awards extends \Base\FormModel {
 		return array(
 			'txtTitle' => \t2::site_site('Title'),
 			'txtDescription' => \t2::site_site('Description'),
-			'ddlYear' => \t2::site_site('Date'),
+			'ddlYear' => \t2::site_site('Year'),
 			'txtOrganizationTitle' => \t2::site_site('Organization title'),
 			'txtOrganizationURL' => \t2::site_site('Web URL'),
 		);
@@ -100,42 +113,42 @@ class Awards extends \Base\FormModel {
 		}
 		$Queries[] = array(
 			!$this->hdnAwardID ?
-					"INSERT INTO `_user_awards`("
+					"INSERT IGNORE INTO `_user_awards`("
 					. " `CombinedID`, `UID`, `OrganizationID`"
-					. ", `Title`, `Date`, `Description`"
-					. ", `GeoCountryISO2`, `GeoDivisionCode`, `GeoCityID`"
-					. ", `UserCountryID`,`UserDivisionID`, `UserCityID`)"
+					. ", `Title`, `Year`, `Description`)"
 					. " VALUE("
-					. " ($strSQLPart_ID), :uid, organizations_getCreatedOrganizationID(:instid, :instttl, :instdom, :instdom_escaped, :instulr)"
-					. ", :ttl, :date, :desc"
-					. ", @cert_CountryISO2, @cert_DivisionCombined, @cert_CityID"
-					. ", @cert_UserCountryID, @cert_UserDivisionID, @cert_UserCityID)" :
+					. " @awrd_ID:=($strSQLPart_ID), :uid, @awrd_OrganizationID:=organizations_getCreatedOrganizationID(:orgid, :orgttl, :orgdom, :orgdom_escaped, :orgulr)"
+					. ", :ttl, :year, :desc)" :
 					"UPDATE `_user_awards` SET "
-					. " `OrganizationID`=organizations_getCreatedOrganizationID(:instid, :instttl, :instdom, :instdom_escaped, :instulr)"
-					. ", `Title`=:ttl, `Date`=:date, `Description`:desc"
-					. ", `GeoCountryISO2`=@cert_CountryISO2, `GeoDivisionCode`=@cert_DivisionCombined, `GeoCityID`=@cert_CityID"
-					. ", `UserCountryID`=@cert_UserCountryID, `UserDivisionID`=@cert_UserDivisionID, `UserCityID`=@cert_UserCityID"
-					. " WHERE `CombinedID`=:combid AND `UID`=:uid"
+					. " `OrganizationID`=@awrd_OrganizationID:=organizations_getCreatedOrganizationID(:orgid, :orgttl, :orgdom, :orgdom_escaped, :orgulr)"
+					. ", `Title`=:ttl, `Year`=:year, `Description`=:desc"
+					. " WHERE `CombinedID`=(@awrd_ID:=:combid) AND `UID`=:uid"
 			, array(
 				':combid' => $this->hdnAwardID,
 				':uid' => $this->UserID,
 				#
-				':instid' => $this->hdnOrganizationID? : null,
-				':instttl' => $this->txtOrganizationTitle? : null,
-				':instdom' => $Domain? : null,
-				':instdom_escaped' => $Domain ? T\DB::EscapeLikeWildCards($Domain) : null,
-				':instulr' => $this->txtOrganizationURL? : null,
+				':orgid' => $this->hdnOrganizationID? : null,
+				':orgttl' => $this->txtOrganizationTitle? : null,
+				':orgdom' => $Domain? : null,
+				':orgdom_escaped' => $Domain ? T\DB::EscapeLikeWildCards($Domain) : null,
+				':orgulr' => $this->txtOrganizationURL? : null,
 				#
 				':ttl' => $this->txtTitle? : null,
-				':date' => $this->ddlYear? : null,
+				':year' => $this->ddlYear? : null,
 				':desc' => $this->txtDescription? : null,
 			)
 		);
 		$Result = T\DB::Transaction($Queries, NULL, function(\Exception $ex) {
 					\html::ErrMsg_Exit(\t2::site_site('Failed! Plz retry.'));
 				});
-		if ($Result)
+		if ($Result) {
 			$this->scenario = 'Edit';
+			if (!$this->hdnAwardID || !$this->hdnOrganizationID) {
+				$dr = T\DB::GetRow("SELECT @awrd_ID AS CombinedID, @awrd_OrganizationID AS OrganizationID");
+				$this->hdnAwardID = $dr['CombinedID'];
+				$this->hdnOrganizationID = $dr['OrganizationID'];
+			}
+		}
 		return $Result ? true : false;
 	}
 
@@ -154,28 +167,28 @@ class Awards extends \Base\FormModel {
 		return $Result;
 	}
 
-	public function getdtAwards($ID = NULL, $refresh = false) {
+	public function getdtAwards($ID = NULL, $refresh = false, \Base\DataGridParams $DGP = NULL) {
 		$StaticIndex = $ID;
 		if (!$StaticIndex)
 			$StaticIndex = "ALL";
 		static $arrDTs = array();
 		if (!isset($arrDTs[$StaticIndex]) || $refresh) {
+			if ($DGP) {
+				$AllCount = T\DB::GetField('SELECT COUNT(*) FROM `_user_awards` WHERE `UID`=:uid'
+								, array(':uid' => $this->UserID));
+				$Limit = $DGP->QueryLimitParams($AllCount, $ref_LimitIdx, $ref_LimitLen);
+			}
 			$arrDTs[$StaticIndex] = T\DB::GetTable(
-							"SELECT ucert.*"
-							. ", IFNULL(gc.`AsciiName`, guc.`Country`) AS Country"
-							. ", IFNULL(gd.`AsciiName`, gud.`Division`) AS Division"
-							. ", IFNULL(gct.`AsciiName`, guct.`City`) AS City"
-							. ", ins.`Title` AS OrganizationTitle"
-							. ", ins.`URL` AS OrganizationURL"
-							. " FROM `_user_awards` AS ucert"
-							. " INNER JOIN (SELECT 1) tmp ON " . ($ID ? " ucert.`CombinedID`=:id AND " : '') . " UID=:uid"
-							. " LEFT JOIN `_organizations` AS ins ON ins.`ID`=ucert.OrganizationID"
-							. " LEFT JOIN `_geo_countries` AS gc ON gc.`ISO2`=ucert.`GeoCountryISO2`"
-							. " LEFT JOIN `_geo_divisions` AS gd ON gd.`CombinedCode`=ucert.`GeoDivisionCode`"
-							. " LEFT JOIN `_geo_cities` AS gct ON gct.`GeonameID` =ucert.`GeoCityID`"
-							. " LEFT JOIN `_geo_user_countries` AS guc ON guc.`ID`=ucert.`UserCountryID`"
-							. " LEFT JOIN `_geo_user_divisions` AS gud ON gud.`ID`=ucert.`UserDivisionID`"
-							. " LEFT JOIN `_geo_user_cities` AS guct ON guct.`ID`=ucert.`UserCityID`"
+							"SELECT uawrd.*"
+							. ", org.`Title` AS OrganizationTitle"
+							. ", org.`URL` AS OrganizationURL"
+							. " FROM `_user_awards` AS uawrd"
+							. " INNER JOIN (SELECT 1) tmp ON " . ($ID ? " uawrd.`CombinedID`=:id AND " : "") . " UID=:uid"
+							. " LEFT JOIN `_organizations` AS org ON org.`ID`=uawrd.OrganizationID"
+							. ($DGP ?
+									" WHERE {$DGP->SQLWhereClause}"
+									. " ORDER BY {$DGP->Sort}"
+									. " LIMIT $Limit" : "")
 							, array(
 						':uid' => $this->UserID,
 						':id' => $ID,
@@ -205,7 +218,7 @@ class Awards extends \Base\FormModel {
 				'hdnAwardID' => $dr['CombinedID'],
 				'hdnOrganizationID' => $dr['OrganizationID'],
 				'txtTitle' => $dr['Title'],
-				'ddlYear' => $dr['Date'],
+				'ddlYear' => $dr['Year'],
 				'txtDescription' => $dr['Description'],
 				#
 				'txtOrganizationTitle' => $dr['OrganizationTitle'],

@@ -162,6 +162,59 @@ class GCC {
 		}, 'GCC_Softwares');
 	}
 
+	static function RogueInstitutions() {
+		self::RogueCacheHandler(function() {
+			$drWhereClause = T\DB::GetRow("SELECT "
+							. " GROUP_CONCAT(DISTINCT inst.ID SEPARATOR ' OR ID=') AS IDs"
+							. " FROM `_institutions` inst"
+							. " INNER JOIN (SELECT 1) tmp ON NOT inst.`Verified`"
+							. " LEFT JOIN (SELECT DISTINCT `InstitutionID` FROM `_user_certificates`) cert"
+							. " ON cert.InstitutionID=inst.`ID`"
+							. " WHERE ISNULL(cert.InstitutionID)");
+			if ($drWhereClause && $drWhereClause['IDs']) {
+				$arrTrans = array();
+				$arrTrans[] = "DELETE FROM `_institutions` WHERE ID=" . $drWhereClause['IDs'];
+				T\DB::Transaction($arrTrans);
+			}
+		}, 'GCC_Institutions');
+	}
+
+	static function RogueOrganizations() {
+		self::RogueCacheHandler(function() {
+			$drWhereClause = T\DB::GetRow("SELECT "
+							. " GROUP_CONCAT(DISTINCT org.ID SEPARATOR ' OR ID=') AS IDs"
+							. " FROM `_organizations` org"
+							. " INNER JOIN (SELECT 1) tmp ON NOT org.`Verified`"
+							. " LEFT JOIN (SELECT DISTINCT `OrganizationID` FROM `_user_awards`) uawrd"
+							. " ON uawrd.OrganizationID=org.`ID`"
+							. " WHERE ISNULL(uawrd.OrganizationID)");
+			if ($drWhereClause && $drWhereClause['IDs']) {
+				$arrTrans = array();
+				$arrTrans[] = "DELETE FROM `_organizations` WHERE ID=" . $drWhereClause['IDs'];
+				T\DB::Transaction($arrTrans);
+			}
+		}, 'GCC_Organizations');
+	}
+
+	static function RogueCompanies() {
+		self::RogueCacheHandler(function() {
+			$drWhereClause = T\DB::GetRow("SELECT "
+							. " GROUP_CONCAT(DISTINCT comp.ID SEPARATOR ' OR ID=') AS IDs"
+							. " FROM `_company_info` comp"
+							. " INNER JOIN (SELECT 1) tmp ON NOT comp.`Verified` AND ISNULL(`OwnerUID`)"
+							. " LEFT JOIN (SELECT DISTINCT `CompanyID` FROM `_user_experiences`) uexp"
+							. " ON uexp.CompanyID=comp.`ID`"
+							. " WHERE ISNULL(uexp.CompanyID)");
+			if ($drWhereClause && $drWhereClause['IDs']) {
+				$arrTrans = array();
+				$arrTrans[] = "DELETE FROM `_company_info` WHERE `ID`=" . $drWhereClause['IDs'];
+				T\DB::Transaction($arrTrans);
+			}
+		}, 'GCC_Companies');
+	}
+
+//mytodo 1: GCC clean unused unoccupied institutions, companies, schools and organizations
+//mytodo 1: GCC clean unused unofficial countries, divisions and cities
 }
 
 ?>

@@ -160,12 +160,17 @@ class Info_Locations extends \Base\FormModelBehavior {
 		return $dr;
 	}
 
-	public function getdtLocations($ID = NULL, $refresh = false) {
+	public function getdtLocations($ID = NULL, $refresh = false, \Base\DataGridParams $DGP = NULL) {
 		$StaticIndex = $ID;
 		if (!$StaticIndex)
 			$StaticIndex = "ALL";
 		static $arrDTs = null;
 		if (!isset($arrDTs[$StaticIndex]) || $refresh) {
+			if ($DGP) {
+				$AllCount = T\DB::GetField('SELECT COUNT(*) FROM `_user_locations` WHERE `UID`=:uid'
+								, array(':uid' => $this->owner->drUser->ID));
+				$Limit = $DGP->QueryLimitParams($AllCount, $ref_LimitIdx, $ref_LimitLen);
+			}
 			//mytodo x: in Info_Locations i think we can query faster if we put these joins in a procedure
 			$arrDTs[$StaticIndex] = T\DB::GetTable(
 							"SELECT "
@@ -181,6 +186,10 @@ class Info_Locations extends \Base\FormModelBehavior {
 							. " LEFT JOIN `_geo_user_countries` AS guc ON guc.`ID`=locs.`UserCountryID`"
 							. " LEFT JOIN `_geo_user_divisions` AS gud ON gud.`ID`=locs.`UserDivisionID`"
 							. " LEFT JOIN `_geo_user_cities` AS guct ON guct.`ID`=locs.`UserCityID`"
+							. ($DGP ?
+									"  WHERE {$DGP->SQLWhereClause}"
+									. "  ORDER BY {$DGP->Sort}"
+									. "  LIMIT $Limit" : "")
 							, array(
 						':uid' => $this->owner->drUser->ID,
 						':id' => $ID,
@@ -195,10 +204,10 @@ class Info_Locations extends \Base\FormModelBehavior {
 	 * @param string $ID
 	 * @return array
 	 */
-	public function getdtFreshLocations($ID = null) {
+	public function getdtFreshLocations($ID = null, \Base\DataGridParams $DGP = NULL) {
 		static $Result = null;
 		if (!$Result)
-			$Result = $this->getdtLocations($ID, true);
+			$Result = $this->getdtLocations($ID, true, $DGP);
 		return $Result;
 	}
 

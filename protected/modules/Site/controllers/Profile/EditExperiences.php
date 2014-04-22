@@ -162,7 +162,22 @@ class EditExperiences extends \CAction {
 					$dt = $Model->getdtExperiences(NULL, true, $DGP);
 					if ($dt)
 						foreach ($dt as $idx => $dr) {
-							$dt[$idx]['Actions'] = $DGP->DataGrid->GetActionColButtons($dr['CombinedID'], "LnkBtn", false, true)
+							$dr['CompanyTitle'] = "<div title='{$dr['CompanyURL']}'>{$dr['CompanyTitle']}</div>";
+							$dr['Country'] = "<div title='"
+									. \CHtml::encode($dr['City'] . ($dr['City'] && $dr['Division'] ? ' , ' : '') . $dr['Division'])
+									. "'>{$dr['Country']}</div>";
+							$dr['ToDate'] = $dr['ToPresent'] ? \t2::site_site('Present') : $dr['ToDate'];
+							$dr['JobTitle'] = "<div title='"
+									. \CHtml::encode(
+											($dr['Level'] ? $Model->getAttributeLabel('ddlLevel') . ' : ' . $dr['Level'] . '<br/>' : '')
+											. ($dr['EmploymentType'] ? $Model->getAttributeLabel('ddlEmploymentType') . ' : ' . $dr['EmploymentType'] . '<br/>' : '')
+											. ($dr['SalaryType'] ? $Model->getAttributeLabel('ddlSalaryType') . ' : ' . $dr['SalaryType'] . '<br/>' : '')
+											. ($dr['SalaryAmount'] ? $Model->getAttributeLabel('txtSalaryAmount') . ' : ' . $dr['SalaryAmount'] . '<br/>' : '')
+									)
+									. "'>"
+									. "{$dr['JobTitle']}"
+									. "</div>";
+							$dr['Actions'] = $DGP->DataGrid->GetActionColButtons($dr['CombinedID'], "LnkBtn", false, true)
 									. \html::ButtonContainer(
 											\CHtml::button(\t2::site_site('Edit')
 													, array(
@@ -170,6 +185,7 @@ class EditExperiences extends \CAction {
 												'rel' => \html::AjaxElement('#divEditExperiences', NULL, "hdnExperienceID={$dr['CombinedID']}") . \html::SimpleAjaxPanel,
 													)
 							));
+							$dt[$idx] = $dr;
 						}
 					return $dt;
 				})

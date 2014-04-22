@@ -1,29 +1,27 @@
 <?php
 /* @var $this \Site\controllers\ProfileController */
-/* @var $Model \Site\models\Profile\Certificates */
+/* @var $Model \Site\models\Profile\Awards */
 /* @var $dg \Base\DataGrid */
 ?>
 <? $this->beginContent('Site.views.profile.editinfo.layout') ?>
 <?= $dg ?>
 <?/*<table class="FullW OLst">
 	<tr class="LstHdr">
-		<td><?= $Model->getAttributeLabel('txtInstitutionTitle') ?></td>
-		<td><?= $Model->getAttributeLabel('ddlCountry') ?></td>
+		<td><?= $Model->getAttributeLabel('txtOrganizationTitle') ?></td>
 		<td><?= $Model->getAttributeLabel('txtTitle') ?></td>
-		<td><?= $Model->getAttributeLabel('txtDate') ?></td>
+		<td><?= $Model->getAttributeLabel('ddlYear') ?></td>
 		<td></td>
 	</tr>
-	<? foreach ($Model->dtFreshCertificates as $dr): ?>
+	<? foreach ($Model->dtFreshAwards as $dr): ?>
 
 		<tr <?= html::AltRow() ?>>
-			<td title="<?= $dr['InstitutionURL'] ?>"><?= $dr['InstitutionTitle'] ?></td>
-			<td title="<?= $dr['City'] . ($dr['City'] && $dr['Division'] ? ' , ' : '') . $dr['Division'] ?>"><?= $dr['Country'] ?></td>
+			<td title="<?= $dr['OrganizationURL'] ?>"><?= $dr['OrganizationTitle'] ?></td>
 			<td><?= $dr['Title'] ?></td>
-			<td><?= $dr['Date'] ?></td>
+			<td><?= $dr['Year'] ?></td>
 			<td>
 				<?
 				if ($form = $this->beginWidget('Widgets\ActiveForm', array(
-					'id' => 'EditCertificates',
+					'id' => 'EditAwards',
 					'method' => 'POST',
 						))):
 					/* @var $form Widgets\ActiveForm * /
@@ -33,7 +31,7 @@
 							CHtml::button(\t2::site_site('Edit')
 									, array(
 								'name' => 'btnEdit',
-								'rel' => \html::AjaxElement('#divEditCertificates', NULL, "hdnCertificateID={$dr['CombinedID']}") . \html::SimpleAjaxPanel,
+								'rel' => \html::AjaxElement('#divEditAwards', NULL, "hdnAwardID={$dr['CombinedID']}") . \html::SimpleAjaxPanel,
 									)
 					))
 					?>
@@ -42,7 +40,7 @@
 							CHtml::button(\t2::site_site('Delete')
 									, array(
 								'name' => 'btnDelete',
-								'rel' => \html::AjaxElement('#divEditInfo', NULL, "hdnCertificateID={$dr['CombinedID']}") . ' ' . html::OnceClick,
+								'rel' => \html::AjaxElement('#divEditInfo', NULL, "hdnAwardID={$dr['CombinedID']}") . ' ' . html::OnceClick,
 								'onclick' => \html::PostbackConfirm_OnClick('Are you sure?'),
 									)
 					))
@@ -53,5 +51,5 @@
 		</tr>
 	<? endforeach; ?>
 </table>*/?>
-<? require 'certificates_addedit.php'; ?>
+<? require 'awards_addedit.php'; ?>
 <? $this->endContent(); ?>

@@ -19,7 +19,7 @@ BEGIN
 		OR (
 			`Title` = $title
 			AND (
-				`Domain` = $domain
+				`Domain` <=> $domain
 				OR `Domain` LIKE CONCAT('%', $domainLikeEscaped) ESCAPE '='
 				OR $domain LIKE CONCAT('%', `Domain`) ESCAPE '='
 			)

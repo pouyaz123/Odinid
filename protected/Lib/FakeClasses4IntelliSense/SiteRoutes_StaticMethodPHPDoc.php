@@ -77,4 +77,8 @@ class Routes {
 		
 	}
 
+	static function User_EditAdditionals($Username = null) {
+		
+	}
+
 }

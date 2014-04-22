@@ -8,15 +8,14 @@ use Tools as T;
 /**
  * @author Abbas Hashemian <tondarweb@gmail.com>
  */
-class EditCertificates extends \CAction {
+class EditAwards extends \CAction {
 
 	public function run() {
-		$this->controller->pageTitle = \t2::SitePageTitle(\t2::site_site('Certificates'));
+		$this->controller->pageTitle = \t2::SitePageTitle(\t2::site_site('Awards'));
 		\html::TagIt_Load();
 		\html::jqUI_AutoComplete_Load();
-		\html::DatePicker_Load();
 
-		$Model = new \Site\models\Profile\Certificates('Add');
+		$Model = new \Site\models\Profile\Awards('Add');
 		$Model->UserID = Login::GetSessionDR('ID');
 
 		$btnAdd = \GPCS::POST('btnAdd');
@@ -31,27 +30,27 @@ class EditCertificates extends \CAction {
 		elseif ($btnDelete)
 			$Model->scenario = 'Delete';
 
-		$ID = \GPCS::POST('hdnCertificateID');
+		$ID = \GPCS::POST('hdnAwardID');
 		if ($btnDelete && !$ID) { //Delete button of the edit form. We will not assign whole form
-			$ID = \GPCS::POST('UserCertificates');
-			$ID = $ID ? $ID['hdnCertificateID'] : $ID;
+			$ID = \GPCS::POST('UserAwards');
+			$ID = $ID ? $ID['hdnAwardID'] : $ID;
 		}
 		if ($ID)
-			$Model->attributes = array('hdnCertificateID' => $ID);
+			$Model->attributes = array('hdnAwardID' => $ID);
 
 		if ($btnAdd || $btnSaveEdit) {
-			$Model->attributes = \GPCS::POST('UserCertificates');
+			$Model->attributes = \GPCS::POST('UserAwards');
 			$Model->Save();
 		} elseif ($btnEdit)
 			$Model->SetForm();
 		elseif ($btnDelete)
 			$Model->Delete();
-		else {//institution name autocomplete
+		else {//organization name autocomplete
 			\Output::AddIn_AjaxOutput(function() {
 				$term = \GPCS::GET('term')? : \GPCS::POST('term');
 				if ($term) {
 					$dt = T\DB::GetTable("SELECT `Title`, `URL`, `ID`"
-									. " FROM `_institutions`"
+									. " FROM `_organizations`"
 									. " WHERE `Title` LIKE CONCAT(:term, '%') ESCAPE '" . T\DB::LikeEscapeChar . "'"
 									, array(':term' => T\DB::EscapeLikeWildCards($term)));
 					if ($dt) {
@@ -64,30 +63,14 @@ class EditCertificates extends \CAction {
 						echo json_encode($dt);
 					}
 				}
-			}, 'AutoComplete_UserCertificates_txtInstitutionTitle');
+			}, 'AutoComplete_UserAwards_txtOrganizationTitle');
 		}
 
-		$wdgGeoLocation = $this->controller->createWidget(
-				'\Widgets\GeoLocationFields\GeoLocationFields'
-				, array(
-			'id' => 'GeoDDLs',
-			'Model' => $Model,
-			'ddlCountryAttr' => 'ddlCountry',
-			'ddlDivisionAttr' => 'ddlDivision',
-			'ddlCityAttr' => 'ddlCity',
-			'txtCountryAttr' => 'txtCountry',
-			'txtDivisionAttr' => 'txtDivision',
-			'txtCityAttr' => 'txtCity',
-			'PromptDDLOption' => 'select',
-				)
-		);
-		/* @var $wdgGeoLocation \Widgets\GeoLocationFields\GeoLocationFields */
 		\Output::Render($this->controller
 				, ($btnEdit ?
-						'editinfo/certificates_addedit' : 'editinfo/certificates')
+						'editinfo/awards_addedit' : 'editinfo/awards')
 				, array(
 			'Model' => $Model,
-			'wdgGeoLocation' => $wdgGeoLocation,
 			'dg' => $this->DataGrid($this->controller, $Model),
 				)
 		);
@@ -95,12 +78,12 @@ class EditCertificates extends \CAction {
 
 	/**
 	 * 
-	 * @param \Site\controllers\Profile\EditCertificates $ctrl
-	 * @param \Site\models\Profile\Certificates $Model
+	 * @param \Site\controllers\Profile\EditAwards $ctrl
+	 * @param \Site\models\Profile\Awards $Model
 	 * @return \Base\DataGrid
 	 */
-	private function DataGrid(\Site\controllers\ProfileController $ctrl, \Site\models\Profile\Certificates $Model) {
-		$dg = \html::DataGrid_Ready2('dgCertificates', 'Site', 'tr_site')
+	private function DataGrid(\Site\controllers\ProfileController $ctrl, \Site\models\Profile\Awards $Model) {
+		$dg = \html::DataGrid_Ready2('dgAwards', 'Site', 'tr_site')
 				->DataKey('CombinedID')
 				->Options(
 						\html::DataGridConfig()
@@ -108,23 +91,17 @@ class EditCertificates extends \CAction {
 				)
 				->SetColumns(
 				\html::DataGridColumn()
-				->index('ins.Title')
-				->name('InstitutionTitle')
-				->header($Model->getAttributeLabel('txtInstitutionTitle'))
-				#
-				, \html::DataGridColumn()
-				->index('Country')
-				->whereclause_leftside('IFNULL(gc.`AsciiName`, guc.`Country`)')
-				->name('Country')
-				->header($Model->getAttributeLabel('ddlCountry'))
+				->index('org.Title')
+				->name('OrganizationTitle')
+				->header($Model->getAttributeLabel('txtOrganizationTitle'))
 				#
 				, \html::DataGridColumn()
 				->index('Title')
 				->header($Model->getAttributeLabel('txtTitle'))
 				#
 				, \html::DataGridColumn()
-				->index('Date')
-				->header($Model->getAttributeLabel('txtDate'))
+				->index('Year')
+				->header($Model->getAttributeLabel('ddlYear'))
 				#
 				, \html::DataGridColumn()
 				->index('Actions')
@@ -137,19 +114,18 @@ class EditCertificates extends \CAction {
 		);
 		$dg
 				->SelectQuery(function(\Base\DataGridParams $DGP)use($Model) {
-					$dt = $Model->getdtCertificates(NULL, true, $DGP);
+					$dt = $Model->getdtAwards(NULL, true, $DGP);
 					if ($dt)
 						foreach ($dt as $idx => $dr) {
-							$dr['InstitutionTitle'] = "<div title='" . \CHtml::encode($dr['InstitutionURL']) . "'>{$dr['InstitutionTitle']}</div>";
-							$dr['Country'] = "<div title='"
-									. \CHtml::encode($dr['City'] . ($dr['City'] && $dr['Division'] ? ' , ' : '') . $dr['Division'])
-									. "'>{$dr['Country']}</div>";
-							$dt[$idx]['Actions'] = $DGP->DataGrid->GetActionColButtons($dr['CombinedID'], "LnkBtn", false, true)
+							$dr['OrganizationTitle'] = "<div title='"
+									. \CHtml::encode($dr['OrganizationURL'])
+									. "'>{$dr['OrganizationTitle']}</div>";
+							$dr['Actions'] = $DGP->DataGrid->GetActionColButtons($dr['CombinedID'], "LnkBtn", false, true)
 									. \html::ButtonContainer(
 											\CHtml::button(\t2::site_site('Edit')
 													, array(
 												'name' => 'btnEdit',
-												'rel' => \html::AjaxElement('#divEditCertificates', NULL, "hdnCertificateID={$dr['CombinedID']}") . \html::SimpleAjaxPanel,
+												'rel' => \html::AjaxElement('#divEditAwards', NULL, "hdnAwardID={$dr['CombinedID']}") . \html::SimpleAjaxPanel,
 													)
 							));
 							$dt[$idx] = $dr;
@@ -158,7 +134,7 @@ class EditCertificates extends \CAction {
 				})
 				->DeleteQuery(function(\Base\DataGridParams $DGP)use($Model) {
 					$Model->scenario = 'Delete';
-					$Model->attributes = array('hdnCertificateID' => $DGP->RowID);
+					$Model->attributes = array('hdnAwardID' => $DGP->RowID);
 					return $Model->Delete();
 				});
 		return $dg;

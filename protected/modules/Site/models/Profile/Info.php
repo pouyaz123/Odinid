@@ -73,6 +73,7 @@ use \Tools as T;
  * @property string $ddlWebAddrType
  * @property string $txtCustomType
  * -----Location Behavior
+ * @method array getdtLocations(string $ContactID = NULL, boolean $refresh = false)
  * @property-read array $dtLocations
  * @property-read array $dtFreshLocations
  * @property-read array $drCurrentLocation

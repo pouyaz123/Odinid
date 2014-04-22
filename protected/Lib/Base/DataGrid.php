@@ -468,11 +468,11 @@ function(id){
 				. (!empty($arrOptions['saveall']) ? ".navButtonAdd('#{$this->_PagerID}',
 					{ caption:'', buttonicon:'ui-icon-saveall', onClickButton:function(){
 						$('#{$this->ID} [rel=\"GridInlistSaveBtn\"]:visible').click()
-					}, position: 'first', title:'" . $this->_Resources['SaveAll'] . "', cursor: 'pointer'})" : "")
-				. ".navButtonAdd('#{$this->_PagerID}',
-					{ caption:'', buttonicon:'ui-icon-info', onClickButton:function(){
-						jAlert('info', 'Webdesignir php datagrid on top of jQGrid.<br/>Server side by : Abbas Ali Hashemian<br/>tondarweb@gmail.com - webdesignir.com', 'About datagrid' )
-					}, position: 'last', title:'About', cursor: 'pointer'})";
+					}, position: 'first', title:'" . $this->_Resources['SaveAll'] . "', cursor: 'pointer'})" : "");
+//				. ".navButtonAdd('#{$this->_PagerID}',
+//					{ caption:'', buttonicon:'ui-icon-info', onClickButton:function(){
+//						jAlert('info', 'Webdesignir php datagrid on top of jQGrid.<br/>Server side by : Abbas Ali Hashemian<br/>tondarweb@gmail.com - webdesignir.com', 'About datagrid' )
+//					}, position: 'last', title:'About', cursor: 'pointer'})";
 		return $this;
 	}
 

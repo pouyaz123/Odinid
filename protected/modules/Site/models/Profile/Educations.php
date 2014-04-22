@@ -15,19 +15,19 @@ use \Tools as T;
  * @property-read array $arrEmployTypes
  * @property-read array $arrSalaryTypes
  * @property-read array $arrWorkConditions
- * @property-read array $dtExperiences
- * @property-read array $dtFreshExperiences
+ * @property-read array $dtEducations
+ * @property-read array $dtFreshEducations
  */
-class Experiences extends \Base\FormModel {
+class Educations extends \Base\FormModel {
 
 	const OldestYearLimitation = 75;
 
 	public function getPostName() {
-		return "UserExperiences";
+		return "UserEducations";
 	}
 
 	protected function XSSPurify_Exceptions() {
-		return "hdnExperienceID"
+		return "hdnEducationID"
 				. ", UserID"
 				. ", hdnCompanyID"
 				. ", ddlLevel"
@@ -43,7 +43,7 @@ class Experiences extends \Base\FormModel {
 	}
 
 	//----- attrs
-	public $hdnExperienceID;
+	public $hdnEducationID;
 	public $chkHealthInsurance = false;
 	public $chkOvertimePay = false;
 	public $chkRetirementAccount = false;
@@ -53,9 +53,9 @@ class Experiences extends \Base\FormModel {
 	public $ddlSalaryType;
 	public $ddlWorkCondition;
 	#
-	public $hdnCompanyID;
-	public $txtCompanyTitle;
-	public $txtCompanyURL;
+	public $hdnSchoolID;
+	public $txtSchoolTitle;
+	public $txtSchoolURL;
 	public $txtJobTitle;
 	public $txtSalaryAmount;
 	public $txtTBALayoff;
@@ -74,7 +74,7 @@ class Experiences extends \Base\FormModel {
 	#
 	public $UserID;
 
-	//Experience levels
+	//Education levels
 	const Level_Junior = 'Junior';
 	const Level_Senior = 'Senior';
 	const Level_Leader = 'Leader';
@@ -133,9 +133,9 @@ class Experiences extends \Base\FormModel {
 	public function rules() {
 		$vl = \ValidationLimits\User::GetInstance();
 		return array(
-			array('hdnExperienceID', 'required',
+			array('hdnEducationID', 'required',
 				'on' => 'Edit, Delete'),
-			array('hdnExperienceID', 'IsExist',
+			array('hdnEducationID', 'IsExist',
 				'SQL' => 'SELECT COUNT(*) FROM `_user_experiences` WHERE `CombinedID`=:val',
 				'on' => 'Edit, Delete'),
 			#
@@ -147,24 +147,24 @@ class Experiences extends \Base\FormModel {
 			array_merge(array('txtDescription', 'length',
 				'on' => 'Add, Edit'), $vl->Description),
 			#
-			array('txtCompanyTitle, txtJobTitle', 'required'
+			array('txtSchoolTitle, txtJobTitle', 'required'
 				, 'on' => 'Add, Edit'),
-			array('txtCompanyURL', 'url',
+			array('txtSchoolURL', 'url',
 				'on' => 'Add, Edit'),
-			array_merge(array('txtCompanyURL', 'length',
+			array_merge(array('txtSchoolURL', 'length',
 				'on' => 'Add, Edit'), $vl->WebAddress),
-			array_merge(array('txtCompanyTitle, txtJobTitle', 'length'
+			array_merge(array('txtSchoolTitle, txtJobTitle', 'length'
 				, 'on' => 'Add, Edit'), $vl->Title),
 			#
 			array('chkHealthInsurance, chkOvertimePay, chkRetirementAccount, chkToPresent', 'boolean'
 				, 'on' => 'Add, Edit'),
 			#
 			array_merge(array('txtSalaryAmount', 'numerical'
-				, 'on' => 'Add, Edit'), $vl->ExperienceSalaryAmount),
+				, 'on' => 'Add, Edit'), $vl->EducationSalaryAmount),
 			array_merge(array('txtTBALayoff', 'numerical'
-				, 'on' => 'Add, Edit'), $vl->ExperienceTBALayoff),
+				, 'on' => 'Add, Edit'), $vl->EducationTBALayoff),
 			array_merge(array('txtRetirementPercent', 'numerical'
-				, 'on' => 'Add, Edit'), $vl->ExperienceRetirementAccountPercent),
+				, 'on' => 'Add, Edit'), $vl->EducationRetirementAccountPercent),
 			#
 			array('ddlLevel', 'in'
 				, 'range' => array_keys($this->arrLevels)
@@ -220,8 +220,8 @@ class Experiences extends \Base\FormModel {
 			'ddlEmploymentType' => \t2::site_site('Employment type'),
 			'ddlSalaryType' => \t2::General('Salary type'),
 			'ddlWorkCondition' => \t2::site_site('Work condition'),
-			'txtCompanyTitle' => \t2::site_site('Company title'),
-			'txtCompanyURL' => \t2::site_site('Web URL'),
+			'txtSchoolTitle' => \t2::site_site('School title'),
+			'txtSchoolURL' => \t2::site_site('Web URL'),
 			'txtJobTitle' => \t2::site_site('Job title'),
 			'txtSalaryAmount' => \t2::site_site('Salary amount'),
 			'txtTBALayoff' => \t2::site_site('Layoff days (TBA)'),
@@ -245,7 +245,7 @@ class Experiences extends \Base\FormModel {
 		if (!$this->validate())
 			return false;
 		$Queries = array();
-		if (!$this->hdnExperienceID) {
+		if (!$this->hdnEducationID) {
 			$strSQLPart_ID = T\DB::GetNewID_Combined(
 							'_user_experiences'
 							, 'CombinedID'
@@ -280,14 +280,14 @@ class Experiences extends \Base\FormModel {
 			)
 		);
 		$Domain = '';
-		if ($this->txtCompanyURL) {
-			$Domain = parse_url($this->txtCompanyURL, PHP_URL_HOST);
+		if ($this->txtSchoolURL) {
+			$Domain = parse_url($this->txtSchoolURL, PHP_URL_HOST);
 			$Domain = ltrim($Domain, 'www.');
 		}
 		$Queries[] = array(
-			!$this->hdnExperienceID ?
+			!$this->hdnEducationID ?
 					"INSERT INTO `_user_experiences`("
-					. " `CombinedID`, `UID`, `CompanyID`"
+					. " `CombinedID`, `UID`, `SchoolID`"
 					. ", `JobTitle`, `Level`, `EmploymentType`, `SalaryType`, `SalaryAmount`"
 					. ", `TBALayoff`, `HealthInsurance`, `OvertimePay`, `WorkCondition`"
 					. ", `RetirementAccount`, `RAPercent`"
@@ -295,7 +295,7 @@ class Experiences extends \Base\FormModel {
 					. ", `UserCountryID`,`UserDivisionID`, `UserCityID`"
 					. ", `FromDate`, `ToDate`, `ToPresent`, `Description`)"
 					. " VALUE("
-					. " @expr_ID:=($strSQLPart_ID), :uid, @expr_CompanyID:=companies_getCreatedCompanyID(:compid, :compttl, :compdom, :compdom_escaped, :compurl)"
+					. " @expr_ID:=($strSQLPart_ID), :uid, @expr_SchoolID:=schools_getCreatedSchoolID(:compid, :compttl, :compdom, :compdom_escaped, :compurl)"
 					. ", :jobttl, :lvl, :emptype, :saltype, :salamount"
 					. ", :tba, :insur, :ovrtpay, :wrkcnd"
 					. ", :retaccount, :retpercent"
@@ -303,7 +303,7 @@ class Experiences extends \Base\FormModel {
 					. ", @expr_UserCountryID, @expr_UserDivisionID, @expr_UserCityID"
 					. ", :frmdt, :todt, :toprsnt, :desc)" :
 					"UPDATE `_user_experiences` SET "
-					. " `CompanyID`=@expr_CompanyID:=companies_getCreatedCompanyID(:compid, :compttl, :compdom, :compdom_escaped, :compurl)"
+					. " `SchoolID`=@expr_SchoolID:=schools_getCreatedSchoolID(:compid, :compttl, :compdom, :compdom_escaped, :compurl)"
 					. ", `JobTitle`=:jobttl, `Level`=:lvl, `EmploymentType`=:emptype, `SalaryType`=:saltype, `SalaryAmount`=:salamount"
 					. ", `TBALayoff`=:tba, `HealthInsurance`=:insur, `OvertimePay`=:ovrtpay, `WorkCondition`=:wrkcnd"
 					. ", `RetirementAccount`=:retaccount, `RAPercent`=:retpercent"
@@ -312,14 +312,14 @@ class Experiences extends \Base\FormModel {
 					. ", `FromDate`=:frmdt, `ToDate`=:todt, `ToPresent`=:toprsnt, `Description`=:desc"
 					. " WHERE `CombinedID`=(@expr_ID:=:combid) AND `UID`=:uid"
 			, array(
-				':combid' => $this->hdnExperienceID,
+				':combid' => $this->hdnEducationID,
 				':uid' => $this->UserID,
 				#
-				':compid' => $this->hdnCompanyID? : null,
-				':compttl' => $this->txtCompanyTitle? : null,
+				':compid' => $this->hdnSchoolID? : null,
+				':compttl' => $this->txtSchoolTitle? : null,
 				':compdom' => $Domain? : null,
 				':compdom_escaped' => $Domain ? T\DB::EscapeLikeWildCards($Domain) : null,
-				':compurl' => $this->txtCompanyURL? : null,
+				':compurl' => $this->txtSchoolURL? : null,
 				#
 				':jobttl' => $this->txtJobTitle? : null,
 				':lvl' => $this->ddlLevel? : null,
@@ -343,10 +343,10 @@ class Experiences extends \Base\FormModel {
 				});
 		if ($Result) {
 			$this->scenario = 'Edit';
-			if (!$this->hdnExperienceID || !$this->hdnCompanyID) {
-				$dr = T\DB::GetRow("SELECT @expr_ID AS CombinedID, @expr_CompanyID AS CompanyID");
-				$this->hdnExperienceID = $dr['CombinedID'];
-				$this->hdnCompanyID = $dr['CompanyID'];
+			if (!$this->hdnEducationID || !$this->hdnSchoolID) {
+				$dr = T\DB::GetRow("SELECT @expr_ID AS CombinedID, @expr_SchoolID AS SchoolID");
+				$this->hdnEducationID = $dr['CombinedID'];
+				$this->hdnSchoolID = $dr['SchoolID'];
 			}
 		}
 		return $Result ? true : false;
@@ -358,7 +358,7 @@ class Experiences extends \Base\FormModel {
 			return false;
 		$Result = T\DB::Execute("DELETE FROM `_user_experiences` WHERE `CombinedID`=:combid AND `UID`=:uid"
 						, array(
-					':combid' => $this->hdnExperienceID,
+					':combid' => $this->hdnEducationID,
 					':uid' => $this->UserID,
 						)
 		);
@@ -367,7 +367,7 @@ class Experiences extends \Base\FormModel {
 		return $Result;
 	}
 
-	public function getdtExperiences($ID = NULL, $refresh = false, \Base\DataGridParams $DGP = NULL) {
+	public function getdtEducations($ID = NULL, $refresh = false, \Base\DataGridParams $DGP = NULL) {
 		$StaticIndex = $ID;
 		if (!$StaticIndex)
 			$StaticIndex = "ALL";
@@ -383,11 +383,11 @@ class Experiences extends \Base\FormModel {
 							. ", IFNULL(gc.`AsciiName`, guc.`Country`) AS Country"
 							. ", IFNULL(gd.`AsciiName`, gud.`Division`) AS Division"
 							. ", IFNULL(gct.`AsciiName`, guct.`City`) AS City"
-							. ", ci.`Title` AS CompanyTitle"
-							. ", ci.`URL` AS CompanyURL"
+							. ", ci.`Title` AS SchoolTitle"
+							. ", ci.`URL` AS SchoolURL"
 							. " FROM `_user_experiences` AS uexp"
 							. " INNER JOIN (SELECT 1) tmp ON " . ($ID ? " uexp.`CombinedID`=:id AND " : '') . " UID=:uid"
-							. " LEFT JOIN `_company_info` AS ci ON ci.`ID`=uexp.CompanyID"
+							. " LEFT JOIN `_universityschool_info` AS ci ON ci.`ID`=uexp.SchoolID"
 							. " LEFT JOIN `_geo_countries` AS gc ON gc.`ISO2`=uexp.`GeoCountryISO2`"
 							. " LEFT JOIN `_geo_divisions` AS gd ON gd.`CombinedCode`=uexp.`GeoDivisionCode`"
 							. " LEFT JOIN `_geo_cities` AS gct ON gct.`GeonameID` =uexp.`GeoCityID`"
@@ -412,20 +412,20 @@ class Experiences extends \Base\FormModel {
 	 * @param string $ID
 	 * @return array
 	 */
-	public function getdtFreshExperiences($ID = null) {
+	public function getdtFreshEducations($ID = null) {
 		static $R = null;
 		if (!$R)
-			$R = $this->getdtExperiences($ID, true);
+			$R = $this->getdtEducations($ID, true);
 		return $R;
 	}
 
 	public function SetForm() {
-		$dr = $this->getdtExperiences($this->hdnExperienceID);
+		$dr = $this->getdtEducations($this->hdnEducationID);
 		if ($dr) {
 			$dr = $dr[0];
 			$arrAttrs = array(
-				'hdnExperienceID' => $dr['CombinedID'],
-				'hdnCompanyID' => $dr['CompanyID'],
+				'hdnEducationID' => $dr['CombinedID'],
+				'hdnSchoolID' => $dr['SchoolID'],
 				'txtJobTitle' => $dr['JobTitle'],
 				'ddlLevel' => $dr['Level'],
 				'ddlEmploymentType' => $dr['EmploymentType'],
@@ -438,8 +438,8 @@ class Experiences extends \Base\FormModel {
 				'chkRetirementAccount' => $dr['RetirementAccount'],
 				'txtRetirementPercent' => $dr['RAPercent'],
 				#
-				'txtCompanyTitle' => $dr['CompanyTitle'],
-				'txtCompanyURL' => $dr['CompanyURL'],
+				'txtSchoolTitle' => $dr['SchoolTitle'],
+				'txtSchoolURL' => $dr['SchoolURL'],
 				#
 				'ddlCountry' => $dr['GeoCountryISO2'] ? : ($dr['Country'] ? '_other_' : ''),
 				'ddlDivision' => $dr['GeoDivisionCode'] ? : ($dr['Division'] ? '_other_' : ''),

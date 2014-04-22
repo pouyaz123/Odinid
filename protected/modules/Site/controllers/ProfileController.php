@@ -44,10 +44,11 @@ class ProfileController extends \Site\Components\BaseController {
 			'editskills' => '\Site\controllers\Profile\EditSkills',
 			'editsoftwares' => '\Site\controllers\Profile\EditSoftwares',
 			'editlanguages' => '\Site\controllers\Profile\EditLanguages',
+			'editworkfields' => '\Site\controllers\Profile\EditWorkFields',
 			'editcertificates' => '\Site\controllers\Profile\EditCertificates',
 			'editawards' => '\Site\controllers\Profile\EditAwards',
 			'editexperiences' => '\Site\controllers\Profile\EditExperiences',
-			'editworkfields' => '\Site\controllers\Profile\EditWorkFields',
+			'editadditionals' => '\Site\controllers\Profile\EditAdditionals',
 		);
 	}
 
