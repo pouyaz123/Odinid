@@ -69,6 +69,9 @@ class Routes {
 		
 	}
 
+	static function User_EditEducations($Username = null) {
+		
+	}
 	static function User_EditCertificates($Username = null) {
 		
 	}

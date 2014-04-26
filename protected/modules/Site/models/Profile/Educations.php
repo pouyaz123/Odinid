@@ -11,10 +11,6 @@ use \Tools as T;
  * @version 1
  * @copyright (c) Odinid
  * @access public
- * @property-read array $arrLevels
- * @property-read array $arrEmployTypes
- * @property-read array $arrSalaryTypes
- * @property-read array $arrWorkConditions
  * @property-read array $dtEducations
  * @property-read array $dtFreshEducations
  * @property-read array $SchoolDomain
@@ -314,7 +310,7 @@ class Educations extends \Base\FormModel {
 							. " INNER JOIN (SELECT 1) tmp ON " . ($ID ? " uedu.`CombinedID`=:id AND " : '') . " UID=:uid"
 							. " INNER JOIN `_school_info` AS si ON si.`ID`=uedu.SchoolID"
 							. " INNER JOIN `_education_studyfields` AS std ON std.`ID`=uedu.`StudyFieldID`"
-							. " INNER JOIN `_education_degrees` AS dgr.ID=uedu.DegreeID"
+							. " INNER JOIN `_education_degrees` AS dgr ON dgr.`ID`=uedu.DegreeID"
 							. " LEFT JOIN `_geo_countries` AS gc ON gc.`ISO2`=uedu.`GeoCountryISO2`"
 							. " LEFT JOIN `_geo_divisions` AS gd ON gd.`CombinedCode`=uedu.`GeoDivisionCode`"
 							. " LEFT JOIN `_geo_cities` AS gct ON gct.`GeonameID` =uedu.`GeoCityID`"

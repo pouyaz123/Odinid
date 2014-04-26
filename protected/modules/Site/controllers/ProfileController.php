@@ -46,6 +46,7 @@ class ProfileController extends \Site\Components\BaseController {
 			'editlanguages' => '\Site\controllers\EditProfile\Languages',
 			'editworkfields' => '\Site\controllers\EditProfile\WorkFields',
 			'editcertificates' => '\Site\controllers\EditProfile\Certificates',
+			'editeducations' => '\Site\controllers\EditProfile\Educations',
 			'editawards' => '\Site\controllers\EditProfile\Awards',
 			'editexperiences' => '\Site\controllers\EditProfile\Experiences',
 			'editadditionals' => '\Site\controllers\EditProfile\Additionals',

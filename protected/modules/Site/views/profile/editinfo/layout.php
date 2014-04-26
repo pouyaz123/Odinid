@@ -5,7 +5,7 @@
 	<div>
 		<?= \CHtml::link(t2::site_site('Basic info'), \Site\Consts\Routes::User_EditInfo()) ?>
 		| <?= \CHtml::link(t2::site_site('Avatar'), \Site\Consts\Routes::User_EditAvatar()) ?>
-		| <?= \CHtml::link(t2::site_site('Availability'), \Site\Consts\Routes::User_EditInfo()."?mode=availability") ?>
+		| <?= \CHtml::link(t2::site_site('Availability'), \Site\Consts\Routes::User_EditInfo() . "?mode=availability") ?>
 		| <?= \CHtml::link(t2::site_site('Setting'), \Site\Consts\Routes::User_Setting()) ?>
 	</div>
 	<div>
@@ -20,6 +20,9 @@
 		| <?= \CHtml::link(t2::site_site('Softwares'), \Site\Consts\Routes::User_EditSoftwares()) ?>
 		| <?= \CHtml::link(t2::site_site('Languages'), \Site\Consts\Routes::User_EditLanguages()) ?>
 		| <?= \CHtml::link(t2::site_site('Work fields'), \Site\Consts\Routes::User_EditWorkFields()) ?>
+	</div>
+	<div>
+		<?= \CHtml::link(t2::site_site('Educations'), \Site\Consts\Routes::User_EditEducations()) ?>
 		| <?= \CHtml::link(t2::site_site('Certificates'), \Site\Consts\Routes::User_EditCertificates()) ?>
 		| <?= \CHtml::link(t2::site_site('Awards'), \Site\Consts\Routes::User_EditAwards()) ?>
 		| <?= \CHtml::link(t2::site_site('Experiences'), \Site\Consts\Routes::User_EditExperiences()) ?>

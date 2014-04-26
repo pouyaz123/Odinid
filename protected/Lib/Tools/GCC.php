@@ -214,6 +214,7 @@ class GCC {
 	}
 
 //mytodo 1: GCC clean unused unoccupied institutions, companies, schools and organizations
+//mytodo 1: GCC clean unused unoccupied edu_degrees, edu_studyfields
 //mytodo 1: GCC clean unused unofficial countries, divisions and cities
 }
 

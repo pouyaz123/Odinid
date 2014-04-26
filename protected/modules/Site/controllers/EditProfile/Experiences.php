@@ -107,14 +107,6 @@ class Experiences extends \CAction {
 						->caption($ctrl->pageTitle)
 				)
 				->SetColumns(
-				/* <td><?= $Model->getAttributeLabel('txtCompanyTitle') ?></td>
-				  <td><?= $Model->getAttributeLabel('ddlCountry') ?></td>
-				  <td><?= $Model->getAttributeLabel('txtJobTitle') ?></td>
-				  <td><?= $Model->getAttributeLabel('txtFromDate') ?></td>
-				  <td><?= $Model->getAttributeLabel('txtToDate') ?></td>
-				  <td><?= $Model->getAttributeLabel('chkHealthInsurance') ?></td>
-				  <td><?= $Model->getAttributeLabel('chkRetirementAccount') ?></td>
-				  <td></td> */
 				\html::DataGridColumn()
 				->index('ci.Title')
 				->name('CompanyTitle')
@@ -132,10 +124,12 @@ class Experiences extends \CAction {
 				#
 				, \html::DataGridColumn()
 				->index('FromDate')
+				->type('date')
 				->header($Model->getAttributeLabel('txtFromDate'))
 				#
 				, \html::DataGridColumn()
 				->index('ToDate')
+				->type('date')
 				->header($Model->getAttributeLabel('txtToDate'))
 				#
 				, \html::DataGridColumn()

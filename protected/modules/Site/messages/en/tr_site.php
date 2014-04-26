@@ -102,6 +102,7 @@ return array_merge(
 //	'Web addresses' => 'Web addresses',
 //	'Experiences' => 'Experiences',
 //	'Certificates' => 'Certificates',
+//	'Educations' => 'Educations',
 //	'Awards' => 'Awards',
 //	'Additionals' => 'Additionals',
 //	'Work fields' => 'Work fields',

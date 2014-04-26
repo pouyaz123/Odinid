@@ -8,15 +8,15 @@ use Tools as T;
 /**
  * @author Abbas Hashemian <tondarweb@gmail.com>
  */
-class Certificates extends \CAction {
+class Educations extends \CAction {
 
 	public function run() {
-		$this->controller->pageTitle = \t2::SitePageTitle(\t2::site_site('Certificates'));
+		$this->controller->pageTitle = \t2::SitePageTitle(\t2::site_site('Educations'));
 		\html::TagIt_Load();
 		\html::jqUI_AutoComplete_Load();
 		\html::DatePicker_Load();
 
-		$Model = new \Site\models\Profile\Certificates('Add');
+		$Model = new \Site\models\Profile\Educations('Add');
 		$Model->UserID = Login::GetSessionDR('ID');
 
 		$btnAdd = \GPCS::POST('btnAdd');
@@ -31,27 +31,27 @@ class Certificates extends \CAction {
 		elseif ($btnDelete)
 			$Model->scenario = 'Delete';
 
-		$ID = \GPCS::POST('hdnCertificateID');
+		$ID = \GPCS::POST('hdnEducationID');
 		if ($btnDelete && !$ID) { //Delete button of the edit form. We will not assign whole form
-			$ID = \GPCS::POST('UserCertificates');
-			$ID = $ID ? $ID['hdnCertificateID'] : $ID;
+			$ID = \GPCS::POST('UserEducations');
+			$ID = $ID ? $ID['hdnEducationID'] : $ID;
 		}
 		if ($ID)
-			$Model->attributes = array('hdnCertificateID' => $ID);
+			$Model->attributes = array('hdnEducationID' => $ID);
 
 		if ($btnAdd || $btnSaveEdit) {
-			$Model->attributes = \GPCS::POST('UserCertificates');
+			$Model->attributes = \GPCS::POST('UserEducations');
 			$Model->Save();
 		} elseif ($btnEdit)
 			$Model->SetForm();
 		elseif ($btnDelete)
 			$Model->Delete();
-		else {//institution name autocomplete
+		else {//school name autocomplete
 			\Output::AddIn_AjaxOutput(function() {
 				$term = \GPCS::GET('term')? : \GPCS::POST('term');
 				if ($term) {
 					$dt = T\DB::GetTable("SELECT `Title`, `URL`, `ID`"
-									. " FROM `_institutions`"
+									. " FROM `_school_info`"
 									. " WHERE `Title` LIKE CONCAT(:term, '%') ESCAPE '" . T\DB::LikeEscapeChar . "'"
 									, array(':term' => T\DB::EscapeLikeWildCards($term)));
 					if ($dt) {
@@ -64,7 +64,35 @@ class Certificates extends \CAction {
 						echo json_encode($dt);
 					}
 				}
-			}, 'AutoComplete_UserCertificates_txtInstitutionTitle');
+			}, 'AutoComplete_UserEducations_txtSchoolTitle');
+			\Output::AddIn_AjaxOutput(function() {
+				$term = \GPCS::GET('term')? : \GPCS::POST('term');
+				if ($term) {
+					$dt = T\DB::GetTable("SELECT `StudyField`"
+									. " FROM `_education_studyfields`"
+									. " WHERE `StudyField` LIKE CONCAT(:term, '%') ESCAPE '" . T\DB::LikeEscapeChar . "'"
+									, array(':term' => T\DB::EscapeLikeWildCards($term)));
+					if ($dt) {
+						foreach ($dt as $idx => $dr)
+							$dt[$idx] = $dr['StudyField'];
+						echo json_encode($dt);
+					}
+				}
+			}, 'AutoComplete_UserEducations_txtStudyField');
+			\Output::AddIn_AjaxOutput(function() {
+				$term = \GPCS::GET('term')? : \GPCS::POST('term');
+				if ($term) {
+					$dt = T\DB::GetTable("SELECT `Degree`"
+									. " FROM `_education_degrees`"
+									. " WHERE `Degree` LIKE CONCAT(:term, '%') ESCAPE '" . T\DB::LikeEscapeChar . "'"
+									, array(':term' => T\DB::EscapeLikeWildCards($term)));
+					if ($dt) {
+						foreach ($dt as $idx => $dr)
+							$dt[$idx] = $dr['Degree'];
+						echo json_encode($dt);
+					}
+				}
+			}, 'AutoComplete_UserEducations_txtDegree');
 		}
 
 		$wdgGeoLocation = $this->controller->createWidget(
@@ -84,7 +112,7 @@ class Certificates extends \CAction {
 		/* @var $wdgGeoLocation \Widgets\GeoLocationFields\GeoLocationFields */
 		\Output::Render($this->controller
 				, ($btnEdit ?
-						'editinfo/certificates_addedit' : 'editinfo/certificates')
+						'editinfo/educations_addedit' : 'editinfo/educations')
 				, array(
 			'Model' => $Model,
 			'wdgGeoLocation' => $wdgGeoLocation,
@@ -95,12 +123,12 @@ class Certificates extends \CAction {
 
 	/**
 	 * 
-	 * @param \Site\controllers\EditProfile\Certificates $ctrl
-	 * @param \Site\models\Profile\Certificates $Model
+	 * @param \Site\controllers\EditProfile\Educations $ctrl
+	 * @param \Site\models\Profile\Educations $Model
 	 * @return \Base\DataGrid
 	 */
-	private function DataGrid(\Site\controllers\ProfileController $ctrl, \Site\models\Profile\Certificates $Model) {
-		$dg = \html::DataGrid_Ready2('dgCertificates', 'Site', 'tr_site')
+	private function DataGrid(\Site\controllers\ProfileController $ctrl, \Site\models\Profile\Educations $Model) {
+		$dg = \html::DataGrid_Ready2('dgEducations', 'Site', 'tr_site')
 				->DataKey('CombinedID')
 				->Options(
 						\html::DataGridConfig()
@@ -108,9 +136,9 @@ class Certificates extends \CAction {
 				)
 				->SetColumns(
 				\html::DataGridColumn()
-				->index('ins.Title')
-				->name('InstitutionTitle')
-				->header($Model->getAttributeLabel('txtInstitutionTitle'))
+				->index('si.Title')
+				->name('SchoolTitle')
+				->header($Model->getAttributeLabel('txtSchoolTitle'))
 				#
 				, \html::DataGridColumn()
 				->index('Country')
@@ -119,13 +147,22 @@ class Certificates extends \CAction {
 				->header($Model->getAttributeLabel('ddlCountry'))
 				#
 				, \html::DataGridColumn()
-				->index('Title')
-				->header($Model->getAttributeLabel('txtTitle'))
+				->index('StudyField')
+				->header($Model->getAttributeLabel('txtStudyField'))
 				#
 				, \html::DataGridColumn()
-				->index('Date')
+				->index('Degree')
+				->header($Model->getAttributeLabel('txtDegree'))
+				#
+				, \html::DataGridColumn()
+				->index('FromDate')
 				->type('date')
-				->header($Model->getAttributeLabel('txtDate'))
+				->header($Model->getAttributeLabel('txtFromDate'))
+				#
+				, \html::DataGridColumn()
+				->index('ToDate')
+				->type('date')
+				->header($Model->getAttributeLabel('txtToDate'))
 				#
 				, \html::DataGridColumn()
 				->index('Actions')
@@ -134,23 +171,24 @@ class Certificates extends \CAction {
 				->editable(FALSE)
 				->sortable(false)
 				->title(false)
-				->width('75px')
+				->width('100px')
 		);
 		$dg
 				->SelectQuery(function(\Base\DataGridParams $DGP)use($Model) {
-					$dt = $Model->getdtCertificates(NULL, true, $DGP);
+					$dt = $Model->getdtEducations(NULL, true, $DGP);
 					if ($dt)
 						foreach ($dt as $idx => $dr) {
-							$dr['InstitutionTitle'] = "<div title='" . \CHtml::encode($dr['InstitutionURL']) . "'>{$dr['InstitutionTitle']}</div>";
+							$dr['SchoolTitle'] = "<div title='{$dr['SchoolURL']}'>{$dr['SchoolTitle']}</div>";
 							$dr['Country'] = "<div title='"
 									. \CHtml::encode($dr['City'] . ($dr['City'] && $dr['Division'] ? ' , ' : '') . $dr['Division'])
 									. "'>{$dr['Country']}</div>";
+							$dr['ToDate'] = $dr['ToPresent'] ? \t2::site_site('Present') : $dr['ToDate'];
 							$dr['Actions'] = $DGP->DataGrid->GetActionColButtons($dr['CombinedID'], "LnkBtn", false, true)
 									. \html::ButtonContainer(
 											\CHtml::button(\t2::site_site('Edit')
 													, array(
 												'name' => 'btnEdit',
-												'rel' => \html::AjaxElement('#divEditCertificates', NULL, "hdnCertificateID={$dr['CombinedID']}") . \html::SimpleAjaxPanel,
+												'rel' => \html::AjaxElement('#divEditEducations', NULL, "hdnEducationID={$dr['CombinedID']}") . \html::SimpleAjaxPanel,
 													)
 							));
 							$dt[$idx] = $dr;
@@ -159,7 +197,7 @@ class Certificates extends \CAction {
 				})
 				->DeleteQuery(function(\Base\DataGridParams $DGP)use($Model) {
 					$Model->scenario = 'Delete';
-					$Model->attributes = array('hdnCertificateID' => $DGP->RowID);
+					$Model->attributes = array('hdnEducationID' => $DGP->RowID);
 					return $Model->Delete();
 				});
 		return $dg;
