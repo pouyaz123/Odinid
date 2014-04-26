@@ -1,6 +1,6 @@
 <?php
 
-namespace Site\controllers\Profile;
+namespace Site\controllers\EditProfile;
 
 use \Tools as T;
 use \Site\models\User\Login;
@@ -8,7 +8,7 @@ use \Site\models\User\Login;
 /**
  * @author Abbas Hashemian <tondarweb@gmail.com>
  */
-class EditEmails extends \CAction {
+class Emails extends \CAction {
 
 	public function run() {
 		$this->controller->pageTitle = \t2::SitePageTitle(\t2::site_site('Emails'));

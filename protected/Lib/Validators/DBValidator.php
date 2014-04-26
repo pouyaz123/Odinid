@@ -1,5 +1,6 @@
 <?php
 //mytodo x: \Validators\DBValidator db transactions : can perform multiple SQL validation rules of one model through one transaction (->onAfterValidate)
+
 namespace Validators;
 
 use \Tools as T;
@@ -72,10 +73,10 @@ abstract class DBValidator extends \CValidator {
 		if (!$message) {
 			switch ($CheckType) {
 				case self::UniqueCheck:
-					$message = \Yii::t('yii','{attribute} "{value}" has already been taken.');
+					$message = \t2::yii('{attribute} "{value}" has already been taken.');
 					break;
 				case self::ExistCheck:
-					$message = \Yii::t('yii','{attribute} "{value}" is invalid.');
+					$message = \t2::yii('{attribute} "{value}" is invalid.');
 					break;
 			}
 			$message = str_replace(

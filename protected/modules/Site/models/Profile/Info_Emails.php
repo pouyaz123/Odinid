@@ -108,12 +108,12 @@ class Info_Emails extends \Base\FormModelBehavior {
 	 * Validates the maximum numbre of contacts
 	 */
 	private function ValidateNewEmail() {
-		$dt = $this->dtEmails;
 		$owner = $this->owner;
 		if (!$this->hdnEmailID) {//means in add mode not edit mode
-			if (count($dt) >= T\Settings::GetValue('MaxUserContacts'))
+			$Count = T\DB::GetField("SELECT COUNT(*) FROM `_user_emails` WHERE `UID`=:uid"
+							, array(':uid' => $owner->drUser['ID']));
+			if ($Count && $Count >= T\Settings::GetValue('MaxUserContacts'))
 				$owner->addError('', \t2::site_site('You have reached the maximum'));
-			return;
 		}
 	}
 

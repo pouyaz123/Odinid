@@ -1,6 +1,6 @@
 <?php
 
-namespace Site\controllers\Profile;
+namespace Site\controllers\EditProfile;
 
 use \Site\models\User\Login;
 use Tools as T;
@@ -8,7 +8,7 @@ use Tools as T;
 /**
  * @author Abbas Hashemian <tondarweb@gmail.com>
  */
-class EditAwards extends \CAction {
+class Awards extends \CAction {
 
 	public function run() {
 		$this->controller->pageTitle = \t2::SitePageTitle(\t2::site_site('Awards'));
@@ -78,7 +78,7 @@ class EditAwards extends \CAction {
 
 	/**
 	 * 
-	 * @param \Site\controllers\Profile\EditAwards $ctrl
+	 * @param \Site\controllers\EditProfile\Awards $ctrl
 	 * @param \Site\models\Profile\Awards $Model
 	 * @return \Base\DataGrid
 	 */

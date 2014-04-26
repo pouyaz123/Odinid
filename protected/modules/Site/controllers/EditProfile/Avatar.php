@@ -1,6 +1,6 @@
 <?php
 
-namespace Site\controllers\Profile;
+namespace Site\controllers\EditProfile;
 
 use \Site\models\User\Login;
 use Site\models\User\Register;
@@ -8,7 +8,7 @@ use Site\models\User\Register;
 /**
  * @author Abbas Hashemian <tondarweb@gmail.com>
  */
-class EditAvatar extends \CAction {
+class Avatar extends \CAction {
 
 	public function run() {
 		$this->controller->pageTitle = \t2::SitePageTitle(\t2::site_site('Avatar'));

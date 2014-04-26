@@ -80,11 +80,12 @@ class Info_Locations extends \Base\FormModelBehavior {
 	 * Validates the maximum numbre of Locations and uniqueness of a Location
 	 */
 	private function ValidateNewLocation() {
-		$dt = $this->dtLocations;
+		$owner = $this->owner;
 		if (!$this->hdnLocationID) {//means in add mode not edit mode
-			if (count($dt) >= T\Settings::GetValue('MaxUserLocations'))
-				$this->owner->addError('', \t2::site_site('You have reached the maximum'));
-			return false;
+			$Count = T\DB::GetField("SELECT COUNT(*) FROM `_user_locations` WHERE `UID`=:uid"
+							, array(':uid' => $owner->drUser['ID']));
+			if ($Count && $Count >= T\Settings::GetValue('MaxUserLocations'))
+				$owner->addError('', \t2::site_site('You have reached the maximum'));
 		}
 		foreach ($dt as $dr) {
 			if ($this->hdnLocationID && $dr['CombinedID'] === $this->hdnLocationID)

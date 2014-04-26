@@ -1,13 +1,13 @@
 <?php
 
-namespace Site\controllers\Profile;
+namespace Site\controllers\EditProfile;
 
 use \Site\models\User\Login;
 
 /**
  * @author Abbas Hashemian <tondarweb@gmail.com>
  */
-class EditContacts extends \CAction {
+class Contacts extends \CAction {
 
 	public function run() {
 		$this->controller->pageTitle = \t2::SitePageTitle(\t2::site_site('Phones'));

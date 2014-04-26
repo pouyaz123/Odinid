@@ -89,12 +89,12 @@ class Info_WebAddresses extends \Base\FormModelBehavior {
 	 * Validates the maximum numbre of web addresses based on the settings (MaxUserContacts)
 	 */
 	private function ValidateNewWebAddr() {
-		$dt = $this->dtWebAddr;
 		$owner = $this->owner;
 		if (!$this->hdnWebAddrID) {//means in add mode not edit mode
-			if (count($dt) >= T\Settings::GetValue('MaxUserContacts'))
+			$Count = T\DB::GetField("SELECT COUNT(*) FROM `_user_webaddresses` WHERE `UID`=:uid"
+							, array(':uid' => $owner->drUser['ID']));
+			if ($Count && $Count >= T\Settings::GetValue('MaxUserContacts'))
 				$owner->addError('', \t2::site_site('You have reached the maximum'));
-			return;
 		}
 	}
 

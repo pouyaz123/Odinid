@@ -95,12 +95,12 @@ class Info_Contacts extends \Base\FormModelBehavior {
 	 * Validates the maximum numbre of contacts and uniqueness of a contact field such as phone
 	 */
 	private function ValidateNewContact() {
-		$dt = $this->dtContacts;
 		$owner = $this->owner;
 		if (!$this->hdnContactID) {//means in add mode not edit mode
-			if (count($dt) >= T\Settings::GetValue('MaxUserContacts'))
+			$Count = T\DB::GetField("SELECT COUNT(*) FROM `_user_contacts` WHERE `UID`=:uid"
+							, array(':uid' => $owner->drUser['ID']));
+			if ($Count && $Count >= T\Settings::GetValue('MaxUserContacts'))
 				$owner->addError('', \t2::site_site('You have reached the maximum'));
-			return;
 		}
 	}
 

@@ -14,6 +14,7 @@ use \Tools as T;
  * @property-read array $dtAwards
  * @property-read array $dtFreshAwards
  * @property-read array $arrYears
+ * @property-read array $OrgDomain
  */
 class Awards extends \Base\FormModel {
 
@@ -40,6 +41,15 @@ class Awards extends \Base\FormModel {
 	public $txtOrganizationURL;
 	#
 	public $UserID;
+
+	public function getOrgDomain() {
+		static $Domain = '';
+		if (!$Domain && $this->txtOrganizationURL) {
+			$Domain = parse_url($this->txtOrganizationURL, PHP_URL_HOST);
+			$Domain = ltrim($Domain, 'www.');
+		}
+		return $Domain;
+	}
 
 	public function getarrYears() {
 		$CurrentYear = gmdate('Y');
@@ -75,6 +85,44 @@ class Awards extends \Base\FormModel {
 		);
 	}
 
+	protected function afterValidate() {
+		if (!$this->hdnAwardID) {//means in add mode not edit mode
+			$Count = T\DB::GetField("SELECT COUNT(*) FROM `_user_awards` WHERE `UID`=:uid"
+							, array(':uid' => $this->UserID));
+			if ($Count && $Count >= T\Settings::GetValue('MaxResumeBigItemsPerCase'))
+				$this->addError('', \t2::site_site('You have reached the maximum'));
+		}
+		if ($this->scenario == 'Add' || $this->scenario == 'Edit') {
+			if (T\DB::GetField("SELECT COUNT(*)"
+							. " FROM `_user_awards` uawrd"
+							. " INNER JOIN (SELECT 1) tmp ON uawrd.`UID`=:uid AND uawrd.`Title`=:ttl"
+							. ($this->hdnAwardID ? " AND uawrd.`CombinedID`!=:id" : "")
+							. " INNER JOIN `_organizations` orgs ON uawrd.`OrganizationID`=orgs.`ID`"
+							. " WHERE " . ($this->hdnOrganizationID ? " uawrd.`OrganizationID`=:orgid OR " : "")
+							. "(orgs.`Title`=:orgttl AND"
+							. "	("
+							. "		orgs.`Domain` <=> :orgdom"
+							. "		OR orgs.`Domain` LIKE CONCAT('%', :orgEscDom) ESCAPE '='"
+							. "		OR :orgdom LIKE CONCAT('%', orgs.`Domain`) ESCAPE '='"
+							. "	)"
+							. ")"
+							, array(
+						':id' => $this->hdnAwardID,
+						':uid' => $this->UserID,
+						':ttl' => $this->txtTitle,
+						':orgid' => $this->hdnOrganizationID? : null,
+						':orgttl' => $this->txtOrganizationTitle,
+						':orgdom' => $this->OrgDomain? : null,
+						':orgEscDom' => T\DB::EscapeLikeWildCards($this->OrgDomain)? : null,
+							)
+					)
+			) {
+				$this->addError('txtOrganizationTitle', \t2::yii('This combination has been taken previously'));
+				$this->addError('txtTitle', \t2::yii('This combination has been taken previously'));
+			}
+		}
+	}
+
 	public function ValidateYear($attr) {
 		if ($this->$attr &&
 				(!preg_match(C\Regexp::YearFormat_FullDigit, $this->$attr) ||
@@ -106,14 +154,10 @@ class Awards extends \Base\FormModel {
 							, array($this->UserID)
 							, array('PrefixQuery' => "CONCAT(:uid, '_')"));
 		}
-		$Domain = '';
-		if ($this->txtOrganizationURL) {
-			$Domain = parse_url($this->txtOrganizationURL, PHP_URL_HOST);
-			$Domain = ltrim($Domain, 'www.');
-		}
+		$Domain = $this->OrgDomain;
 		$Queries[] = array(
 			!$this->hdnAwardID ?
-					"INSERT IGNORE INTO `_user_awards`("
+					"INSERT INTO `_user_awards`("
 					. " `CombinedID`, `UID`, `OrganizationID`"
 					. ", `Title`, `Year`, `Description`)"
 					. " VALUE("
@@ -184,7 +228,7 @@ class Awards extends \Base\FormModel {
 							. ", org.`URL` AS OrganizationURL"
 							. " FROM `_user_awards` AS uawrd"
 							. " INNER JOIN (SELECT 1) tmp ON " . ($ID ? " uawrd.`CombinedID`=:id AND " : "") . " UID=:uid"
-							. " LEFT JOIN `_organizations` AS org ON org.`ID`=uawrd.OrganizationID"
+							. " INNER JOIN `_organizations` AS org ON org.`ID`=uawrd.OrganizationID"
 							. ($DGP ?
 									" WHERE {$DGP->SQLWhereClause}"
 									. " ORDER BY {$DGP->Sort}"

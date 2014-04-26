@@ -13,6 +13,7 @@ use \Tools as T;
  * @access public
  * @property-read array $dtCertificates
  * @property-read array $dtFreshCertificates
+ * @property-read array $InstDomain
  */
 class Certificates extends \Base\FormModel {
 
@@ -46,6 +47,15 @@ class Certificates extends \Base\FormModel {
 	public $txtCity;
 	#
 	public $UserID;
+
+	public function getInstDomain() {
+		static $Domain = '';
+		if (!$Domain && $this->txtInstitutionURL) {
+			$Domain = parse_url($this->txtInstitutionURL, PHP_URL_HOST);
+			$Domain = ltrim($Domain, 'www.');
+		}
+		return $Domain;
+	}
 
 	public function rules() {
 		$vl = \ValidationLimits\User::GetInstance();
@@ -82,6 +92,44 @@ class Certificates extends \Base\FormModel {
 			array_merge(array('ddlCity, txtCity', 'length',
 				'on' => 'Add, Edit'), $vl->City),
 		);
+	}
+
+	protected function afterValidate() {
+		if (!$this->hdnCertificateID) {//means in add mode not edit mode
+			$Count = T\DB::GetField("SELECT COUNT(*) FROM `_user_certificates` WHERE `UID`=:uid"
+							, array(':uid' => $this->UserID));
+			if ($Count && $Count >= T\Settings::GetValue('MaxResumeBigItemsPerCase'))
+				$this->addError('', \t2::site_site('You have reached the maximum'));
+		}
+		if ($this->scenario == 'Add' || $this->scenario == 'Edit') {
+			if (T\DB::GetField("SELECT COUNT(*)"
+							. " FROM `_user_certificates` ucrt"
+							. " INNER JOIN (SELECT 1) tmp ON ucrt.`UID`=:uid AND ucrt.`Title`=:ttl"
+							. ($this->hdnCertificateID ? " AND ucrt.`CombinedID`!=:id" : "")
+							. " INNER JOIN `_institutions` insts ON ucrt.`InstitutionID`=insts.`ID`"
+							. " AND " . ($this->hdnInstitutionID ? " ucrt.`InstitutionID`=:insid OR " : "")
+							. "(insts.`Title`=:insttl AND"
+							. "	("
+							. "		insts.`Domain` <=> :insdom"
+							. "		OR insts.`Domain` LIKE CONCAT('%', :insEscDom) ESCAPE '='"
+							. "		OR :insdom LIKE CONCAT('%', insts.`Domain`) ESCAPE '='"
+							. "	)"
+							. ")"
+							, array(
+						':id' => $this->hdnCertificateID,
+						':uid' => $this->UserID,
+						':ttl' => $this->txtTitle,
+						':insid' => $this->hdnInstitutionID? : null,
+						':insttl' => $this->txtInstitutionTitle,
+						':insdom' => $this->InstDomain? : null,
+						':insEscDom' => T\DB::EscapeLikeWildCards($this->InstDomain)? : null,
+							)
+					)
+			) {
+				$this->addError('txtInstitutionTitle', \t2::yii('This combination has been taken previously'));
+				$this->addError('txtTitle', \t2::yii('This combination has been taken previously'));
+			}
+		}
 	}
 
 	public function ValidateDate($attr) {
@@ -147,11 +195,7 @@ class Certificates extends \Base\FormModel {
 				':city' => ($this->txtCity? : $this->ddlCity)? : NULL,
 			)
 		);
-		$Domain = '';
-		if ($this->txtInstitutionURL) {
-			$Domain = parse_url($this->txtInstitutionURL, PHP_URL_HOST);
-			$Domain = ltrim($Domain, 'www.');
-		}
+		$Domain = $this->InstDomain;
 		$Queries[] = array(
 			!$this->hdnCertificateID ?
 					"INSERT IGNORE INTO `_user_certificates`("
@@ -160,12 +204,12 @@ class Certificates extends \Base\FormModel {
 					. ", `GeoCountryISO2`, `GeoDivisionCode`, `GeoCityID`"
 					. ", `UserCountryID`,`UserDivisionID`, `UserCityID`)"
 					. " VALUE("
-					. " @cert_ID:=($strSQLPart_ID), :uid, @cert_InstitutionID:=institutions_getCreatedInstitutionID(:instid, :instttl, :instdom, :instdom_escaped, :instulr)"
+					. " @cert_ID:=($strSQLPart_ID), :uid, @cert_InstitutionID:=institutions_getCreatedInstitutionID(:insid, :insttl, :insdom, :insdom_escaped, :insulr)"
 					. ", :ttl, :date, :desc"
 					. ", @cert_CountryISO2, @cert_DivisionCombined, @cert_CityID"
 					. ", @cert_UserCountryID, @cert_UserDivisionID, @cert_UserCityID)" :
-					"UPDATE `_user_certificates` SET "
-					. " `InstitutionID`=@cert_InstitutionID:=institutions_getCreatedInstitutionID(:instid, :instttl, :instdom, :instdom_escaped, :instulr)"
+					"UPDATE IGNORE `_user_certificates` SET "
+					. " `InstitutionID`=@cert_InstitutionID:=institutions_getCreatedInstitutionID(:insid, :insttl, :insdom, :insdom_escaped, :insulr)"
 					. ", `Title`=:ttl, `Date`=:date, `Description`=:desc"
 					. ", `GeoCountryISO2`=@cert_CountryISO2, `GeoDivisionCode`=@cert_DivisionCombined, `GeoCityID`=@cert_CityID"
 					. ", `UserCountryID`=@cert_UserCountryID, `UserDivisionID`=@cert_UserDivisionID, `UserCityID`=@cert_UserCityID"
@@ -174,11 +218,11 @@ class Certificates extends \Base\FormModel {
 				':combid' => $this->hdnCertificateID,
 				':uid' => $this->UserID,
 				#
-				':instid' => $this->hdnInstitutionID? : null,
-				':instttl' => $this->txtInstitutionTitle? : null,
-				':instdom' => $Domain? : null,
-				':instdom_escaped' => $Domain ? T\DB::EscapeLikeWildCards($Domain) : null,
-				':instulr' => $this->txtInstitutionURL? : null,
+				':insid' => $this->hdnInstitutionID? : null,
+				':insttl' => $this->txtInstitutionTitle? : null,
+				':insdom' => $Domain? : null,
+				':insdom_escaped' => $Domain ? T\DB::EscapeLikeWildCards($Domain) : null,
+				':insulr' => $this->txtInstitutionURL? : null,
 				#
 				':ttl' => $this->txtTitle? : null,
 				':date' => $this->txtDate? : null,
@@ -234,7 +278,7 @@ class Certificates extends \Base\FormModel {
 							. ", ins.`URL` AS InstitutionURL"
 							. " FROM `_user_certificates` AS ucert"
 							. " INNER JOIN (SELECT 1) tmp ON " . ($ID ? " ucert.`CombinedID`=:id AND " : '') . " UID=:uid"
-							. " LEFT JOIN `_institutions` AS ins ON ins.`ID`=ucert.InstitutionID"
+							. " INNER JOIN `_institutions` AS ins ON ins.`ID`=ucert.InstitutionID"
 							. " LEFT JOIN `_geo_countries` AS gc ON gc.`ISO2`=ucert.`GeoCountryISO2`"
 							. " LEFT JOIN `_geo_divisions` AS gd ON gd.`CombinedCode`=ucert.`GeoDivisionCode`"
 							. " LEFT JOIN `_geo_cities` AS gct ON gct.`GeonameID` =ucert.`GeoCityID`"

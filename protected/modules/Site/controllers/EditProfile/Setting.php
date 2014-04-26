@@ -1,6 +1,6 @@
 <?php
 
-namespace Site\controllers\Profile;
+namespace Site\controllers\EditProfile;
 
 /**
  * @author Abbas Hashemian <tondarweb@gmail.com>

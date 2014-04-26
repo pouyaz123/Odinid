@@ -84,6 +84,8 @@ return array_merge(
 //	'txtTBALayoff' => \t2::Site_User('Layoff days (TBA)'),
 //	'txtRetirementPercent' => \t2::Site_User('Retirement percent'),
 #
+//	'Study field' => 'Study field',
+//	'Degree' => 'Degree',
 //	'Update' => 'Update',
 //	'Upload' => 'Upload',
 //	'Crop' => 'Crop',
@@ -137,7 +139,7 @@ return array_merge(
 //	'txtContactLastName' => \t2::Site_Company('Contact Last Name'),
 //	'txtContactJobTitle' => \t2::Site_Company('Contact Job Title'),
 //	'Rates' => 'Rates,
-//	#
+#
 //	'Requested profile was not found' => 'Requested profile was not found',
 //	'Gender' => 'Gender',
 //	'Female' => 'Female',
@@ -155,5 +157,7 @@ return array_merge(
 //	'Intern' => 'Intern',
 //	'Contract' => 'Contract',
 //	'Home' => 'Home',
+#
+//	'This combination has been taken previously' => 'This combination has been taken previously'
 		)
 );

@@ -17,6 +17,7 @@ use \Tools as T;
  * @property-read array $arrWorkConditions
  * @property-read array $dtExperiences
  * @property-read array $dtFreshExperiences
+ * @property-read array $CompDomain
  */
 class Experiences extends \Base\FormModel {
 
@@ -67,12 +68,22 @@ class Experiences extends \Base\FormModel {
 	public $txtCountry;
 	public $txtDivision;
 	public $txtCity;
+	#
 	public $txtFromDate;
 	public $txtToDate;
 	public $chkToPresent;
 	public $txtDescription;
 	#
 	public $UserID;
+
+	public function getCompDomain() {
+		static $Domain = '';
+		if (!$Domain && $this->txtCompanyURL) {
+			$Domain = parse_url($this->txtCompanyURL, PHP_URL_HOST);
+			$Domain = ltrim($Domain, 'www.');
+		}
+		return $Domain;
+	}
 
 	//Experience levels
 	const Level_Junior = 'Junior';
@@ -209,6 +220,41 @@ class Experiences extends \Base\FormModel {
 			$this->addError('txtToDate', \t2::yii('{attribute} "{value}" is invalid.'
 							, array('{attribute}' => $this->getAttributeLabel('txtToDate'), '{value}' => $this->txtToDate)));
 		}
+		if (!$this->hdnExperienceID) {//means in add mode not edit mode
+			$Count = T\DB::GetField("SELECT COUNT(*) FROM `_user_experiences` WHERE `UID`=:uid"
+							, array(':uid' => $this->UserID));
+			if ($Count && $Count >= T\Settings::GetValue('MaxResumeBigItemsPerCase'))
+				$this->addError('', \t2::site_site('You have reached the maximum'));
+		}
+//		if ($this->scenario == 'Add' || $this->scenario == 'Edit') {
+//			if (T\DB::GetField("SELECT COUNT(*)"
+//							. " FROM `_user_certificates` ucrt"
+//							. " INNER JOIN (SELECT 1) tmp ON ucrt.`UID`=:uid AND ucrt.`Title`=:ttl"
+//							. ($this->hdnCertificateID ? " AND ucrt.`CombinedID`!=:id" : "")
+//							. " INNER JOIN `_institutions` insts ON ucrt.`InstitutionID`=insts.`ID`"
+//							. " WHERE " . ($this->hdnInstitutionID ? " ucrt.`InstitutionID`=:insid OR " : "")
+//							. "(insts.`Title`=:insttl AND"
+//							. "	("
+//							. "		insts.`Domain` <=> :insdom"
+//							. "		OR insts.`Domain` LIKE CONCAT('%', :insEscDom) ESCAPE '='"
+//							. "		OR :insdom LIKE CONCAT('%', insts.`Domain`) ESCAPE '='"
+//							. "	)"
+//							. ")"
+//							, array(
+//						':id' => $this->hdnCertificateID,
+//						':uid' => $this->UserID,
+//						':ttl' => $this->txtTitle,
+//						':insid' => $this->hdnInstitutionID? : null,
+//						':insttl' => $this->txtInstitutionTitle,
+//						':insdom' => $this->CompDomain? : null,
+//						':insEscDom' => T\DB::EscapeLikeWildCards($this->CompDomain)? : null,
+//							)
+//					)
+//			) {
+//				$this->addError('txtInstitutionTitle', \t2::yii('This combination has been taken previously'));
+//				$this->addError('txtTitle', \t2::yii('This combination has been taken previously'));
+//			}
+//		}
 	}
 
 	public function attributeLabels() {
@@ -279,11 +325,7 @@ class Experiences extends \Base\FormModel {
 				':city' => ($this->txtCity? : $this->ddlCity)? : NULL,
 			)
 		);
-		$Domain = '';
-		if ($this->txtCompanyURL) {
-			$Domain = parse_url($this->txtCompanyURL, PHP_URL_HOST);
-			$Domain = ltrim($Domain, 'www.');
-		}
+		$Domain = $this->CompDomain;
 		$Queries[] = array(
 			!$this->hdnExperienceID ?
 					"INSERT INTO `_user_experiences`("
@@ -387,7 +429,7 @@ class Experiences extends \Base\FormModel {
 							. ", ci.`URL` AS CompanyURL"
 							. " FROM `_user_experiences` AS uexp"
 							. " INNER JOIN (SELECT 1) tmp ON " . ($ID ? " uexp.`CombinedID`=:id AND " : '') . " UID=:uid"
-							. " LEFT JOIN `_company_info` AS ci ON ci.`ID`=uexp.CompanyID"
+							. " INNER JOIN `_company_info` AS ci ON ci.`ID`=uexp.CompanyID"
 							. " LEFT JOIN `_geo_countries` AS gc ON gc.`ISO2`=uexp.`GeoCountryISO2`"
 							. " LEFT JOIN `_geo_divisions` AS gd ON gd.`CombinedCode`=uexp.`GeoDivisionCode`"
 							. " LEFT JOIN `_geo_cities` AS gct ON gct.`GeonameID` =uexp.`GeoCityID`"
@@ -447,6 +489,7 @@ class Experiences extends \Base\FormModel {
 				'txtCountry' => $dr['GeoCountryISO2'] ? : $dr['Country'],
 				'txtDivision' => $dr['GeoDivisionCode'] ? : $dr['Division'],
 				'txtCity' => $dr['GeoCityID'] ? : $dr['City'],
+				#
 				'txtFromDate' => $dr['FromDate'],
 				'txtToDate' => $dr['ToDate'],
 				'chkToPresent' => $dr['ToPresent'],

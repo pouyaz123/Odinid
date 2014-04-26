@@ -1,13 +1,13 @@
 <?php
 
-namespace Site\controllers\Profile;
+namespace Site\controllers\EditProfile;
 
 use \Site\models\User\Login;
 
 /**
  * @author Abbas Hashemian <tondarweb@gmail.com>
  */
-class EditLocations extends \CAction {
+class Locations extends \CAction {
 
 	public function run() {
 		$this->controller->pageTitle = \t2::SitePageTitle(\t2::site_site('Locations'));
@@ -75,7 +75,7 @@ class EditLocations extends \CAction {
 
 	/**
 	 * 
-	 * @param \Site\controllers\Profile\EditLocations $ctrl
+	 * @param \Site\controllers\EditProfile\Locations $ctrl
 	 * @param \Site\models\Profile\Info $Model
 	 * @return \Base\DataGrid
 	 */

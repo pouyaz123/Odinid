@@ -1,6 +1,6 @@
 <?php
 
-namespace Site\controllers\Profile;
+namespace Site\controllers\EditProfile;
 
 use \Site\models\User\Login;
 use Tools as T;
@@ -8,7 +8,7 @@ use Tools as T;
 /**
  * @author Abbas Hashemian <tondarweb@gmail.com>
  */
-class EditExperiences extends \CAction {
+class Experiences extends \CAction {
 
 	public function run() {
 		$this->controller->pageTitle = \t2::SitePageTitle(\t2::site_site('Experiences'));
@@ -95,7 +95,7 @@ class EditExperiences extends \CAction {
 
 	/**
 	 * 
-	 * @param \Site\controllers\Profile\EditExperiences $ctrl
+	 * @param \Site\controllers\EditProfile\Experiences $ctrl
 	 * @param \Site\models\Profile\Experiences $Model
 	 * @return \Base\DataGrid
 	 */

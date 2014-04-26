@@ -112,11 +112,12 @@ class Info_Residencies extends \Base\FormModelBehavior {
 	 * Validates the maximum numbre of residencies
 	 */
 	private function ValidateNewResidency() {
-		$dt = $this->dtResidencies;
+		$owner = $this->owner;
 		if (!$this->hdnResidencyID) {//means in add mode not edit mode
-			if (count($dt) >= T\Settings::GetValue('MaxUserResidencies'))
-				$this->owner->addError('', \t2::site_site('You have reached the maximum'));
-			return;
+			$Count = T\DB::GetField("SELECT COUNT(*) FROM `_user_residencies` WHERE `UID`=:uid"
+							, array(':uid' => $owner->drUser['ID']));
+			if ($Count && $Count >= T\Settings::GetValue('MaxUserResidencies'))
+				$owner->addError('', \t2::site_site('You have reached the maximum'));
 		}
 	}
 

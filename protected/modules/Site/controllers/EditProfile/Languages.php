@@ -1,23 +1,23 @@
 <?php
 
-namespace Site\controllers\Profile;
+namespace Site\controllers\EditProfile;
 
 use \Site\models\User\Login;
-use \Site\models\Profile\Languages;
+use \Site\models\Profile\Languages as Model;
 use \Tools as T;
 
 /**
  * @author Abbas Hashemian <tondarweb@gmail.com>
  */
-class EditLanguages extends \CAction {
+class Languages extends \CAction {
 
 	public function run() {
 		$this->controller->pageTitle = \t2::SitePageTitle(\t2::site_site('Languages'));
 		\html::TagIt_Load();
 		\html::Balloon_Load();
 		\html::jqUI_AutoComplete_Load();
-		$Model = new Languages();
-		Languages::$UserID = Login::GetSessionDR('ID');
+		$Model = new Model();
+		Model::$UserID = Login::GetSessionDR('ID');
 		if (\GPCS::POST('btnSaveEdit')) {
 			$Post = \GPCS::POST($Model->PostName);
 			$Items = $Post['txtLanguages'];
@@ -32,7 +32,7 @@ class EditLanguages extends \CAction {
 					$Model->PushTransactions();
 				}
 			}
-			Languages::Commit();
+			Model::Commit();
 		}
 		\Output::AddIn_AjaxOutput(function() {
 			$term = \GPCS::GET('term')? : \GPCS::POST('term');

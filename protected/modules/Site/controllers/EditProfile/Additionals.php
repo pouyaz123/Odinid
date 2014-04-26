@@ -1,6 +1,6 @@
 <?php
 
-namespace Site\controllers\Profile;
+namespace Site\controllers\EditProfile;
 
 use \Site\models\User\Login;
 use Tools as T;
@@ -8,7 +8,7 @@ use Tools as T;
 /**
  * @author Abbas Hashemian <tondarweb@gmail.com>
  */
-class EditAdditionals extends \CAction {
+class Additionals extends \CAction {
 
 	public function run() {
 		$this->controller->pageTitle = \t2::SitePageTitle(\t2::site_site('Additionals'));
@@ -56,7 +56,7 @@ class EditAdditionals extends \CAction {
 
 	/**
 	 * 
-	 * @param \Site\controllers\Profile\EditAdditionals $ctrl
+	 * @param \Site\controllers\EditProfile\Additionals $ctrl
 	 * @param \Site\models\Profile\Additionals $Model
 	 * @return \Base\DataGrid
 	 */

@@ -16,6 +16,16 @@ use \Tools as T;
 class Settings {
 
 	static function GetValue($LogicName) {
+		switch ($LogicName) {
+			case 'MaxResumeTagItemsPerCase':
+				return 10;
+				break;
+			case 'MaxResumeBigItemsPerCase':
+				return 5;
+				break;
+			default:
+				break;
+		}
 		static $Settings = null;
 		if (!$Settings)
 			$Settings = T\Cache::rabbitCache()->get("SiteSettings");

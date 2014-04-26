@@ -1,6 +1,6 @@
 <?php
 
-namespace Site\controllers\Profile;
+namespace Site\controllers\EditProfile;
 
 use \Site\models\User\Login;
 use Tools as T;
@@ -8,7 +8,7 @@ use Tools as T;
 /**
  * @author Abbas Hashemian <tondarweb@gmail.com>
  */
-class EditCertificates extends \CAction {
+class Certificates extends \CAction {
 
 	public function run() {
 		$this->controller->pageTitle = \t2::SitePageTitle(\t2::site_site('Certificates'));
@@ -95,7 +95,7 @@ class EditCertificates extends \CAction {
 
 	/**
 	 * 
-	 * @param \Site\controllers\Profile\EditCertificates $ctrl
+	 * @param \Site\controllers\EditProfile\Certificates $ctrl
 	 * @param \Site\models\Profile\Certificates $Model
 	 * @return \Base\DataGrid
 	 */
@@ -144,7 +144,7 @@ class EditCertificates extends \CAction {
 							$dr['Country'] = "<div title='"
 									. \CHtml::encode($dr['City'] . ($dr['City'] && $dr['Division'] ? ' , ' : '') . $dr['Division'])
 									. "'>{$dr['Country']}</div>";
-							$dt[$idx]['Actions'] = $DGP->DataGrid->GetActionColButtons($dr['CombinedID'], "LnkBtn", false, true)
+							$dr['Actions'] = $DGP->DataGrid->GetActionColButtons($dr['CombinedID'], "LnkBtn", false, true)
 									. \html::ButtonContainer(
 											\CHtml::button(\t2::site_site('Edit')
 													, array(
