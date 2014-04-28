@@ -142,24 +142,24 @@ class GCC {
 		}, 'GCC_WorkFields');
 	}
 
-	static function RogueSoftwares() {
+	static function RogueTools() {
 		self::RogueCacheHandler(function() {
 			$drWhereClause = T\DB::GetRow("SELECT "
 							. " GROUP_CONCAT(DISTINCT sft.ID SEPARATOR ' OR ID=') AS IDs"
 							. ", GROUP_CONCAT(DISTINCT sft.TagID SEPARATOR '\" OR TagID=\"') AS TagIDs"
-							. " FROM `_softwares` sft"
+							. " FROM `_tools` sft"
 							. " INNER JOIN (SELECT 1) tmp ON NOT sft.`IsOfficial`"
-							. " LEFT JOIN (SELECT DISTINCT `SoftwareID` FROM `_user_softwares`) usft"
-							. " ON usft.SoftwareID=sft.`ID`"
-							. " WHERE ISNULL(usft.SoftwareID)");
+							. " LEFT JOIN (SELECT DISTINCT `ToolID` FROM `_user_tools`) usft"
+							. " ON usft.ToolID=sft.`ID`"
+							. " WHERE ISNULL(usft.ToolID)");
 			if ($drWhereClause && $drWhereClause['IDs']) {
 				$arrTrans = array();
-				$arrTrans[] = "DELETE FROM `_softwares` WHERE ID=" . $drWhereClause['IDs'];
+				$arrTrans[] = "DELETE FROM `_tools` WHERE ID=" . $drWhereClause['IDs'];
 				if ($drWhereClause['TagIDs'])
-					$arrTrans[] = "DELETE FROM `_tags` WHERE TagID=\"" . $drWhereClause['TagIDs'] . "\" AND `Type`='Software'";
+					$arrTrans[] = "DELETE FROM `_tags` WHERE TagID=\"" . $drWhereClause['TagIDs'] . "\" AND `Type`='Tool'";
 				T\DB::Transaction($arrTrans);
 			}
-		}, 'GCC_Softwares');
+		}, 'GCC_Tools');
 	}
 
 	static function RogueInstitutions() {

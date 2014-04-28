@@ -8,43 +8,43 @@ use \Tools as T;
 /**
  * Set ::$UserID statically<br>
  * create multiple of this model (like a tabular form). Set attrs and call ->PushTransaction for each one<br>
- * finally by calling Softwares::Commit statically all transactions will be committed if the validation result was valid (validation is automatically)<br>
+ * finally by calling Tools::Commit statically all transactions will be committed if the validation result was valid (validation is automatically)<br>
  * @author Abbas Ali Hashemian <info@namedin.com> <tondarweb@gmail.com> http://webdesignir.com
  * @package Odinid
  * @version 1
  * @copyright (c) Odinid
  * @access public
  * @property-read array $arrRates
- * @property-read array $dtSoftwares
- * @property string $txtSoftwares
+ * @property-read array $dtTools
+ * @property string $txtTools
  */
-class Softwares extends \Base\FormModel {
+class Tools extends \Base\FormModel {
 
 	public function getPostName() {
-		return "UserSoftwares";
+		return "UserTools";
 	}
 
 	protected function XSSPurify_Exceptions() {
 		return "ddlRate";
 	}
 
-	public $txtSoftware;
+	public $txtTool;
 	public $ddlRate;
-	private $_txtSoftwares = null;
+	private $_txtTools = null;
 
-	public function gettxtSoftwares() {
-		$txtSoftwares = &$this->_txtSoftwares;
-		foreach ($this->dtSoftwares as $drSoftware) {
-			$txtSoftwares.=',' . $drSoftware['Software'];
+	public function gettxtTools() {
+		$txtTools = &$this->_txtTools;
+		foreach ($this->dtTools as $drTool) {
+			$txtTools.=',' . $drTool['Tool'];
 		}
-		return $txtSoftwares;
+		return $txtTools;
 	}
 
-	public function settxtSoftwares($val) {
-		$this->_txtSoftwares = $val;
+	public function settxtTools($val) {
+		$this->_txtTools = $val;
 	}
 
-	//Software Rates
+	//Tool Rates
 	const Rate_Beginner = 'Beginner';
 	const Rate_Intermediate = 'Intermediate';
 	const Rate_Advanced = 'Advanced';
@@ -62,27 +62,32 @@ class Softwares extends \Base\FormModel {
 	public function rules() {
 		$vl = \ValidationLimits\User::GetInstance();
 		return array(
-			array('txtSoftware, ddlRate', 'required'),
-			array_merge(array('txtSoftware', 'length'), $vl->LongTitle),
+			array('txtTool, ddlRate', 'required'),
+			array_merge(array('txtTool', 'length'), $vl->LongTitle),
 			array('ddlRate', 'in'
 				, 'range' => array_keys($this->arrRates)),
 		);
 	}
 
+	protected function afterValidate() {
+		if (count(self::$Tools) >= T\Settings::GetValue('MaxResumeTagItemsPerCase'))
+			$this->addError('', \t2::site_site('You have reached the maximum'));
+	}
+
 	public function attributeLabels() {
 		return array(
-			'txtSoftwares' => \t2::site_site('Softwares'),
+			'txtTools' => \t2::site_site('Tools'),
 			'ddlRate' => \t2::site_site('Rate'),
 		);
 	}
 
-	public function getdtSoftwares() {
+	public function getdtTools() {
 		static $dt = null;
 		if (!$dt) {
 			$dt = T\DB::GetTable(
-							"SELECT usft.`SelfRate`, sft.`Software`"
-							. " FROM `_user_softwares` usft"
-							. " INNER JOIN `_softwares` sft ON sft.`ID`=usft.`SoftwareID`"
+							"SELECT usft.`SelfRate`, sft.`Tool`"
+							. " FROM `_user_tools` usft"
+							. " INNER JOIN `_tools` sft ON sft.`ID`=usft.`ToolID`"
 							. " WHERE usft.`UID`=:uid"
 							, array(
 						':uid' => self::$UserID,
@@ -97,33 +102,33 @@ class Softwares extends \Base\FormModel {
 	 */
 	public static $UserID = null;
 	private static $IsValid = true;
-	private static $Softwares = array();
+	private static $Tools = array();
 	private static $arrTransactions = array();
 
 	/**
-	 * Deletes the unused Softwares(removed Softwares) of the tag list<br/>
+	 * Deletes the unused Tools(removed Tools) of the tag list<br/>
 	 * This method is called in self::Commit()
 	 * @return void
 	 */
-	private static function DeleteUnusedSoftwares() {
+	private static function DeleteUnusedTools() {
 		$arrParams = array();
-		foreach (self::$Softwares as $idx => $item) {
+		foreach (self::$Tools as $idx => $item) {
 			$arrParams[":sft$idx"] = $item;
 		}
 		$RemovableIDs = T\DB::GetField(
 						"SELECT GROUP_CONCAT(sft.`ID` SEPARATOR ',') AS IDs"
-						. " FROM `_user_softwares` usft"
+						. " FROM `_user_tools` usft"
 						. " INNER JOIN (SELECT 1) tmp ON usft.`UID` = :uid"
-						. " INNER JOIN `_softwares` sft ON sft.`ID` = usft.`SoftwareID`"
+						. " INNER JOIN `_tools` sft ON sft.`ID` = usft.`ToolID`"
 						. (count($arrParams) ?
-								" WHERE sft.`Software` != " . implode(' AND sft.`Software` != ', array_keys($arrParams)) :
+								" WHERE sft.`Tool` != " . implode(' AND sft.`Tool` != ', array_keys($arrParams)) :
 								"")
 						, array_merge($arrParams, array(':uid' => self::$UserID)));
 		if (!$RemovableIDs)
 			return;
 		$RemovableIDs = explode(',', $RemovableIDs);
 		self::$arrTransactions[] = array(
-			"DELETE FROM `_user_softwares` WHERE `UID`=:uid AND (`SoftwareID` = " . implode(' OR `SoftwareID` = ', $RemovableIDs) . ")"
+			"DELETE FROM `_user_tools` WHERE `UID`=:uid AND (`ToolID` = " . implode(' OR `ToolID` = ', $RemovableIDs) . ")"
 			, array(
 				':uid' => self::$UserID
 			)
@@ -141,11 +146,11 @@ class Softwares extends \Base\FormModel {
 		if ($UserID)
 			self::$UserID = $UserID;
 		if (!self::$UserID)
-			throw new \Err(__METHOD__, 'UserID has not been set in Softwares model');
+			throw new \Err(__METHOD__, 'UserID has not been set in Tools model');
 		if (!self::$IsValid)
 			return false;
-		self::DeleteUnusedSoftwares();
-		\Tools\GCC::RogueSoftwares();
+		self::DeleteUnusedTools();
+		\Tools\GCC::RogueTools();
 		if (self::$arrTransactions) {
 			$Result = T\DB::Transaction(self::$arrTransactions);
 			self::$arrTransactions = array();
@@ -162,18 +167,18 @@ class Softwares extends \Base\FormModel {
 			self::$IsValid = false;
 			return false;
 		}
-		self::$Softwares[] = $this->txtSoftware;
+		self::$Tools[] = $this->txtTool;
 		return array(
 			array(
-				"INSERT INTO `_user_softwares` SET"
+				"INSERT INTO `_user_tools` SET"
 				. " `UID`=:uid"
-				. ", `SoftwareID`=softwares_getCreatedSoftwareID(:software)"
+				. ", `ToolID`=tools_getCreatedToolID(:tool)"
 				. ", `SelfRate`=:selfrate"
 				. " ON DUPLICATE KEY UPDATE"
 				. " `SelfRate`=:selfrate"
 				, array(
 					':uid' => self::$UserID,
-					':software' => $this->txtSoftware,
+					':tool' => $this->txtTool,
 					':selfrate' => $this->ddlRate,
 				)
 			)

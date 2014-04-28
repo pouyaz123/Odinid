@@ -12,7 +12,6 @@ class Avatar extends \CAction {
 
 	public function run() {
 		$this->controller->pageTitle = \t2::SitePageTitle(\t2::site_site('Avatar'));
-		\Tools\Cloudinary\Cloudinary::Load();
 		\html::jCrop_Load();
 		$Model = new \Site\models\Profile\Avatar();
 		$Model->UserID = Login::GetSessionDR('ID');

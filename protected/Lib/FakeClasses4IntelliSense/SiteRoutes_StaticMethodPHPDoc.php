@@ -45,7 +45,7 @@ class Routes {
 		
 	}
 
-	static function User_EditSoftwares($Username = null) {
+	static function User_EditTools($Username = null) {
 		
 	}
 

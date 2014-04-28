@@ -42,7 +42,7 @@ class ProfileController extends \Site\Components\BaseController {
 			'editresidencies' => '\Site\controllers\EditProfile\Residencies',
 			#
 			'editskills' => '\Site\controllers\EditProfile\Skills',
-			'editsoftwares' => '\Site\controllers\EditProfile\Softwares',
+			'edittools' => '\Site\controllers\EditProfile\Tools',
 			'editlanguages' => '\Site\controllers\EditProfile\Languages',
 			'editworkfields' => '\Site\controllers\EditProfile\WorkFields',
 			'editcertificates' => '\Site\controllers\EditProfile\Certificates',

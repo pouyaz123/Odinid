@@ -69,6 +69,11 @@ class Languages extends \Base\FormModel {
 		);
 	}
 
+	protected function afterValidate() {
+		if (count(self::$Languages) >= T\Settings::GetValue('MaxResumeTagItemsPerCase'))
+			$this->addError('', \t2::site_site('You have reached the maximum'));
+	}
+
 	public function attributeLabels() {
 		return array(
 			'txtLanguages' => \t2::site_site('Languages'),

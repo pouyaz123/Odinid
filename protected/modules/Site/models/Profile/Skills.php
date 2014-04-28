@@ -69,6 +69,11 @@ class Skills extends \Base\FormModel {
 		);
 	}
 
+	protected function afterValidate() {
+		if (count(self::$Skills) >= T\Settings::GetValue('MaxResumeTagItemsPerCase'))
+			$this->addError('', \t2::site_site('You have reached the maximum'));
+	}
+
 	public function attributeLabels() {
 		return array(
 			'txtSkills' => \t2::site_site('Skills'),

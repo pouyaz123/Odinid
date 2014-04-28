@@ -113,6 +113,12 @@ class Educations extends \Base\FormModel {
 	}
 
 	protected function afterValidate() {
+		if (!$this->hdnEducationID) {//means in add mode not edit mode
+			$Count = T\DB::GetField("SELECT COUNT(*) FROM `_user_educations` WHERE `UID`=:uid"
+							, array(':uid' => $this->UserID));
+			if ($Count && $Count >= T\Settings::GetValue('MaxResumeBigItemsPerCase'))
+				$this->addError('', \t2::site_site('You have reached the maximum'));
+		}
 		if ($this->txtFromDate && $this->txtToDate &&
 				preg_match(C\Regexp::DateFormat_FullDigit, $this->txtFromDate) &&
 				preg_match(C\Regexp::DateFormat_FullDigit, $this->txtToDate) &&

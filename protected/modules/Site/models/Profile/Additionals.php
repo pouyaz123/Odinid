@@ -50,6 +50,15 @@ class Additionals extends \Base\FormModel {
 		);
 	}
 
+	protected function afterValidate() {
+		if (!$this->hdnAdditionalID) {//means in add mode not edit mode
+			$Count = T\DB::GetField("SELECT COUNT(*) FROM `_user_additionals` WHERE `UID`=:uid"
+							, array(':uid' => $this->UserID));
+			if ($Count && $Count >= T\Settings::GetValue('MaxResumeBigItemsPerCase'))
+				$this->addError('', \t2::site_site('You have reached the maximum'));
+		}
+	}
+
 	public function attributeLabels() {
 		return array(
 			'txtTitle' => \t2::site_site('Title'),

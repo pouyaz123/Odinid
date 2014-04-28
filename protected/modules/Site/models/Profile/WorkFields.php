@@ -46,6 +46,11 @@ class WorkFields extends \Base\FormModel {
 		);
 	}
 
+	protected function afterValidate() {
+		if (count(self::$WorkFields) >= T\Settings::GetValue('MaxResumeTagItemsPerCase'))
+			$this->addError('', \t2::site_site('You have reached the maximum'));
+	}
+
 	public function attributeLabels() {
 		return array(
 			'txtWorkFields' => \t2::site_site('Work fields'),

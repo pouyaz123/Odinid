@@ -21,7 +21,7 @@ if ($form = $this->beginWidget('Widgets\ActiveForm', array(
 				<? if ($Model->FreshAvatarID): ?>
 					<div class="UserAvatar">
 						<?=
-						cl_image_tag($Model->AvatarID, array('id' => 'imgAvatar',
+						Tools\Cloudinary\Cloudinary::cl_image_tag($Model->AvatarID, array('id' => 'imgAvatar',
 							'width' => 256))
 						?>
 					</div>
@@ -37,9 +37,9 @@ if ($form = $this->beginWidget('Widgets\ActiveForm', array(
 								$('#<?= $Model->PostName ?>_hdnCropDims').attr('value', '')
 							}
 							}
-		<? if ($Model->drAvatar['PictureCoords']): ?>
+		<? if ($Model->drAvatar['PictureCrop']): ?>
 								, function() {
-								this.animateTo([<?= $Model->drAvatar['PictureCoords'] ?>])
+								this.animateTo([<?= $Model->drAvatar['PictureCrop'] ?>])
 								}
 		<? endif; ?>
 							)

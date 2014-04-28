@@ -14,54 +14,66 @@ use \Tools as T;
  */
 class Cloudinary {
 
-	static function Load() {
+	static function Load($Uploader = false) {
 //		\html::Cloudinary_Load();
-		static $Loaded = false;
-		if (!$Loaded) {
-			require_once 'src/Cloudinary.php';
+		static $Configured = false;
+		require_once 'src/Cloudinary.php';
+		require_once 'src/Api.php';
+		if ($Uploader)
 			require_once 'src/Uploader.php';
-			require_once 'src/Api.php';
+		if (!$Configured) {
 			\Cloudinary::config(\Conf::CloudinaryConfig());
-			$Loaded = true;
+			$Configured = true;
 		}
 	}
 
-//	/**
-//	 * You can upload images and any other files from your PHP server.
-//	 *  Uploading is done over HTTPS using a secure protocol based on the api_key and api_secret parameters you provide.
-//	 * The following command uploads a local file to Cloudinary:
-//	 * \Cloudinary\Uploader::upload("/home/my_image.jpg")
-//	 * @param type $file
-//	 * The resource to upload. Can be one of the following:
-//	 * <ul>
-//	 * <li>A local path (e.g., '/home/my_image.jpg').</li>
-//	 * <li>An HTTP URL of a resource available on the Internet (e.g., 'http://www.example.com/image.jpg').</li>
-//	 * <li>A URL of a file in a private S3 bucket white-listed for your account (e.g., 's3://my-bucket/my-path/my-file.jpg')</li>
-//	 * </ul>
-//	 * @param Cloudinary_UploadConfig|array $options
-//	 * @return array upload result
-//	 * Each image uploaded to Cloudinary is assigned a unique Public ID and is available for
-//	 *  immediate delivery and transformation.
-//	 *  The upload method returns an associative array with content similar to
-//	 *  that shown in the following example:
-//	 * <pre>
-//	 * Array
-//	 * (
-//	 * 	[public_id] => sample
-//	 * 	[version] => 1312461204
-//	 * 	[width] => 864
-//	 * 	[height] => 576
-//	 * 	[format] => jpg
-//	 * 	[bytes] => 120253
-//	 * 	[url] => http://res.cloudinary.com/demo/image/upload/v1371281596/sample.jpg
-//	 * 	[secure_url] => https://res.cloudinary.com/demo/image/upload/v1371281596/sample.jpg
-//	 * )
-//	 * </pre>
-//	 */
-//	public static function Uplaod($file, $options = array()) {
-//		return \Cloudinary\Uploader::upload($file, $options->_getArray());
-//	}
-//
+	/**
+	 * You can upload images and any other files from your PHP server.
+	 *  Uploading is done over HTTPS using a secure protocol based on the api_key and api_secret parameters you provide.
+	 * The following command uploads a local file to Cloudinary:
+	 * \Cloudinary\Uploader::upload("/home/my_image.jpg")
+	 * @param type $file
+	 * The resource to upload. Can be one of the following:
+	 * <ul>
+	 * <li>A local path (e.g., '/home/my_image.jpg').</li>
+	 * <li>An HTTP URL of a resource available on the Internet (e.g., 'http://www.example.com/image.jpg').</li>
+	 * <li>A URL of a file in a private S3 bucket white-listed for your account (e.g., 's3://my-bucket/my-path/my-file.jpg')</li>
+	 * </ul>
+	 * @param array $options
+	 * @return array upload result
+	 * Each image uploaded to Cloudinary is assigned a unique Public ID and is available for
+	 *  immediate delivery and transformation.
+	 *  The upload method returns an associative array with content similar to
+	 *  that shown in the following example:
+	 * <pre>
+	 * Array
+	 * (
+	 * 	[public_id] => sample
+	 * 	[version] => 1312461204
+	 * 	[width] => 864
+	 * 	[height] => 576
+	 * 	[format] => jpg
+	 * 	[bytes] => 120253
+	 * 	[url] => http://res.cloudinary.com/demo/image/upload/v1371281596/sample.jpg
+	 * 	[secure_url] => https://res.cloudinary.com/demo/image/upload/v1371281596/sample.jpg
+	 * )
+	 * </pre>
+	 */
+	public static function Uplaod($file, $options = array()) {
+		self::Load(true);
+		return \Cloudinary\Uploader::upload($file, $options);
+	}
+
+	public static function Destroy($file, $options = array()) {
+		self::Load(true);
+		return \Cloudinary\Uploader::destroy($file, $options);
+	}
+
+	public static function cl_image_tag($file, $options = array()) {
+		self::Load();
+		return cl_image_tag($file, $options);
+	}
+
 //	/**
 //	 * 
 //	 * @param type $source

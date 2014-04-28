@@ -983,9 +983,9 @@ $.superbox.settings = {
 		\html::LoadJS('balloon/jquery.balloon.min');
 	}
 
-	static function Cloudinary_Load() {
-		self::LoadJS('cloudinary/cloudinary');
-	}
+//	static function Cloudinary_Load() {
+//		self::LoadJS('cloudinary/cloudinary');
+//	}
 
 	static function jCrop_Load() {
 		self::LoadJS('jcrop/jquery.Jcrop.min');

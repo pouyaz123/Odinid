@@ -67,14 +67,14 @@ class Avatar extends \Base\FormModel {
 			return false;
 		if ($this->AvatarID)
 			$this->Delete();
-		$CldR = \Cloudinary\Uploader::upload($_FILES[$this->PostName]['tmp_name']['fileAvatar']
+		$CldR = T\Cloudinary\Cloudinary::Uplaod($_FILES[$this->PostName]['tmp_name']['fileAvatar']
 						, array(
 					'public_id' => $this->getAvatarID("NEW", $PicUnqID, false, 1)
 						)
 		);
 		if ($CldR && $CldR['public_id']) {
-			T\DB::Execute("INSERT INTO `_user_info`(`UID`, `PictureUnique`)"
-					. " VALUES(:uid, :picunq) ON DUPLICATE KEY UPDATE `PictureUnique`=:picunq"
+			T\DB::Execute("INSERT INTO `_user_info`(`UID`, `Picture`)"
+					. " VALUES(:uid, :picunq) ON DUPLICATE KEY UPDATE `Picture`=:picunq"
 					, array(':uid' => $this->UserID, ':picunq' => $PicUnqID)
 			);
 		} else {
@@ -86,9 +86,9 @@ class Avatar extends \Base\FormModel {
 	public function Delete() {
 		if (!$this->validate() || !$this->AvatarID)
 			return false;
-		$CldR = \Cloudinary\Uploader::destroy($this->AvatarID, array('invalidate' => true));
+		$CldR = T\Cloudinary\Cloudinary::Destroy($this->AvatarID, array('invalidate' => true));
 		if ($CldR) {
-			T\DB::Execute("UPDATE `_user_info` SET `PictureUnique`=NULL, `PictureCoords`=NULL WHERE `UID`=:uid"
+			T\DB::Execute("UPDATE `_user_info` SET `Picture`=NULL, `PictureCrop`=NULL WHERE `UID`=:uid"
 					, array(':uid' => $this->UserID));
 		} else {
 			\Err::TraceMsg_Method(__METHOD__, "Cloudinary delete failed!", $CldR);
@@ -100,10 +100,10 @@ class Avatar extends \Base\FormModel {
 		$this->scenario = 'Crop';
 		if (!$this->validate() || !$this->AvatarID)
 			return false;
-		T\DB::Execute("INSERT INTO `_user_info`(`UID`, `PictureCoords`)"
+		T\DB::Execute("INSERT INTO `_user_info`(`UID`, `PictureCrop`)"
 				. " VALUES(:uid, :coords)"
 				. " ON DUPLICATE KEY UPDATE"
-				. " `PictureCoords`=:coords"
+				. " `PictureCrop`=:coords"
 				, array(
 			':uid' => $this->UserID,
 			':coords' => $this->hdnCropDims? : null,
@@ -114,7 +114,7 @@ class Avatar extends \Base\FormModel {
 		static $dr = null;
 		if (!$dr || $Refresh) {
 			$this->CheckUserID();
-			$dr = T\DB::GetRow("SELECT `UID`, `PictureUnique`, `PictureCoords` FROM `_user_info` WHERE `UID`=:uid"
+			$dr = T\DB::GetRow("SELECT `UID`, `Picture`, `PictureCrop` FROM `_user_info` WHERE `UID`=:uid"
 							, array(':uid' => $this->UserID));
 		}
 		return $dr;
@@ -129,10 +129,10 @@ class Avatar extends \Base\FormModel {
 				$UniqueKey = uniqid(); //reference
 			else {
 				$dr = $this->getdrAvatar($Refresh);
-				if (!$dr || !$dr['PictureUnique'])
+				if (!$dr || !$dr['Picture'])
 					return null;
 			}
-			$ID = self::UploadPath . $this->UserID . '_' . ($GenerateNewOne ? $UniqueKey : $dr['PictureUnique']);
+			$ID = self::UploadPath . $this->UserID . '_' . ($GenerateNewOne ? $UniqueKey : $dr['Picture']);
 		}
 		return $ID;
 	}
@@ -145,7 +145,7 @@ class Avatar extends \Base\FormModel {
 		$dr = $this->getdrAvatar();
 		if ($dr) {
 			$arrAttrs = array(
-				'hdnCropDims' => $dr['PictureCoords'],
+				'hdnCropDims' => $dr['PictureCrop'],
 			);
 			$this->attributes = $arrAttrs;
 		}
