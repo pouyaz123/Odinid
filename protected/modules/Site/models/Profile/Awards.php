@@ -67,7 +67,8 @@ class Awards extends \Base\FormModel {
 			array('hdnAwardID', 'required',
 				'on' => 'Edit, Delete'),
 			array('hdnAwardID', 'IsExist',
-				'SQL' => 'SELECT COUNT(*) FROM `_user_awards` WHERE `CombinedID`=:val',
+				'SQL' => 'SELECT COUNT(*) FROM `_user_awards` WHERE `CombinedID`=:val AND `UID`=:uid',
+				'SQLParams' => array(':uid' => $this->UserID),
 				'on' => 'Edit, Delete'),
 			#
 			array('txtOrganizationTitle, txtTitle', 'required'
@@ -89,7 +90,7 @@ class Awards extends \Base\FormModel {
 		if (!$this->hdnAwardID) {//means in add mode not edit mode
 			$Count = T\DB::GetField("SELECT COUNT(*) FROM `_user_awards` WHERE `UID`=:uid"
 							, array(':uid' => $this->UserID));
-			if ($Count && $Count >= T\Settings::GetValue('MaxResumeBigItemsPerCase'))
+			if ($Count && $Count >= T\Settings::GetInstance()->MaxResumeBigItemsPerCase)
 				$this->addError('', \t2::site_site('You have reached the maximum'));
 		}
 		if ($this->scenario == 'Add' || $this->scenario == 'Edit') {
@@ -227,7 +228,7 @@ class Awards extends \Base\FormModel {
 							. ", org.`Title` AS OrganizationTitle"
 							. ", org.`URL` AS OrganizationURL"
 							. " FROM `_user_awards` AS uawrd"
-							. " INNER JOIN (SELECT 1) tmp ON " . ($ID ? " uawrd.`CombinedID`=:id AND " : "") . " UID=:uid"
+							. " INNER JOIN (SELECT 1) tmp ON " . ($ID ? " uawrd.`CombinedID`=:id AND " : "") . " uawrd.UID=:uid"
 							. " INNER JOIN `_organizations` AS org ON org.`ID`=uawrd.OrganizationID"
 							. ($DGP ?
 									" WHERE {$DGP->SQLWhereClause}"
@@ -248,9 +249,9 @@ class Awards extends \Base\FormModel {
 	 * @return array
 	 */
 	public function getdtFreshAwards($ID = null) {
-		static $R = null;
-		if (!$R)
-			$R = $this->getdtAwards($ID, true);
+		static $F = true;
+		$R = $this->getdtAwards($ID, $F);
+		$F = false;
 		return $R;
 	}
 

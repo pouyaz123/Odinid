@@ -147,7 +147,8 @@ class Experiences extends \Base\FormModel {
 			array('hdnExperienceID', 'required',
 				'on' => 'Edit, Delete'),
 			array('hdnExperienceID', 'IsExist',
-				'SQL' => 'SELECT COUNT(*) FROM `_user_experiences` WHERE `CombinedID`=:val',
+				'SQL' => 'SELECT COUNT(*) FROM `_user_experiences` WHERE `CombinedID`=:val AND `UID`=:uid',
+				'SQLParams' => array(':uid' => $this->UserID),
 				'on' => 'Edit, Delete'),
 			#
 			array('txtFromDate, txtToDate', 'date',
@@ -226,6 +227,7 @@ class Experiences extends \Base\FormModel {
 			if ($Count && $Count >= T\Settings::GetValue('MaxResumeBigItemsPerCase'))
 				$this->addError('', \t2::site_site('You have reached the maximum'));
 		}
+		//validating repeated experience based on the combination (from certificates. is not ready)
 //		if ($this->scenario == 'Add' || $this->scenario == 'Edit') {
 //			if (T\DB::GetField("SELECT COUNT(*)"
 //							. " FROM `_user_certificates` ucrt"
@@ -428,7 +430,7 @@ class Experiences extends \Base\FormModel {
 							. ", ci.`Title` AS CompanyTitle"
 							. ", ci.`URL` AS CompanyURL"
 							. " FROM `_user_experiences` AS uexp"
-							. " INNER JOIN (SELECT 1) tmp ON " . ($ID ? " uexp.`CombinedID`=:id AND " : '') . " UID=:uid"
+							. " INNER JOIN (SELECT 1) tmp ON " . ($ID ? " uexp.`CombinedID`=:id AND " : '') . " uexp.UID=:uid"
 							. " INNER JOIN `_company_info` AS ci ON ci.`ID`=uexp.CompanyID"
 							. " LEFT JOIN `_geo_countries` AS gc ON gc.`ISO2`=uexp.`GeoCountryISO2`"
 							. " LEFT JOIN `_geo_divisions` AS gd ON gd.`CombinedCode`=uexp.`GeoDivisionCode`"
@@ -437,9 +439,9 @@ class Experiences extends \Base\FormModel {
 							. " LEFT JOIN `_geo_user_divisions` AS gud ON gud.`ID`=uexp.`UserDivisionID`"
 							. " LEFT JOIN `_geo_user_cities` AS guct ON guct.`ID`=uexp.`UserCityID`"
 							. ($DGP ?
-									"  WHERE {$DGP->SQLWhereClause}"
-									. "  ORDER BY {$DGP->Sort}"
-									. "  LIMIT $Limit" : "")
+									" WHERE {$DGP->SQLWhereClause}"
+									. " ORDER BY {$DGP->Sort}"
+									. " LIMIT $Limit" : "")
 							, array(
 						':uid' => $this->UserID,
 						':id' => $ID,
@@ -455,9 +457,9 @@ class Experiences extends \Base\FormModel {
 	 * @return array
 	 */
 	public function getdtFreshExperiences($ID = null) {
-		static $R = null;
-		if (!$R)
-			$R = $this->getdtExperiences($ID, true);
+		static $F = true;
+		$R = $this->getdtExperiences($ID, $F);
+		$F = false;
 		return $R;
 	}
 

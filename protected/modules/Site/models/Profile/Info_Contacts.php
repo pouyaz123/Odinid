@@ -124,7 +124,7 @@ class Info_Contacts extends \Base\FormModelBehavior {
 		if (!isset($arrDTs[$StaticIndex]) || $refresh) {
 			$arrDTs[$StaticIndex] = T\DB::GetTable("SELECT *"
 							. " FROM `_user_contacts` uc"
-							. " INNER JOIN (SELECT 1) tmp ON uc.`UID`=:uid" . ($ID ? " AND uc.CombinedID=:id " : "")
+							. " INNER JOIN (SELECT 1) tmp ON " . ($ID ? " uc.CombinedID=:id AND " : "") . " uc.`UID`=:uid"
 							. ($this->owner->asa('Info_Company') ?
 									" LEFT JOIN _company_contactinfo cci ON cci.ContactID = uc.CombinedID" :
 									"")
@@ -144,18 +144,21 @@ class Info_Contacts extends \Base\FormModelBehavior {
 	 * @return array
 	 */
 	public function getdtFreshContacts($ID = null) {
-		static $Result = null;
-		if (!$Result)
-			$Result = $this->getdtContacts($ID, true);
-		return $Result;
+		static $F = true;
+		$R = $this->getdtContacts($ID, $F);
+		$F = false;
+		return $R;
 	}
 
 	public function onDelete(\CEvent $e) {
 		$this->raiseEvent('onDelete', $e);
 		$this->owner->addTransactions(array(
 			array(
-				"DELETE FROM `_user_contacts` WHERE `CombinedID`=:id",
-				array(':id' => $this->hdnContactID)
+				"DELETE FROM `_user_contacts` WHERE `CombinedID`=:id AND `UID`=:uid",
+				array(
+					':uid' => $this->owner->drUser->ID,
+					':id' => $this->hdnContactID,
+				)
 			)
 		));
 	}
@@ -192,7 +195,7 @@ class Info_Contacts extends \Base\FormModelBehavior {
 					. " `Phone`=:phone"
 					. ", `PhoneType`=:phonetype"
 					. ", `IsPrivate`=:isprv"
-					. " WHERE `CombinedID`=:id"
+					. " WHERE `CombinedID`=:id AND `UID`=:uid"
 			)
 			, array(
 				':id' => $this->hdnContactID? : $CombinedID,

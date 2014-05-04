@@ -87,16 +87,18 @@ class Info_Locations extends \Base\FormModelBehavior {
 			if ($Count && $Count >= T\Settings::GetValue('MaxUserLocations'))
 				$owner->addError('', \t2::site_site('You have reached the maximum'));
 		}
-		foreach ($dt as $dr) {
-			if ($this->hdnLocationID && $dr['CombinedID'] === $this->hdnLocationID)
-				continue;
-			if (
-					($dr['GeoCountryISO2'] == $this->ddlCountry || $dr['Country'] == $this->txtCountry) &&
-					($dr['GeoDivisionCode'] == $this->ddlDivision || $dr['Division'] == $this->txtDivision) &&
-					($dr['GeoCityID'] == $this->ddlCity || $dr['City'] == $this->txtCity) &&
-					$dr['Address1'] == $this->txtAddress1 && $dr['Address2'] == $this->txtAddress2
-			)
-				$this->owner->addError('', \t2::site_site('This geographical location has been used previously'));
+		if (!$owner->hasErrors()) {
+			foreach ($this->dtLocations as $dr) {
+				if ($this->hdnLocationID && $dr['CombinedID'] === $this->hdnLocationID)
+					continue;
+				if (
+						($dr['GeoCountryISO2'] == $this->ddlCountry || $dr['Country'] == $this->txtCountry) &&
+						($dr['GeoDivisionCode'] == $this->ddlDivision || $dr['Division'] == $this->txtDivision) &&
+						($dr['GeoCityID'] == $this->ddlCity || $dr['City'] == $this->txtCity) &&
+						$dr['Address1'] == $this->txtAddress1 && $dr['Address2'] == $this->txtAddress2
+				)
+					$this->owner->addError('', \t2::site_site('This geographical location has been used previously'));
+			}
 		}
 	}
 
@@ -180,7 +182,7 @@ class Info_Locations extends \Base\FormModelBehavior {
 							. ", IFNULL(gd.`AsciiName`, gud.`Division`) AS Division"
 							. ", IFNULL(gct.`AsciiName`, guct.`City`) AS City"
 							. " FROM `_user_locations` AS locs"
-							. " INNER JOIN (SELECT 1) AS tmp ON " . ($ID ? " CombinedID=:id AND " : "") . "locs.`UID`=:uid"
+							. " INNER JOIN (SELECT 1) AS tmp ON " . ($ID ? " locs.CombinedID=:id AND " : "") . " locs.`UID`=:uid"
 							. " LEFT JOIN `_geo_countries` AS gc ON gc.`ISO2`=locs.`GeoCountryISO2`"
 							. " LEFT JOIN `_geo_divisions` AS gd ON gd.`CombinedCode`=locs.`GeoDivisionCode`"
 							. " LEFT JOIN `_geo_cities` AS gct ON gct.`GeonameID` =locs.`GeoCityID`"
@@ -188,9 +190,9 @@ class Info_Locations extends \Base\FormModelBehavior {
 							. " LEFT JOIN `_geo_user_divisions` AS gud ON gud.`ID`=locs.`UserDivisionID`"
 							. " LEFT JOIN `_geo_user_cities` AS guct ON guct.`ID`=locs.`UserCityID`"
 							. ($DGP ?
-									"  WHERE {$DGP->SQLWhereClause}"
-									. "  ORDER BY {$DGP->Sort}"
-									. "  LIMIT $Limit" : "")
+									" WHERE {$DGP->SQLWhereClause}"
+									. " ORDER BY {$DGP->Sort}"
+									. " LIMIT $Limit" : "")
 							, array(
 						':uid' => $this->owner->drUser->ID,
 						':id' => $ID,
@@ -206,18 +208,21 @@ class Info_Locations extends \Base\FormModelBehavior {
 	 * @return array
 	 */
 	public function getdtFreshLocations($ID = null, \Base\DataGridParams $DGP = NULL) {
-		static $Result = null;
-		if (!$Result)
-			$Result = $this->getdtLocations($ID, true, $DGP);
-		return $Result;
+		static $F = true;
+		$R = $this->getdtLocations($ID, $F);
+		$F = false;
+		return $R;
 	}
 
 	public function onDelete(\CEvent $e) {
 		$this->raiseEvent('onDelete', $e);
 		$this->owner->addTransactions(array(
 			array(
-				"DELETE FROM `_user_locations` WHERE `CombinedID`=:combid",
-				array(':combid' => $this->hdnLocationID)
+				"DELETE FROM `_user_locations` WHERE `CombinedID`=:combid AND `UID`=:uid",
+				array(
+					':uid' => $this->owner->drUser->ID,
+					':combid' => $this->hdnLocationID,
+				)
 			)
 		));
 	}
@@ -315,7 +320,7 @@ class Info_Locations extends \Base\FormModelBehavior {
 					. ", `PostalCode`=:postcode"
 					. ", `IsCurrentLocation`=:iscurrent"
 					. ", `IsBillingLocation`=:isbilling"
-					. " WHERE `CombinedID`=:combid"
+					. " WHERE `CombinedID`=:combid AND `UID`=:uid"
 			)
 			, array(
 				':uid' => $owner->drUser->ID,
@@ -328,16 +333,16 @@ class Info_Locations extends \Base\FormModelBehavior {
 			)
 		);
 		//Location Phone Cnn
-		if ($owner->asa('Info_Contacts') && $owner->hdnContactID) {
-			$arrTransactions[] = array(
-				"INSERT IGNORE INTO `_user_loc_cntct_cnn`(`LocationID`, `ContactID`)"
-				. " VALUES(:locid, :cntctid)"
-				, array(
-					':locid' => $CombinedID,
-					':cntctid' => $owner->hdnContactID,
-				)
-			);
-		}
+//		if ($owner->asa('Info_Contacts') && $owner->hdnContactID) {
+//			$arrTransactions[] = array(
+//				"INSERT IGNORE INTO `_user_loc_cntct_cnn`(`LocationID`, `ContactID`)"
+//				. " VALUES(:locid, :cntctid)"
+//				, array(
+//					':locid' => $CombinedID,
+//					':cntctid' => $owner->hdnContactID,
+//				)
+//			);
+//		}
 		if (!$this->hdnLocationID)
 			$this->hdnLocationID = $CombinedID;
 		$owner->addTransactions($arrTransactions);

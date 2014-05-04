@@ -15,6 +15,7 @@ use \Tools as T;
  * @copyright (c) Odinid
  * @access public
  * @property-read array $dtWorkFields
+ * @property-read string $MaxItems
  * @property string $txtWorkFields
  */
 class WorkFields extends \Base\FormModel {
@@ -38,6 +39,10 @@ class WorkFields extends \Base\FormModel {
 		$this->_txtWorkFields = $val;
 	}
 
+	public function getMaxItems() {
+		return T\Settings::GetValue('MaxResumeTagItemsPerCase');
+	}
+
 	public function rules() {
 		$vl = \ValidationLimits\User::GetInstance();
 		return array(
@@ -47,13 +52,13 @@ class WorkFields extends \Base\FormModel {
 	}
 
 	protected function afterValidate() {
-		if (count(self::$WorkFields) >= T\Settings::GetValue('MaxResumeTagItemsPerCase'))
+		if (count(self::$WorkFields) >= $this->MaxItems)
 			$this->addError('', \t2::site_site('You have reached the maximum'));
 	}
 
 	public function attributeLabels() {
 		return array(
-			'txtWorkFields' => \t2::site_site('Work fields'),
+			'txtWorkFields' => \t2::site_site('Work fields') . ' ' . \t2::site_site('MaxItems', array($this->MaxItems)),
 		);
 	}
 
@@ -63,8 +68,8 @@ class WorkFields extends \Base\FormModel {
 			$dt = T\DB::GetTable(
 							"SELECT wfld.`WorkField`"
 							. " FROM `_user_workfields` uwfld"
+							. " INNER JOIN (SELECT 1) tmp ON uwfld.`UID`=:uid"
 							. " INNER JOIN `_workfields` wfld ON wfld.`ID`=uwfld.`WorkFieldID`"
-							. " WHERE uwfld.`UID`=:uid"
 							, array(
 						':uid' => self::$UserID,
 							)

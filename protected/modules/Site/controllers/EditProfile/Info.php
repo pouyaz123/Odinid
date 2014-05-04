@@ -43,11 +43,11 @@ class Info extends \CAction {
 					$viewFile = 'editinfo/availability';
 					break;
 				default:
-					$viewFile = 'editinfo/artist';
+					$viewFile = 'editinfo/artist_info';
 					break;
 			}
 		} else {
-			$viewFile = 'editinfo/company';
+			$viewFile = 'editinfo/company_info';
 		}
 		\Output::Render($this->controller
 				, $viewFile

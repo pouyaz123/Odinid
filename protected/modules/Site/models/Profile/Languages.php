@@ -16,6 +16,7 @@ use \Tools as T;
  * @access public
  * @property-read array $arrRates
  * @property-read array $dtLanguages
+ * @property-read string $MaxItems
  * @property string $txtLanguages
  */
 class Languages extends \Base\FormModel {
@@ -44,6 +45,10 @@ class Languages extends \Base\FormModel {
 		$this->_txtLanguages = $val;
 	}
 
+	public function getMaxItems() {
+		return T\Settings::GetValue('MaxResumeTagItemsPerCase');
+	}
+
 	//Language Rates
 	const Rate_Beginner = 'Beginner';
 	const Rate_Intermediate = 'Intermediate';
@@ -70,13 +75,13 @@ class Languages extends \Base\FormModel {
 	}
 
 	protected function afterValidate() {
-		if (count(self::$Languages) >= T\Settings::GetValue('MaxResumeTagItemsPerCase'))
+		if (count(self::$Languages) >= $this->MaxItems)
 			$this->addError('', \t2::site_site('You have reached the maximum'));
 	}
 
 	public function attributeLabels() {
 		return array(
-			'txtLanguages' => \t2::site_site('Languages'),
+			'txtLanguages' => \t2::site_site('Languages') . ' ' . \t2::site_site('MaxItems', array($this->MaxItems)),
 			'ddlRate' => \t2::site_site('Rate'),
 		);
 	}
@@ -87,8 +92,8 @@ class Languages extends \Base\FormModel {
 			$dt = T\DB::GetTable(
 							"SELECT ul.`SelfRate`, lng.`Language`"
 							. " FROM `_user_langs` ul"
+							. " INNER JOIN (SELECT 1) tmp ON ul.`UID`=:uid"
 							. " INNER JOIN `_languages` lng ON lng.`ID`=ul.`LangID`"
-							. " WHERE ul.`UID`=:uid"
 							, array(
 						':uid' => self::$UserID,
 							)

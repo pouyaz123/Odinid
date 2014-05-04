@@ -132,18 +132,21 @@ class Info_WebAddresses extends \Base\FormModelBehavior {
 	 * @return array
 	 */
 	public function getdtFreshWebAddr($ID = null) {
-		static $Result = null;
-		if (!$Result)
-			$Result = $this->getdtWebAddr($ID, true);
-		return $Result;
+		static $F = true;
+		$R = $this->getdtWebAddr($ID, $F);
+		$F = false;
+		return $R;
 	}
 
 	public function onDelete(\CEvent $e) {
 		$this->raiseEvent('onDelete', $e);
 		$this->owner->addTransactions(array(
 			array(
-				"DELETE FROM `_user_webaddresses` WHERE `CombinedID`=:combid",
-				array(':combid' => $this->hdnWebAddrID)
+				"DELETE FROM `_user_webaddresses` WHERE `CombinedID`=:combid AND `UID`=:uid",
+				array(
+					':uid' => $this->owner->drUser->ID,
+					':combid' => $this->hdnWebAddrID,
+				)
 			)
 		));
 	}
@@ -175,7 +178,7 @@ class Info_WebAddresses extends \Base\FormModelBehavior {
 					. " `WebAddress`=:webaddr"
 					. ", `Type`=:webaddrt"
 					. ", `CustomType`=:customtype"
-					. " WHERE `CombinedID`=:combid"
+					. " WHERE `CombinedID`=:combid AND `UID`=:uid"
 			)
 			, array(
 				':combid' => $this->hdnWebAddrID? : null,

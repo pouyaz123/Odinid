@@ -63,7 +63,8 @@ class Certificates extends \Base\FormModel {
 			array('hdnCertificateID', 'required',
 				'on' => 'Edit, Delete'),
 			array('hdnCertificateID', 'IsExist',
-				'SQL' => 'SELECT COUNT(*) FROM `_user_certificates` WHERE `CombinedID`=:val',
+				'SQL' => 'SELECT COUNT(*) FROM `_user_certificates` WHERE `CombinedID`=:val AND `UID`=:uid',
+				'SQLParams' => array(':uid' => $this->UserID),
 				'on' => 'Edit, Delete'),
 			#
 			array('txtInstitutionTitle, txtTitle', 'required'
@@ -107,13 +108,14 @@ class Certificates extends \Base\FormModel {
 							. " INNER JOIN (SELECT 1) tmp ON ucrt.`UID`=:uid AND ucrt.`Title`=:ttl"
 							. ($this->hdnCertificateID ? " AND ucrt.`CombinedID`!=:id" : "")
 							. " INNER JOIN `_institutions` insts ON ucrt.`InstitutionID`=insts.`ID`"
-							. " AND " . ($this->hdnInstitutionID ? " ucrt.`InstitutionID`=:insid OR " : "")
-							. "(insts.`Title`=:insttl AND"
-							. "	("
+							. " AND (" . ($this->hdnInstitutionID ? " ucrt.`InstitutionID`=:insid OR " : "")
+							. " (insts.`Title`=:insttl AND"
+							. "  ("
 							. "		insts.`Domain` <=> :insdom"
 							. "		OR insts.`Domain` LIKE CONCAT('%', :insEscDom) ESCAPE '='"
 							. "		OR :insdom LIKE CONCAT('%', insts.`Domain`) ESCAPE '='"
-							. "	)"
+							. "  )"
+							. " )"
 							. ")"
 							, array(
 						':id' => $this->hdnCertificateID,
@@ -277,7 +279,7 @@ class Certificates extends \Base\FormModel {
 							. ", ins.`Title` AS InstitutionTitle"
 							. ", ins.`URL` AS InstitutionURL"
 							. " FROM `_user_certificates` AS ucert"
-							. " INNER JOIN (SELECT 1) tmp ON " . ($ID ? " ucert.`CombinedID`=:id AND " : '') . " UID=:uid"
+							. " INNER JOIN (SELECT 1) tmp ON " . ($ID ? " ucert.`CombinedID`=:id AND " : '') . " ucert.UID=:uid"
 							. " INNER JOIN `_institutions` AS ins ON ins.`ID`=ucert.InstitutionID"
 							. " LEFT JOIN `_geo_countries` AS gc ON gc.`ISO2`=ucert.`GeoCountryISO2`"
 							. " LEFT JOIN `_geo_divisions` AS gd ON gd.`CombinedCode`=ucert.`GeoDivisionCode`"
@@ -286,9 +288,9 @@ class Certificates extends \Base\FormModel {
 							. " LEFT JOIN `_geo_user_divisions` AS gud ON gud.`ID`=ucert.`UserDivisionID`"
 							. " LEFT JOIN `_geo_user_cities` AS guct ON guct.`ID`=ucert.`UserCityID`"
 							. ($DGP ?
-									"  WHERE {$DGP->SQLWhereClause}"
-									. "  ORDER BY {$DGP->Sort}"
-									. "  LIMIT $Limit" : "")
+									" WHERE {$DGP->SQLWhereClause}"
+									. " ORDER BY {$DGP->Sort}"
+									. " LIMIT $Limit" : "")
 							, array(
 						':uid' => $this->UserID,
 						':id' => $ID,
@@ -304,9 +306,9 @@ class Certificates extends \Base\FormModel {
 	 * @return array
 	 */
 	public function getdtFreshCertificates($ID = null) {
-		static $R = null;
-		if (!$R)
-			$R = $this->getdtCertificates($ID, true);
+		static $F = true;
+		$R = $this->getdtCertificates($ID, $F);
+		$F = false;
 		return $R;
 	}
 

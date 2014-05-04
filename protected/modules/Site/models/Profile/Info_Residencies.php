@@ -51,8 +51,7 @@ class Info_Residencies extends \Base\FormModelBehavior {
 			array('hdnResidencyID', 'required',
 				'on' => 'Edit, Delete'),
 			array('hdnResidencyID', 'IsExist',
-				'SQL' => 'SELECT COUNT(*) FROM `_user_residencies`'
-				. ' WHERE `CombinedID`=:val AND `UID`=:uid',
+				'SQL' => 'SELECT COUNT(*) FROM `_user_residencies` WHERE `CombinedID`=:val AND `UID`=:uid',
 				'SQLParams' => array(':uid' => $owner->drUser->ID),
 				'on' => 'Edit, Delete'),
 			array('ddlCountry, txtCountry, rdoResidencyStatus', 'required',
@@ -83,24 +82,18 @@ class Info_Residencies extends \Base\FormModelBehavior {
 		$unq = new \Validators\DBNotExist();
 		$unq->attributes = array('ddlCountry', 'txtCountry');
 		$unq->SQL = 'SELECT COUNT(*) FROM `_user_residencies` AS ur'
-				. ' INNER JOIN (SELECT 1) AS tmp ON ur.`UID`=:uid'
+				. ' INNER JOIN (SELECT 1) AS tmp ON '
+				. ($owner->scenario == 'Edit' || $this->hdnResidencyID ? ' ur.`CombinedID`!=:id AND ' : '')
+				. ' ur.`UID`=:uid'
 				. ' LEFT JOIN `_geo_user_countries` AS guc ON guc.`ID`=ur.`UserCountryID`'
 				. ' LEFT JOIN `_geo_countries` AS gc ON gc.`ISO2`=ur.`GeoCountryISO2`'
-				. ' WHERE ur.`GeoCountryISO2`=:val OR guc.`Country`=:val OR gc.`AsciiName`=:val'
-				. ($owner->scenario == 'Edit' || $this->hdnResidencyID ? ' AND `CombinedID`!=:id' : '');
+				. ' WHERE ur.`GeoCountryISO2`=:val OR guc.`Country`=:val OR gc.`AsciiName`=:val';
 		$unq->SQLParams = array(
 			':id' => $this->hdnResidencyID,
 			':uid' => $owner->drUser['ID']
 		);
 		$unq->except = 'Delete';
 		$owner->validatorList->add($unq);
-//			array('ddlCountry, txtCountry', 'IsUnique',
-//				'SQL' => 'SELECT COUNT(*) FROM `_user_residencies` AS ur'
-//				. ' INNER JOIN (SELECT 1) AS tmp ON ur.`UID`=:uid'
-//				. ' LEFT JOIN `_geo_user_countries` AS guc ON guc.`ID`=ur.`UserCountryID`'
-//				. ' WHERE (ur.`GeoCountryISO2`=:val OR guc.`Country`=:val)',
-//				'SQLParams' => array(':uid' => $owner->drUser->ID),
-//				'on' => 'Add, Edit'),
 	}
 
 	public function afterValidate(\CEvent $event) {
@@ -139,7 +132,7 @@ class Info_Residencies extends \Base\FormModelBehavior {
 			$arrDTs[$StaticIndex] = T\DB::GetTable(
 							"SELECT ur.*, IFNULL(gc.`AsciiName`, guc.`Country`) AS Country"
 							. " FROM `_user_residencies` ur"
-							. " INNER JOIN (SELECT 1) tmp ON " . ($ID ? " CombinedID=:id AND " : "") . " ur.`UID`=:uid "
+							. " INNER JOIN (SELECT 1) tmp ON " . ($ID ? " ur.CombinedID=:id AND " : "") . " ur.`UID`=:uid "
 							. " LEFT JOIN `_geo_countries` AS gc ON gc.`ISO2`=ur.`GeoCountryISO2`"
 							. " LEFT JOIN `_geo_user_countries` AS guc ON guc.`ID`=ur.`UserCountryID`"
 							, array(
@@ -157,18 +150,17 @@ class Info_Residencies extends \Base\FormModelBehavior {
 	 * @return array
 	 */
 	public function getdtFreshResidencies($ID = null) {
-		static $Result = null;
-		if (!$Result)
-			$Result = $this->getdtResidencies($ID, true);
-		return $Result;
+		static $F = true;
+		$R = $this->getdtResidencies($ID, $F);
+		$F = false;
+		return $R;
 	}
 
 	public function onDelete(\CEvent $e) {
 		$this->raiseEvent('onDelete', $e);
 		$this->owner->addTransactions(array(
 			array(
-				"DELETE FROM `_user_residencies`"
-				. " WHERE `CombinedID`=:id AND `UID`=:uid",
+				"DELETE FROM `_user_residencies` WHERE `CombinedID`=:id AND `UID`=:uid",
 				array(
 					':uid' => $this->owner->drUser['ID'],
 					':id' => $this->hdnResidencyID,

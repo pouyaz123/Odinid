@@ -149,10 +149,10 @@ class Info_Emails extends \Base\FormModelBehavior {
 	 * @return array
 	 */
 	public function getdtFreshEmails($ID = null) {
-		static $Result = null;
-		if (!$Result)
-			$Result = $this->getdtEmails($ID, true);
-		return $Result;
+		static $F = true;
+		$R = $this->getdtEmails($ID, $F);
+		$F = false;
+		return $R;
 	}
 
 	public function onDelete(\CEvent $e) {

@@ -16,6 +16,7 @@ use \Tools as T;
  * @access public
  * @property-read array $arrRates
  * @property-read array $dtSkills
+ * @property-read string $MaxItems
  * @property string $txtSkills
  */
 class Skills extends \Base\FormModel {
@@ -44,6 +45,10 @@ class Skills extends \Base\FormModel {
 		$this->_txtSkills = $val;
 	}
 
+	public function getMaxItems() {
+		return T\Settings::GetValue('MaxResumeTagItemsPerCase');
+	}
+
 	//Skill Rates
 	const Rate_Beginner = 'Beginner';
 	const Rate_Intermediate = 'Intermediate';
@@ -70,13 +75,13 @@ class Skills extends \Base\FormModel {
 	}
 
 	protected function afterValidate() {
-		if (count(self::$Skills) >= T\Settings::GetValue('MaxResumeTagItemsPerCase'))
+		if (count(self::$Skills) >= $this->MaxItems)
 			$this->addError('', \t2::site_site('You have reached the maximum'));
 	}
 
 	public function attributeLabels() {
 		return array(
-			'txtSkills' => \t2::site_site('Skills'),
+			'txtSkills' => \t2::site_site('Skills') . ' ' . \t2::site_site('MaxItems', array($this->MaxItems)),
 			'ddlRate' => \t2::site_site('Rate'),
 		);
 	}
@@ -87,8 +92,8 @@ class Skills extends \Base\FormModel {
 			$dt = T\DB::GetTable(
 							"SELECT uskl.`SelfRate`, skl.`Skill`"
 							. " FROM `_user_skills` uskl"
+							. " INNER JOIN (SELECT 1) tmp ON uskl.`UID`=:uid"
 							. " INNER JOIN `_skills` skl ON skl.`ID`=uskl.`SkillID`"
-							. " WHERE uskl.`UID`=:uid"
 							, array(
 						':uid' => self::$UserID,
 							)

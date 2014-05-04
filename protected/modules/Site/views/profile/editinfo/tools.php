@@ -61,6 +61,7 @@ _t.RunScriptAfterLoad('tagit/tag-it.min', function() {
 						$obj, {
 							source: '<?= Tools\HTTP::URL_InsertGetParams($_SERVER['REQUEST_URI'], "__AjaxPostKW=AutoComplete_UserTools_txtTools") ?>'
 						}, 0, 1, 1, 1)
+				, tagLimit: <?= $Model->MaxItems ?>
 				, afterTagAdded: function(e, ui) {
 					if (!ui.duringInitialization) {
 						$('#divToolRates').append(

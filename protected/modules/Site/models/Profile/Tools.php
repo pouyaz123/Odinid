@@ -16,6 +16,7 @@ use \Tools as T;
  * @access public
  * @property-read array $arrRates
  * @property-read array $dtTools
+ * @property-read string $MaxItems
  * @property string $txtTools
  */
 class Tools extends \Base\FormModel {
@@ -42,6 +43,10 @@ class Tools extends \Base\FormModel {
 
 	public function settxtTools($val) {
 		$this->_txtTools = $val;
+	}
+	
+	public function getMaxItems() {
+		return T\Settings::GetValue('MaxResumeTagItemsPerCase');
 	}
 
 	//Tool Rates
@@ -70,13 +75,13 @@ class Tools extends \Base\FormModel {
 	}
 
 	protected function afterValidate() {
-		if (count(self::$Tools) >= T\Settings::GetValue('MaxResumeTagItemsPerCase'))
+		if (count(self::$Tools) >= $this->MaxItems)
 			$this->addError('', \t2::site_site('You have reached the maximum'));
 	}
 
 	public function attributeLabels() {
 		return array(
-			'txtTools' => \t2::site_site('Tools'),
+			'txtTools' => \t2::site_site('Tools') . ' ' . \t2::site_site('MaxItems', array($this->MaxItems)),
 			'ddlRate' => \t2::site_site('Rate'),
 		);
 	}
@@ -85,10 +90,10 @@ class Tools extends \Base\FormModel {
 		static $dt = null;
 		if (!$dt) {
 			$dt = T\DB::GetTable(
-							"SELECT usft.`SelfRate`, sft.`Tool`"
-							. " FROM `_user_tools` usft"
-							. " INNER JOIN `_tools` sft ON sft.`ID`=usft.`ToolID`"
-							. " WHERE usft.`UID`=:uid"
+							"SELECT utl.`SelfRate`, tl.`Tool`"
+							. " FROM `_user_tools` utl"
+							. " INNER JOIN (SELECT 1) tmp ON utl.`UID`=:uid"
+							. " INNER JOIN `_tools` tl ON tl.`ID`=utl.`ToolID`"
 							, array(
 						':uid' => self::$UserID,
 							)
@@ -113,15 +118,15 @@ class Tools extends \Base\FormModel {
 	private static function DeleteUnusedTools() {
 		$arrParams = array();
 		foreach (self::$Tools as $idx => $item) {
-			$arrParams[":sft$idx"] = $item;
+			$arrParams[":tl$idx"] = $item;
 		}
 		$RemovableIDs = T\DB::GetField(
-						"SELECT GROUP_CONCAT(sft.`ID` SEPARATOR ',') AS IDs"
-						. " FROM `_user_tools` usft"
-						. " INNER JOIN (SELECT 1) tmp ON usft.`UID` = :uid"
-						. " INNER JOIN `_tools` sft ON sft.`ID` = usft.`ToolID`"
+						"SELECT GROUP_CONCAT(tl.`ID` SEPARATOR ',') AS IDs"
+						. " FROM `_user_tools` utl"
+						. " INNER JOIN (SELECT 1) tmp ON utl.`UID` = :uid"
+						. " INNER JOIN `_tools` tl ON tl.`ID` = utl.`ToolID`"
 						. (count($arrParams) ?
-								" WHERE sft.`Tool` != " . implode(' AND sft.`Tool` != ', array_keys($arrParams)) :
+								" WHERE tl.`Tool` != " . implode(' AND tl.`Tool` != ', array_keys($arrParams)) :
 								"")
 						, array_merge($arrParams, array(':uid' => self::$UserID)));
 		if (!$RemovableIDs)

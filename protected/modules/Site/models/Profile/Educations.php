@@ -70,7 +70,8 @@ class Educations extends \Base\FormModel {
 			array('hdnEducationID', 'required',
 				'on' => 'Edit, Delete'),
 			array('hdnEducationID', 'IsExist',
-				'SQL' => 'SELECT COUNT(*) FROM `_user_educations` WHERE `CombinedID`=:val',
+				'SQL' => 'SELECT COUNT(*) FROM `_user_educations` WHERE `CombinedID`=:val AND `UID`=:uid',
+				'SQLParams' => array(':uid' => $this->UserID),
 				'on' => 'Edit, Delete'),
 			#
 			array('txtFromDate, txtToDate', 'date',
@@ -136,13 +137,14 @@ class Educations extends \Base\FormModel {
 							. " INNER JOIN `_education_studyfields` edustdy ON edustdy.`StudyField`=:stdyfld AND edustdy.`ID`=uedu.`StudyFieldID`"
 							. " INNER JOIN `_education_degrees` edudgre ON edudgre.`Degree`=:dgrefld AND edudgre.`ID`=uedu.`DegreeID`"
 							. " INNER JOIN `_school_info` scl ON uedu.`SchoolID`=scl.`ID`"
-							. " AND " . ($this->hdnSchoolID ? " uedu.`SchoolID`=:sclid OR " : "")
-							. "(scl.`Title`=:sclttl AND"
-							. "	("
+							. " AND (" . ($this->hdnSchoolID ? " uedu.`SchoolID`=:sclid OR " : "")
+							. " (scl.`Title`=:sclttl AND"
+							. "	 ("
 							. "		scl.`Domain` <=> :scldom"
 							. "		OR scl.`Domain` LIKE CONCAT('%', :sclEscDom) ESCAPE '='"
 							. "		OR :scldom LIKE CONCAT('%', scl.`Domain`) ESCAPE '='"
-							. "	)"
+							. "  )"
+							. " )"
 							. ")"
 							, array(
 						':id' => $this->hdnEducationID,
@@ -313,7 +315,7 @@ class Educations extends \Base\FormModel {
 							. ", std.`StudyField`"
 							. ", dgr.`Degree`"
 							. " FROM `_user_educations` AS uedu"
-							. " INNER JOIN (SELECT 1) tmp ON " . ($ID ? " uedu.`CombinedID`=:id AND " : '') . " UID=:uid"
+							. " INNER JOIN (SELECT 1) tmp ON " . ($ID ? " uedu.`CombinedID`=:id AND " : '') . " uedu.UID=:uid"
 							. " INNER JOIN `_school_info` AS si ON si.`ID`=uedu.SchoolID"
 							. " INNER JOIN `_education_studyfields` AS std ON std.`ID`=uedu.`StudyFieldID`"
 							. " INNER JOIN `_education_degrees` AS dgr ON dgr.`ID`=uedu.DegreeID"
@@ -324,9 +326,9 @@ class Educations extends \Base\FormModel {
 							. " LEFT JOIN `_geo_user_divisions` AS gud ON gud.`ID`=uedu.`UserDivisionID`"
 							. " LEFT JOIN `_geo_user_cities` AS guct ON guct.`ID`=uedu.`UserCityID`"
 							. ($DGP ?
-									"  WHERE {$DGP->SQLWhereClause}"
-									. "  ORDER BY {$DGP->Sort}"
-									. "  LIMIT $Limit" : "")
+									" WHERE {$DGP->SQLWhereClause}"
+									. " ORDER BY {$DGP->Sort}"
+									. " LIMIT $Limit" : "")
 							, array(
 						':uid' => $this->UserID,
 						':id' => $ID,
@@ -342,9 +344,9 @@ class Educations extends \Base\FormModel {
 	 * @return array
 	 */
 	public function getdtFreshEducations($ID = null) {
-		static $R = null;
-		if (!$R)
-			$R = $this->getdtEducations($ID, true);
+		static $F = true;
+		$R = $this->getdtEducations($ID, $F);
+		$F = false;
 		return $R;
 	}
 

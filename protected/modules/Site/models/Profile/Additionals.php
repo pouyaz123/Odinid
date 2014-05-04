@@ -38,7 +38,8 @@ class Additionals extends \Base\FormModel {
 			array('hdnAdditionalID', 'required',
 				'on' => 'Edit, Delete'),
 			array('hdnAdditionalID', 'IsExist',
-				'SQL' => 'SELECT COUNT(*) FROM `_user_additionals` WHERE `CombinedID`=:val',
+				'SQL' => 'SELECT COUNT(*) FROM `_user_additionals` WHERE `CombinedID`=:val AND `UID`=:uid',
+				'SQLParams' => array(':uid' => $this->UserID),
 				'on' => 'Edit, Delete'),
 			#
 			array('txtTitle', 'required'
@@ -54,7 +55,7 @@ class Additionals extends \Base\FormModel {
 		if (!$this->hdnAdditionalID) {//means in add mode not edit mode
 			$Count = T\DB::GetField("SELECT COUNT(*) FROM `_user_additionals` WHERE `UID`=:uid"
 							, array(':uid' => $this->UserID));
-			if ($Count && $Count >= T\Settings::GetValue('MaxResumeBigItemsPerCase'))
+			if ($Count && $Count >= T\Settings::GetInstance()->MaxResumeBigItemsPerCase)
 				$this->addError('', \t2::site_site('You have reached the maximum'));
 		}
 	}
@@ -159,9 +160,9 @@ class Additionals extends \Base\FormModel {
 	 * @return array
 	 */
 	public function getdtFreshAdditionals($ID = null) {
-		static $R = null;
-		if (!$R)
-			$R = $this->getdtAdditionals($ID, true);
+		static $F = true;
+		$R = $this->getdtAdditionals($ID, $F);
+		$F = false;
 		return $R;
 	}
 

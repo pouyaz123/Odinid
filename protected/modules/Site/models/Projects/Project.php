@@ -11,32 +11,66 @@ use \Tools as T;
  * @version 1
  * @copyright (c) Odinid
  * @access public
- * @property-read array $dtCategories
- * @property-read array $dtFreshCategories
+ * @property-read array $dtProjects
+ * @property-read array $dtFreshProjects
+ * @property-read array $arrStatuses
+ * @property-read array $arrDividerLineTypes
  */
-class Categories extends \Base\FormModel {
+class Project extends \Base\FormModel {
 
 	public function getPostName() {
-		return "PrjCat";
+		return "Prj";
 	}
 
 	protected function XSSPurify_Exceptions() {
-		return "hdnCatID";
+		return "hdnPrjID";
 	}
 
 	//----- attrs
-	public $hdnCatID;
+	public $hdnPrjID;
+	#
 	public $txtTitle;
+	public $txtSmallDesc;
+	public $chkReel;
+	public $ddlSatus;
+	public $fileThumbnail;
+	public $hdnThumbnailCrop;
+	public $chkVisibility;
+	public $hdnCats;
+	public $chkAdult;
+	public $txtPassword;
+	public $ddlDividerLineType;
+	public $txtContentSpacing;
+	#
+	public $txtWorkFields;
+	public $txtTools;
+	public $txtTags;
+	public $txtSkills;
 	#
 	public $UserID;
+
+	public function getarrStatuses() {
+		return array(
+			'Finished' => 'Finished',
+			'WIP' => 'WIP',
+		);
+	}
+	public function getarrDividerLineTypes() {
+		return array(
+			'none' => '',
+			'solid' => '___',
+			'dashline' => '---',
+			'dotline' => '...',
+		);
+	}
 
 	public function rules() {
 		$vl = \ValidationLimits\User::GetInstance();
 		return array(
-			array('$hdnCatID', 'required',
+			array('$hdnPrjID', 'required',
 				'on' => 'Edit, Delete'),
-			array('$hdnCatID', 'IsExist',
-				'SQL' => 'SELECT COUNT(*) FROM `_project_pcats` WHERE `ID`=:val AND `UID`=:uid',
+			array('$hdnPrjID', 'IsExist',
+				'SQL' => 'SELECT COUNT(*) FROM `_projects` WHERE `ID`=:val AND `UID`=:uid',
 				'SQLParams' => array(':uid' => $this->UserID),
 				'on' => 'Edit, Delete'),
 			#
@@ -51,7 +85,7 @@ class Categories extends \Base\FormModel {
 	}
 
 	protected function afterValidate() {
-		if (!$this->$hdnCatID) {//means in add mode not edit mode
+		if (!$this->$hdnPrjID) {//means in add mode not edit mode
 			$Count = T\DB::GetField("SELECT COUNT(*) FROM `_project_pcats` WHERE `UID`=:uid"
 							, array(':uid' => $this->UserID));
 			if ($Count && $Count >= T\Settings::GetInstance()->MaxProjectCats)
@@ -69,18 +103,18 @@ class Categories extends \Base\FormModel {
 		if (!$this->validate())
 			return false;
 		$Result = T\DB::Execute(
-						!$this->hdnCatID ?
+						!$this->hdnPrjID ?
 								"INSERT INTO `_project_pcats`(`UID`, `Title`) VALUES(:uid, :ttl)" :
 								"UPDATE `_project_pcats` SET `Title`=:ttl WHERE `ID`=:id AND `UID`=:uid"
 						, array(
-					':id' => $this->hdnCatID,
+					':id' => $this->hdnPrjID,
 					':ttl' => $this->txtTitle,
 					':uid' => $this->UserID,
 						)
 		);
-		if ($Result && !$this->hdnCatID && $this->scenario == "Add") {
+		if ($Result && !$this->hdnPrjID && $this->scenario == "Add") {
 			$this->scenario = 'Edit';
-			$this->hdnCatID = T\DB::GetField("SELECT LAST_INSERT_ID()");
+			$this->hdnPrjID = T\DB::GetField("SELECT LAST_INSERT_ID()");
 		}
 		return $Result ? true : false;
 	}
@@ -91,7 +125,7 @@ class Categories extends \Base\FormModel {
 			return false;
 		$Result = T\DB::Execute("DELETE FROM `_project_pcats` WHERE `ID`=:id AND `UID`=:uid"
 						, array(
-					':id' => $this->$hdnCatID,
+					':id' => $this->$hdnPrjID,
 					':uid' => $this->UserID,
 						)
 		);
@@ -100,7 +134,7 @@ class Categories extends \Base\FormModel {
 		return $Result;
 	}
 
-	public function getdtCategories($ID = NULL, $refresh = false, \Base\DataGridParams $DGP = NULL) {
+	public function getdtProjects($ID = NULL, $refresh = false, \Base\DataGridParams $DGP = NULL) {
 		$StaticIndex = $ID;
 		if (!$StaticIndex)
 			$StaticIndex = "ALL";
@@ -133,19 +167,19 @@ class Categories extends \Base\FormModel {
 	 * @param string $ID
 	 * @return array
 	 */
-	public function getdtFreshCategories($ID = null) {
+	public function getdtFreshProjects($ID = null) {
 		static $F = true;
-		$R = $this->getdtCategories($ID, $F);
+		$R = $this->getdtProjects($ID, $F);
 		$F = false;
 		return $R;
 	}
 
 	public function SetForm() {
-		$dr = $this->getdtCategories($this->$hdnCatID);
+		$dr = $this->getdtProjects($this->$hdnPrjID);
 		if ($dr) {
 			$dr = $dr[0];
 			$arrAttrs = array(
-				'$hdnCatID' => $dr['ID'],
+				'$hdnPrjID' => $dr['ID'],
 				'txtTitle' => $dr['Title'],
 			);
 			$this->attributes = $arrAttrs;

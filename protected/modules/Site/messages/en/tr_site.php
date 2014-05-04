@@ -111,6 +111,7 @@ return array_merge(
 //	'Languages' => 'Languages',
 //	'Rate' => 'Rate',
 	'TagsHelp' => 'Separate by commas(,)',
+	'MaxItems' => '(Maximum {n} items)',
 //	'Description' => 'Description',
 //	'Date' => 'Date',
 //	'Year' => 'Year',
