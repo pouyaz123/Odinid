@@ -175,7 +175,7 @@
 							, $form->error($Model, 'chkToPresent'))
 					?>
 					<script>
-(function() {
+_t.RunScriptAfterLoad('jqUI/jquery.ui.datepicker.min', function() {
 	var frmJQSlct = "#<?= $Model->PostName ?>_txtFromDate"
 			, toJQSlct = "#<?= $Model->PostName ?>_txtToDate"
 			, opts = {
@@ -193,7 +193,7 @@
 				yearRange: '<?= date('Y') - Site\models\Profile\Experiences::OldestYearLimitation ?>:<?= date('Y') ?>'};
 	$(frmJQSlct).datepicker(opts);
 	$(toJQSlct).datepicker(opts);
-})()
+})
 <?/*
 $("#<?= $Model->PostName ?>_txtFromDate, #<?= $Model->PostName ?>_txtToDate").datepicker({
 	showOn: "both",

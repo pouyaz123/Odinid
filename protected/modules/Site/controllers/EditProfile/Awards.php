@@ -51,7 +51,7 @@ class Awards extends \CAction {
 				if ($term) {
 					$dt = T\DB::GetTable("SELECT `Title`, `URL`, `ID`"
 									. " FROM `_organizations`"
-									. " WHERE `Title` LIKE CONCAT(:term, '%') ESCAPE '" . T\DB::LikeEscapeChar . "'"
+									. " WHERE `Title` LIKE CONCAT(" . T\DB::MySQLConvert(':term', 2) . ", '%') ESCAPE '" . T\DB::LikeEscapeChar . "'"
 									, array(':term' => T\DB::EscapeLikeWildCards($term)));
 					if ($dt) {
 						foreach ($dt as $idx => $dr) {

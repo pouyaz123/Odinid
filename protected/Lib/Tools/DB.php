@@ -16,18 +16,20 @@ use \Consts as C;
  */
 class DB {
 
-	const CharsetLevel1 = 'iso-8859-1';
-	const CharsetLevel2 = 'utf-8';
-	const CharsetLevel1_DB = 'ascii';
-	const CharsetLevel2_DB = 'utf8';
 	const UniqueCode_MaxRand = 2147483647;
 
-	private static $arrDBCharsetLevels = array(1 => self::CharsetLevel1_DB, 2 => self::CharsetLevel2_DB);
+	private static $arrDBCharsetLevels = array(1 => T\String::Chrset1_DB, 2 => T\String::Chrset2_DB);
 
-	static function CharsetLevel($strQueryPart, $intLevel = 2) {
-		return "CONVERT($strQueryPart USING " . self::$arrDBCharsetLevels[$intLevel] . ")";
+	/**
+	 * MySQL CONVERT encoding function
+	 * @param type $strQueryPart
+	 * @param string|int $mixedCharset charset name or charset level number
+	 * @return string SQL query part to convert based on the charset
+	 */
+	static function MySQLConvert($strQueryPart, $mixedCharset = T\String::Chrset2_DB) {
+		return " CONVERT($strQueryPart USING " . (is_numeric($mixedCharset) ? self::$arrDBCharsetLevels[$mixedCharset] : $mixedCharset) . ") ";
 	}
-
+	
 	/**
 	 * DB::RealEscape = pdo->quote($string, $parameter_type)
 	 * (PHP 5 &gt;= 5.1.0, PECL pdo &gt;= 0.2.1)<br/>
@@ -208,7 +210,7 @@ class DB {
 		if (!$dt)
 			return null;
 		if ($arrDBParams && is_array($arrDBParams)) {
-			$PHPCode_BoolReturner = Basics::InjectParams(
+			$PHPCode_BoolReturner = String::InjectParams(
 							$PHPCode_BoolReturner
 							, $arrDBParams
 							, function($PIdx, $Param) {
@@ -228,24 +230,24 @@ class DB {
 		$Result = array_values(array_filter($dt, create_function($drArgName, $PHPCode_BoolReturner . ';')));
 		return $Result && count($Result) ? $Result : null;
 	}
-
-	/**
-	 * explodes $LabelFieldName by (.) and uses pieces as field name of datarow to make a string
-	 * @param dr $dr
-	 * @param str $LabelFieldName
-	 * @return str
-	 */
-	public static function DRLabelMaker($dr, $LabelFieldName, $KMGFieldName = NULL) {
-		$Result = '';
-		foreach (explode('.', $LabelFieldName) as $Field) {
-			$Result .= isset($dr[$Field]) ?
-					($KMGFieldName && $Field === $KMGFieldName ?
-							T\Basics::KMGMaker($dr[$Field]) :
-							$dr[$Field]) :
-					$Field;
-		}
-		return $Result;
-	}
+//
+//	/**
+//	 * explodes $LabelFieldName by (.) and uses pieces as field name of datarow to make a string
+//	 * @param dr $dr
+//	 * @param str $LabelFieldName
+//	 * @return str
+//	 */
+//	public static function DRLabelMaker($dr, $LabelFieldName, $KMGFieldName = NULL) {
+//		$Result = '';
+//		foreach (explode('.', $LabelFieldName) as $Field) {
+//			$Result .= isset($dr[$Field]) ?
+//					($KMGFieldName && $Field === $KMGFieldName ?
+//							T\String::KMGMaker($dr[$Field]) :
+//							$dr[$Field]) :
+//					$Field;
+//		}
+//		return $Result;
+//	}
 
 	/**
 	 * This method contains expensive SQL queries. Don't use it for long data tables. Short tables will be OK

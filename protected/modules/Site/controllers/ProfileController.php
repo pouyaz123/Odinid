@@ -29,7 +29,7 @@ class ProfileController extends \Site\Components\BaseController {
 //				'minLength' => 3,
 //				'maxLength' => 5,
 //			),
-			'about' => '\Site\controllers\EditProfile\About',
+			'about' => '\Site\controllers\Profile\About',
 			'editinfo' => '\Site\controllers\EditProfile\Info',
 			'editavatar' => '\Site\controllers\EditProfile\Avatar',
 			'setting' => '\Site\controllers\EditProfile\Setting',

@@ -100,7 +100,7 @@ final class html {
 									, 'sortable' => true
 									, 'editoptions' => array('class' => 'CenterAlign')
 								))
-						->direction(\t2::General('LTR_RTL'))
+								->direction(\t2::General('LTR_RTL'))
 		);
 	}
 
@@ -505,7 +505,6 @@ final class html {
 	}
 
 	#----------------- Other -----------------#
-
 	static function AltRow($Reset = false, $JustClassName = false, $JustBool = false) {
 		static $IsAltRow = false;
 		if ($Reset)
@@ -611,7 +610,6 @@ final class html {
 	}
 
 	#----------------- head tags -----------------#
-
 	private static $CSS_RootDir = '/_css';
 	private static $CSS_Ext = '.css';
 
@@ -915,21 +913,29 @@ $.superbox.settings = {
 	static function DataGrid_Load($Theme = \Conf::jQTheme) {
 		$Theme = $Theme ? $Theme : \Conf::jQTheme;
 		\html::LoadCSS("*/_js/jqUI/themes/$Theme/jquery-ui.custom.css");
-//		\html::LoadJS('jqGrid/jQueryUI/jquery-ui.custom.min');
-		\html::LoadJS('jqUI/jquery.ui.core.min');
-		\html::LoadJS('jqUI/jquery.ui.widget.min');
-		\html::LoadJS('jqUI/jquery.ui.mouse.min');
-		\html::LoadJS('jqUI/jquery.ui.position.min');
-		\html::LoadJS('jqUI/jquery.ui.resizable.min');
-		\html::LoadJS('jqUI/jquery.ui.button.min');
-		\html::LoadJS('jqUI/jquery.ui.dialog.min');
-		\html::LoadJS('jqUI/jquery.ui.datepicker.min');
-		$locale = explode('_', \Yii::app()->language);
-		\html::LoadJS('jqGrid/jQueryUI/i18n/grid.locale-' . strtolower($locale[0]));
-		//jqgrid
 		\html::LoadCSS('*/_js/jqGrid/ui.jqgrid.css');
-		\html::LoadJS('jqGrid/jquery.jqGrid.min');
 		\html::LoadJS('jqGrid/myOptimize.jqGrid');
+		$locale = explode('_', \Yii::app()->language);
+		\html::InlineJS("_t.RunScriptAfterLoad('jqGrid/myOptimize.jqGrid', function(){"
+				. "DGConstruct('" . strtolower($locale[0]) . "')"
+				. "})"
+				, 'DataGrid_Load', '');//empty str for AjaxKW to override the false behviour
+//		\html::LoadCSS("*/_js/jqUI/themes/$Theme/jquery-ui.custom.css");
+////		\html::LoadJS('jqGrid/jQueryUI/jquery-ui.custom.min');
+//		\html::LoadJS('jqUI/jquery.ui.core.min');
+//		\html::LoadJS('jqUI/jquery.ui.widget.min');
+//		\html::LoadJS('jqUI/jquery.ui.mouse.min');
+//		\html::LoadJS('jqUI/jquery.ui.position.min');
+//		\html::LoadJS('jqUI/jquery.ui.resizable.min');
+//		\html::LoadJS('jqUI/jquery.ui.button.min');
+//		\html::LoadJS('jqUI/jquery.ui.dialog.min');
+//		\html::LoadJS('jqUI/jquery.ui.datepicker.min');
+//		$locale = explode('_', \Yii::app()->language);
+//		\html::LoadJS('jqGrid/jQueryUI/i18n/grid.locale-' . strtolower($locale[0]));
+//		//jqgrid
+//		\html::LoadCSS('*/_js/jqGrid/ui.jqgrid.css');
+//		\html::LoadJS('jqGrid/jquery.jqGrid.min');
+//		\html::LoadJS('jqGrid/myOptimize.jqGrid');
 	}
 
 	static function TinyMCE_Load($Conf = 'Admin') {

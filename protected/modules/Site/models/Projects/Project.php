@@ -1,6 +1,6 @@
 <?php
 
-namespace Site\models\Profile;
+namespace Site\models\Projects;
 
 use \Consts as C;
 use \Tools as T;
@@ -55,6 +55,7 @@ class Project extends \Base\FormModel {
 			'WIP' => 'WIP',
 		);
 	}
+
 	public function getarrDividerLineTypes() {
 		return array(
 			'none' => '',
@@ -74,13 +75,59 @@ class Project extends \Base\FormModel {
 				'SQLParams' => array(':uid' => $this->UserID),
 				'on' => 'Edit, Delete'),
 			#
-			array('txtTitle', 'required'
+			array('txtTitle, ddlSatus', 'required'
 				, 'on' => 'Add, Edit'),
+			#
 			array('txtTitle', 'Unique',
 				'SQL' => 'SELECT COUNT(*) FROM `_project_pcats` WHERE `UID`=:uid AND `Title`=:val',
 				'on' => 'Add, Edit'),
 			array_merge(array('txtTitle', 'length'
 				, 'on' => 'Add, Edit'), $vl->Title),
+			array_merge(array('txtSmallDesc', 'length',
+				'on' => 'Add, Edit'), $vl->SmallDesc),
+			array_merge(array('txtPassword', 'length'
+				, 'on' => 'Add, Edit'), $vl->Password),
+			array_merge(array('txtContentSpacing', 'numerical'
+				, 'on' => 'Add, Edit'), $vl->ContentSpacing),
+			#
+			array('chkReel, chkVisibility, chkAdult', 'boolean',
+				'on' => 'Add, Edit'),
+			#
+			array('ddlSatus', 'in',
+				'range' => array_keys($this->arrStatuses),
+				'on' => 'Add, Edit'),
+			array('ddlDividerLineType', 'in',
+				'range' => array_keys($this->arrDividerLineTypes),
+				'on' => 'Add, Edit'),
+			#
+			array_merge(array('fileThumbnail', 'file',
+				'on' => 'Upload'), $vl->ProjectThumb),
+			array('hdnThumbnailCrop', 'match',
+				'pattern' => C\Regexp::CropDims,
+				'on' => 'Add, Edit'),
+			#
+			array('hdnCats', 'match',
+				'pattern' => C\Regexp::HdnFieldIntIDs,
+				'on' => 'Add, Edit'),
+//	public $hdnPrjID;
+//	#
+//	public $txtTitle;
+//	public $txtSmallDesc;
+//	public $chkReel;
+//	public $ddlSatus;
+//	public $fileThumbnail;
+//	public $hdnThumbnailCrop;
+//	public $chkVisibility;
+//	public $hdnCats;
+//	public $chkAdult;
+//	public $txtPassword;
+//	public $ddlDividerLineType;
+//	public $txtContentSpacing;
+//	#
+//	public $txtWorkFields;
+//	public $txtTools;
+//	public $txtTags;
+//	public $txtSkills;
 		);
 	}
 

@@ -17,6 +17,8 @@ use \Components as Com;
  */
 class DataGrid extends Container {
 
+	const DefaultCharsetLevel = T\String::Chrset2_DB;
+
 	private $_Columns = NULL
 			, $_Queries = array()
 			, $_PrivateCallbacks = array();
@@ -250,7 +252,7 @@ class DataGrid extends Container {
 			/* @var $NewColumn DataGridColumn */
 			if (!is_object($NewColumn) || !is_a($NewColumn, '\Base\DataGridColumn') || !$NewColumn->index()) {
 				throw new \Err(__METHOD__, 'Invalid column passed! A column shoud be an instance of "\Base\DataGridColumn" and "index" specified at least'
-						, array('func_get_args' => func_get_args(), '$this' => $this));
+				, array('func_get_args' => func_get_args(), '$this' => $this));
 			}
 
 			if (!$this->Options->sortname())
@@ -564,8 +566,9 @@ function(id){
 		$dg = &$this;
 		$Queries = &$this->_Queries;
 //		array($this, $this->Queries)
+		$DefaultCharsetLevel = self::DefaultCharsetLevel;
 		\Output::AddIn_AjaxOutput(
-				function()use($dg, $Queries) {
+				function()use($dg, $Queries, $DefaultCharsetLevel) {
 			$PNames = $dg->Options->prmNames;
 
 			$dgp = new DataGridParams();
@@ -665,25 +668,25 @@ function(id){
 								if ($SkipRule)
 									continue;
 								//SQL INJECTION IS BLOCKED HERE
-								$CharsetLevel = (isset($Column['CharsetLevel'])) ? $Column['CharsetLevel'] : 2;
-								$Conversion = ($CharsetLevel !== false);
+								$Charset = (isset($Column['CharsetLevel'])) ? $Column['CharsetLevel'] : $DefaultCharsetLevel;
+								$Conversion = ($Charset !== false);
 								$Rule['data'] = T\DB::RealEscape($Rule['data']);
 								$Rule['data'] = T\DB::EscapeLikeWildCards($Rule['data']);
 								$arrConditionList = array(//:DATA is sql parameter
-									"eq" => " $ColName =		" . ($Conversion ? T\DB::CharsetLevel("'{$Rule['data']}' ", $CharsetLevel) : "'{$Rule['data']}' ")  //equal
-									, "ne" => " $ColName !=		" . ($Conversion ? T\DB::CharsetLevel("'{$Rule['data']}' ", $CharsetLevel) : "'{$Rule['data']}' ")  //not equal
-									, "lt" => " $ColName <		" . ($Conversion ? T\DB::CharsetLevel("'{$Rule['data']}' ", $CharsetLevel) : "'{$Rule['data']}' ")  //less than
-									, "le" => " $ColName <=		" . ($Conversion ? T\DB::CharsetLevel("'{$Rule['data']}' ", $CharsetLevel) : "'{$Rule['data']}' ")  //less or equal
-									, "gt" => " $ColName >		" . ($Conversion ? T\DB::CharsetLevel("'{$Rule['data']}' ", $CharsetLevel) : "'{$Rule['data']}' ")  //greater than
-									, "ge" => " $ColName >=		" . ($Conversion ? T\DB::CharsetLevel("'{$Rule['data']}' ", $CharsetLevel) : "'{$Rule['data']}' ")  //greater or equal
-									, "bw" => " $ColName LIKE		" . ($Conversion ? T\DB::CharsetLevel("'{$Rule['data']}%' ", $CharsetLevel) : "'{$Rule['data']}%' ") . " ESCAPE '" . T\DB::LikeEscapeChar . "'" //begin with
-									, "bn" => " $ColName NOT LIKE	" . ($Conversion ? T\DB::CharsetLevel("'{$Rule['data']}%' ", $CharsetLevel) : "'{$Rule['data']}%' ") . " ESCAPE '" . T\DB::LikeEscapeChar . "'" //not begin with
-									, "in" => " $ColName LIKE		" . ($Conversion ? T\DB::CharsetLevel("'%{$Rule['data']}%' ", $CharsetLevel) : "'%{$Rule['data']}%' ") . " ESCAPE '" . T\DB::LikeEscapeChar . "'" //is in
-									, "ni" => " $ColName NOT LIKE	" . ($Conversion ? T\DB::CharsetLevel("'%{$Rule['data']}%' ", $CharsetLevel) : "'%{$Rule['data']}%' ") . " ESCAPE '" . T\DB::LikeEscapeChar . "'" //is not in
-									, "ew" => " $ColName LIKE		" . ($Conversion ? T\DB::CharsetLevel("'%{$Rule['data']}' ", $CharsetLevel) : "'%{$Rule['data']}' ") . " ESCAPE '" . T\DB::LikeEscapeChar . "'" //end with
-									, "en" => " $ColName NOT LIKE	" . ($Conversion ? T\DB::CharsetLevel("'%{$Rule['data']}' ", $CharsetLevel) : "'%{$Rule['data']}' ") . " ESCAPE '" . T\DB::LikeEscapeChar . "'" //not end with
-									, "cn" => " $ColName LIKE		" . ($Conversion ? T\DB::CharsetLevel("'%{$Rule['data']}%' ", $CharsetLevel) : "'%{$Rule['data']}%' ") . " ESCAPE '" . T\DB::LikeEscapeChar . "'" //contain
-									, "nc" => " $ColName NOT LIKE	" . ($Conversion ? T\DB::CharsetLevel("'%{$Rule['data']}%' ", $CharsetLevel) : "'%{$Rule['data']}%' ") . " ESCAPE '" . T\DB::LikeEscapeChar . "'" //not contain
+									"eq" => " $ColName =		" . ($Conversion ? T\DB::MySQLConvert("'{$Rule['data']}' ", $Charset) : "'{$Rule['data']}' ")  //equal
+									, "ne" => " $ColName !=		" . ($Conversion ? T\DB::MySQLConvert("'{$Rule['data']}' ", $Charset) : "'{$Rule['data']}' ")  //not equal
+									, "lt" => " $ColName <		" . ($Conversion ? T\DB::MySQLConvert("'{$Rule['data']}' ", $Charset) : "'{$Rule['data']}' ")  //less than
+									, "le" => " $ColName <=		" . ($Conversion ? T\DB::MySQLConvert("'{$Rule['data']}' ", $Charset) : "'{$Rule['data']}' ")  //less or equal
+									, "gt" => " $ColName >		" . ($Conversion ? T\DB::MySQLConvert("'{$Rule['data']}' ", $Charset) : "'{$Rule['data']}' ")  //greater than
+									, "ge" => " $ColName >=		" . ($Conversion ? T\DB::MySQLConvert("'{$Rule['data']}' ", $Charset) : "'{$Rule['data']}' ")  //greater or equal
+									, "bw" => " $ColName LIKE		" . ($Conversion ? T\DB::MySQLConvert("'{$Rule['data']}%' ", $Charset) : "'{$Rule['data']}%' ") . " ESCAPE '" . T\DB::LikeEscapeChar . "'" //begin with
+									, "bn" => " $ColName NOT LIKE	" . ($Conversion ? T\DB::MySQLConvert("'{$Rule['data']}%' ", $Charset) : "'{$Rule['data']}%' ") . " ESCAPE '" . T\DB::LikeEscapeChar . "'" //not begin with
+									, "in" => " $ColName LIKE		" . ($Conversion ? T\DB::MySQLConvert("'%{$Rule['data']}%' ", $Charset) : "'%{$Rule['data']}%' ") . " ESCAPE '" . T\DB::LikeEscapeChar . "'" //is in
+									, "ni" => " $ColName NOT LIKE	" . ($Conversion ? T\DB::MySQLConvert("'%{$Rule['data']}%' ", $Charset) : "'%{$Rule['data']}%' ") . " ESCAPE '" . T\DB::LikeEscapeChar . "'" //is not in
+									, "ew" => " $ColName LIKE		" . ($Conversion ? T\DB::MySQLConvert("'%{$Rule['data']}' ", $Charset) : "'%{$Rule['data']}' ") . " ESCAPE '" . T\DB::LikeEscapeChar . "'" //end with
+									, "en" => " $ColName NOT LIKE	" . ($Conversion ? T\DB::MySQLConvert("'%{$Rule['data']}' ", $Charset) : "'%{$Rule['data']}' ") . " ESCAPE '" . T\DB::LikeEscapeChar . "'" //not end with
+									, "cn" => " $ColName LIKE		" . ($Conversion ? T\DB::MySQLConvert("'%{$Rule['data']}%' ", $Charset) : "'%{$Rule['data']}%' ") . " ESCAPE '" . T\DB::LikeEscapeChar . "'" //contain
+									, "nc" => " $ColName NOT LIKE	" . ($Conversion ? T\DB::MySQLConvert("'%{$Rule['data']}%' ", $Charset) : "'%{$Rule['data']}%' ") . " ESCAPE '" . T\DB::LikeEscapeChar . "'" //not contain
 									, "nu" => " ISNULL($ColName) " //is null
 									, "nn" => " NOT ISNULL($ColName) " //not null
 								);
@@ -869,12 +872,13 @@ function(id){
 <div id='{$this->_PagerID}'></div>
 <script type='text/javascript'>
 	function DGConstruct_{$this->ID}(){
-		var lastSel;
-		\$('#{$this->ID}').jqGrid($Options)$Methods
-		{$PrivateCallbacks}
+		_t.RunScriptAfterLoad('jqGrid/jquery.jqGrid.min', function() {
+			\$('#{$this->ID}').jqGrid($Options)$Methods
+			{$PrivateCallbacks}
+		})
 	}
 	if(typeof(PostBack)!='undefined')
-		DGConstruct_{$this->ID}()
+			DGConstruct_{$this->ID}()
 	else
 		PBDocComplete.push(DGConstruct_{$this->ID})
 </script>

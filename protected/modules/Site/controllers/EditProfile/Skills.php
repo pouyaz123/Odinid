@@ -40,7 +40,7 @@ class Skills extends \CAction {
 				$Items = T\DB::GetField("SELECT GROUP_CONCAT(`Skill` ORDER BY `IsOfficial` DESC, `Skill` SEPARATOR ',')"
 								. " FROM `_skills`"
 								. " WHERE `Skill` LIKE CONCAT(:term, '%') ESCAPE '" . T\DB::LikeEscapeChar . "'"
-								, array(':term' => T\DB::EscapeLikeWildCards($term)));
+								, array(':term' => T\DB::EscapeLikeWildCards(mb_convert_encoding($term, 'UTF8', 'UTF8'))));
 				if ($Items)
 					echo json_encode(explode(',', $Items));
 			}

@@ -1,6 +1,6 @@
 <?php
 
-namespace Site\models\Profile;
+namespace Site\models\Projects;
 
 use \Consts as C;
 use \Tools as T;
@@ -33,9 +33,9 @@ class Categories extends \Base\FormModel {
 	public function rules() {
 		$vl = \ValidationLimits\User::GetInstance();
 		return array(
-			array('$hdnCatID', 'required',
+			array('hdnCatID', 'required',
 				'on' => 'Edit, Delete'),
-			array('$hdnCatID', 'IsExist',
+			array('hdnCatID', 'IsExist',
 				'SQL' => 'SELECT COUNT(*) FROM `_project_pcats` WHERE `ID`=:val AND `UID`=:uid',
 				'SQLParams' => array(':uid' => $this->UserID),
 				'on' => 'Edit, Delete'),
@@ -51,7 +51,7 @@ class Categories extends \Base\FormModel {
 	}
 
 	protected function afterValidate() {
-		if (!$this->$hdnCatID) {//means in add mode not edit mode
+		if (!$this->hdnCatID) {//means in add mode not edit mode
 			$Count = T\DB::GetField("SELECT COUNT(*) FROM `_project_pcats` WHERE `UID`=:uid"
 							, array(':uid' => $this->UserID));
 			if ($Count && $Count >= T\Settings::GetInstance()->MaxProjectCats)
@@ -91,7 +91,7 @@ class Categories extends \Base\FormModel {
 			return false;
 		$Result = T\DB::Execute("DELETE FROM `_project_pcats` WHERE `ID`=:id AND `UID`=:uid"
 						, array(
-					':id' => $this->$hdnCatID,
+					':id' => $this->hdnCatID,
 					':uid' => $this->UserID,
 						)
 		);
@@ -141,11 +141,11 @@ class Categories extends \Base\FormModel {
 	}
 
 	public function SetForm() {
-		$dr = $this->getdtCategories($this->$hdnCatID);
+		$dr = $this->getdtCategories($this->hdnCatID);
 		if ($dr) {
 			$dr = $dr[0];
 			$arrAttrs = array(
-				'$hdnCatID' => $dr['ID'],
+				'hdnCatID' => $dr['ID'],
 				'txtTitle' => $dr['Title'],
 			);
 			$this->attributes = $arrAttrs;

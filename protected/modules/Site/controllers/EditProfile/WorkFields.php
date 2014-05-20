@@ -39,7 +39,7 @@ class WorkFields extends \CAction {
 				$Items = T\DB::GetField("SELECT GROUP_CONCAT(`WorkField` ORDER BY `IsOfficial` DESC, `WorkField` SEPARATOR ',')"
 								. " FROM `_workfields`"
 								. " WHERE `WorkField` LIKE CONCAT(:term, '%') ESCAPE '" . T\DB::LikeEscapeChar . "'"
-								, array(':term' => T\DB::EscapeLikeWildCards($term)));
+								, array(':term' => T\DB::EscapeLikeWildCards(mb_convert_encoding($term, 'UTF8', 'UTF8'))));
 				if ($Items)
 					echo json_encode(explode(',', $Items));
 			}

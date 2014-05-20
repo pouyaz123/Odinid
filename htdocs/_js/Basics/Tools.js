@@ -151,6 +151,12 @@ _t = new function() {
 	var LoadCount = 0
 	var LoadingCoverIsOn = false
 	var arrOnLoadFncs = new Array()
+	function CreateOnLoadFnc(src) {
+		if (!arrOnLoadFncs[src]) {
+			arrOnLoadFncs[src] = new Array()
+			arrOnLoadFncs[src].dependencies = new Array()
+		}
+	}
 	function GetSrcURL(src) {
 		if (src.indexOf(AbsURL_Sign) !== 0)
 			src = JSRootURL + '/' + src + JSExt
@@ -160,10 +166,12 @@ _t = new function() {
 	}
 	t.RunScriptAfterLoad = function(jssrc, fnc) {
 		jssrc = GetSrcURL(jssrc)
-		if (!arrOnLoadFncs[jssrc])
+		if (!arrOnLoadFncs[jssrc] && arrLoadedJS[jssrc])
 			fnc()
-		else
+		else {
+			CreateOnLoadFnc(jssrc)
 			arrOnLoadFncs[jssrc].push(fnc)
+		}
 	}
 	/**
 	 * @param {String} src the source code requires this dependencies
@@ -172,9 +180,9 @@ _t = new function() {
 	t.AddToDependencies = function(src, arrDs) {
 		t.LoadJS(src)
 		src = GetSrcURL(src)
-		var eachD
+		var eachD, eachDurl
 		for (eachD in arrDs) {
-			var eachDurl = GetSrcURL(arrDs[eachD])
+			eachDurl = GetSrcURL(arrDs[eachD])
 			if (!arrLoadedJS[eachDurl] && arrOnLoadFncs[src])
 				arrOnLoadFncs[src].dependencies[eachDurl] = 1
 			t.LoadJS(arrDs[eachD])
@@ -190,47 +198,45 @@ _t = new function() {
 		else if ($) {
 			var PBExists = typeof (PostBack) != 'undefined'
 			LoadCount++
-			arrOnLoadFncs[src] = new Array()
-			arrOnLoadFncs[src].dependencies = new Array()
+			CreateOnLoadFnc(src)
 			if (PBExists && !LoadingCoverIsOn) {
 				LoadingCoverIsOn = 1
 				PostBack.LoadingCover(document.body, 1)
 			}
 			function HandleOnloadFncs(src) {
 				var i
-				for (i = 0; i < arrOnLoadFncs[src].length; i++) {
+				for (i = 0; i < arrOnLoadFncs[src].length; i++)
 					arrOnLoadFncs[src][i]()
-				}
 				arrOnLoadFncs[src] = null
 				delete arrOnLoadFncs[src]
 				LoadCount--
 			}
 			function SuccessHandler() {
-					var eachD
-					for (eachD in arrOnLoadFncs[src].dependencies)
-						return//so there is atleast a D
-					var eachSrc, arrEachSrc, anyD = false
-					for (eachSrc in arrOnLoadFncs) {
-						arrEachSrc = arrOnLoadFncs[eachSrc]
-						if (arrEachSrc.dependencies[src]) {
-							arrEachSrc.dependencies[src] = null
-							delete arrEachSrc.dependencies[src]
-							for (eachD in arrEachSrc.dependencies)
-								anyD = true
-							if (!anyD) {
-								delete arrEachSrc.dependencies
-								HandleOnloadFncs(eachSrc)
-							}
+				var eachD
+				for (eachD in arrOnLoadFncs[src].dependencies)
+					return//so there is atleast a D
+				var eachSrc, arrEachSrc, anyD = false
+				for (eachSrc in arrOnLoadFncs) {
+					arrEachSrc = arrOnLoadFncs[eachSrc]
+					if (arrEachSrc.dependencies[src]) {
+						arrEachSrc.dependencies[src] = null
+						delete arrEachSrc.dependencies[src]
+						for (eachD in arrEachSrc.dependencies)
+							anyD = true
+						if (!anyD) {
+							delete arrEachSrc.dependencies
+							HandleOnloadFncs(eachSrc)
 						}
 					}
-					HandleOnloadFncs(src)
-					if (!LoadCount && PBExists && LoadingCoverIsOn) {
-						LoadingCoverIsOn = 0
-						PostBack.LoadingCover(document.body, 0)
-					}
 				}
+				HandleOnloadFncs(src)
+				if (!LoadCount && PBExists && LoadingCoverIsOn) {
+					LoadingCoverIsOn = 0
+					PostBack.LoadingCover(document.body, 0)
+				}
+			}
 			$.ajax({url: src, dataType: 'script', type: 'get', cache: true
-				, success: function(){
+				, success: function() {
 					setTimeout(SuccessHandler, 100)
 				}
 			})

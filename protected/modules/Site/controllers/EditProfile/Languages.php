@@ -40,7 +40,7 @@ class Languages extends \CAction {
 				$Items = T\DB::GetField("SELECT GROUP_CONCAT(`Language` ORDER BY `IsOfficial` DESC, `Language` SEPARATOR ',')"
 								. " FROM `_languages`"
 								. " WHERE `Language` LIKE CONCAT(:term, '%') ESCAPE '" . T\DB::LikeEscapeChar . "'"
-								, array(':term' => T\DB::EscapeLikeWildCards($term)));
+								, array(':term' => T\DB::EscapeLikeWildCards(mb_convert_encoding($term, 'UTF8', 'UTF8'))));
 				if ($Items)
 					echo json_encode(explode(',', $Items));
 			}

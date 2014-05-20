@@ -1,6 +1,6 @@
 <?php
 
-namespace Site\controllers\EditProfile;
+namespace Site\controllers\Profile;
 
 use \Tools as T;
 use Site\models\User\Register;
@@ -11,7 +11,7 @@ use Site\models\User\Register;
 class About extends \CAction {
 
 	public function run() {
-		$Username = T\Basics::ucwords_ASCIISafe(\GPCS::GET('username'));
+		$Username = T\String::ucwords_ASCIISafe(\GPCS::GET('username'));
 		$this->controller->pageTitle = \t2::SitePageTitle(\CHtml::encode($Username));
 
 		$Model = new \Site\models\Profile\Info('viewInfo');

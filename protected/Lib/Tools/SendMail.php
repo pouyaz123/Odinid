@@ -34,7 +34,7 @@ class SendMail extends PHPMailer\PHPMailer {
 	 * 2 = messages only
 	 * @return \Tools\PHPMailer\PHPMailer PHPMailer Configured SMTP Object
 	 */
-	static function GetConfiguredMailSender($FromTitle = NULL, $From = NULL, $IsHTML = true, $Charset = T\DB::CharsetLevel2, $Debug = \Conf::Err_TraceMode) {
+	static function GetConfiguredMailSender($FromTitle = NULL, $From = NULL, $IsHTML = true, $Charset = T\String::Chrset2_HTML, $Debug = \Conf::Err_TraceMode) {
 		$Params = \Conf::SMTP_GetParams();
 		$SMTP = new static; //my instance or my extended instance
 //		$SMTP->IsSMTP();	//depracated

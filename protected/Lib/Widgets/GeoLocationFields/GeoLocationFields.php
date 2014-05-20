@@ -21,7 +21,6 @@ use \Tools as T;
  * @property-read array $ddlarrDivisions get only
  * @property-read array $ddlarrCities get only
  * @property array|boolean $EmptyDDLOption get|set //set to false(default) to have no Empty option
- * @mytodo 1 : "other" autocomplete in the geo location fields
  */
 class GeoLocationFields extends \Base\Widget {
 
@@ -45,10 +44,10 @@ class GeoLocationFields extends \Base\Widget {
 		$this->_Model = $model;
 	}
 
-	private $_AjaxKW = 'GeoLocFields';
+	const _AjaxKW = 'GeoLocFields';
 
 	function getAjaxKW() {
-		return $this->_AjaxKW . '_' . $this->id;
+		return self::_AjaxKW . '_' . $this->id;
 	}
 
 	function getDivisionDropDown_ContainerID() {
@@ -96,17 +95,17 @@ class GeoLocationFields extends \Base\Widget {
 				$txtCityAttr = $this->txtCityAttr;
 				$Post = array();
 				if ($ddlCountryAttr)
-					$Post[$this->ddlCountryAttr] = $this->_Model->$ddlCountryAttr;
+					$Post[$ddlCountryAttr] = $this->_Model->$ddlCountryAttr;
 				if ($ddlDivisionAttr)
-					$Post[$this->ddlDivisionAttr] = $this->_Model->$ddlDivisionAttr;
+					$Post[$ddlDivisionAttr] = $this->_Model->$ddlDivisionAttr;
 				if ($ddlCityAttr)
-					$Post[$this->ddlCityAttr] = $this->_Model->$ddlCityAttr;
+					$Post[$ddlCityAttr] = $this->_Model->$ddlCityAttr;
 				if ($txtCountryAttr)
-					$Post[$this->txtCountryAttr] = $this->_Model->$txtCountryAttr;
+					$Post[$txtCountryAttr] = $this->_Model->$txtCountryAttr;
 				if ($txtDivisionAttr)
-					$Post[$this->txtDivisionAttr] = $this->_Model->$txtDivisionAttr;
+					$Post[$txtDivisionAttr] = $this->_Model->$txtDivisionAttr;
 				if ($txtCityAttr)
-					$Post[$this->txtCityAttr] = $this->_Model->$txtCityAttr;
+					$Post[$txtCityAttr] = $this->_Model->$txtCityAttr;
 			}
 		}
 		return $Post;
@@ -148,7 +147,7 @@ class GeoLocationFields extends \Base\Widget {
 //							. ($UserCountryID ? " OR `UserCountryID`=$UserCountryID" : "")
 							. " ) AS tbl"
 							. " ORDER BY tbl.Official, tbl.`Name`"
-							, array(':country' => $Country));
+							, array(':country' => mb_convert_encoding($Country, 'ASCII', 'ASCII')));
 			if ($QryRsrc)
 				foreach ($QryRsrc as $dr) {
 					$ddlarr[$dr['ID']] = $dr['Name'];
@@ -182,7 +181,7 @@ class GeoLocationFields extends \Base\Widget {
 //							. ($UserDivisionID ? " OR `UserDivisionID`=$UserDivisionID" : "")
 							. " ) AS tbl"
 							. " ORDER BY tbl.Official, HasDivisionCode DESC, tbl.`Name`"
-							, array(':division' => $Division));
+							, array(':division' => mb_convert_encoding($Division, 'ASCII', 'ASCII')));
 			if ($QryRsrc)
 				foreach ($QryRsrc as $dr) {
 					$ddlarr[$dr['ID']] = $dr['Name'];

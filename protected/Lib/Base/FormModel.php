@@ -134,7 +134,7 @@ class FormModel extends \CFormModel {
 	 * @param string $AjaxKWPostName
 	 */
 	final static function AjaxValidation($AjaxKW, \Base\FormModel $Model, $DontValidateCaptcha = false, $AjaxKWPostName = 'ajax') {
-		if (\GPCS::POST($AjaxKWPostName) == $AjaxKW) {
+		if (\GPCS::POST($AjaxKWPostName) == $AjaxKW || \GPCS::GET($AjaxKWPostName) == $AjaxKW) {
 			if (property_exists($Model, 'DontValidateCaptcha'))
 				$Model->DontValidateCaptcha = $DontValidateCaptcha;
 			echo \CActiveForm::validate($Model);

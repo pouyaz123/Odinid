@@ -9,8 +9,20 @@ namespace ValidationLimits;
  * @copyright (c) Odinid
  * @access public
  * @property-read array $UserPicture in bytes max:1MB
+ * @property-read array $ProjectThumb in bytes max:1MB
  */
 final class User extends Base {
+
+	private static function Picture() {
+		$Ext = \Consts\Regexp::PictureExt;
+		$arrPicLimits = array(
+			'minSize' => 2048, 'maxSize' => 1048576, 'maxFiles' => 1,
+			'types' => $Ext ? str_replace('|', ',', $Ext) : null,
+		);
+		if (extension_loaded('pecl'))
+			$arrPicLimits['mimeTypes'] = $Ext ? 'image/' . str_replace('|', ',image/', $Ext) : null;
+		return $arrPicLimits;
+	}
 
 	//---- user
 	public $Username = array('min' => 4, 'max' => 32);
@@ -24,13 +36,8 @@ final class User extends Base {
 	public $Description = array('max' => 2000);
 
 	function getUserPicture() {
-		$Ext = \Consts\Regexp::PictureExt;
-		$arrPicLimits = array(
-			'minSize' => 2048, 'maxSize' => 1048576, 'maxFiles' => 1,
-			'types' => $Ext ? str_replace('|', ',', $Ext) : null,
-		);
-		if (extension_loaded('pecl'))
-			$arrPicLimits['mimeTypes'] = $Ext ? 'image/' . str_replace('|', ',image/', $Ext) : null;
+		$arrPicLimits = self::Picture();
+//		$arrPicLimits = array_merge($arrPicLimits, array('minSize' => 2048, 'maxSize' => 1048576));
 		return $arrPicLimits;
 	}
 
@@ -59,5 +66,14 @@ final class User extends Base {
 	public $ExperienceSalaryAmount = array('max' => 99999);
 	public $ExperienceTBALayoff = array('max' => 999);
 	public $ExperienceRetirementAccountPercent = array('max' => 999);
+
+	//---- project
+	function getProjectThumb() {
+		$arrPicLimits = self::Picture();
+//		$arrPicLimits = array_merge($arrPicLimits, array('minSize' => 2048, 'maxSize' => 1048576));
+		return $arrPicLimits;
+	}
+
+	public $ContentSpacing = array('max' => 50);
 
 }
