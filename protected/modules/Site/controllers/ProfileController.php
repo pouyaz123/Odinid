@@ -50,6 +50,15 @@ class ProfileController extends \Site\Components\BaseController {
 			'editawards' => '\Site\controllers\EditProfile\Awards',
 			'editexperiences' => '\Site\controllers\EditProfile\Experiences',
 			'editadditionals' => '\Site\controllers\EditProfile\Additionals',
+			#
+			'editprjcat' => '\Site\controllers\Projects\EditCategories',
+			'editprj' => '\Site\controllers\Projects\AddEditProject',
+			#
+			'editblogcat' => '\Site\controllers\Blogs\EditCategories',
+			'editblog' => '\Site\controllers\Projects\AddEditBlog',
+			#
+			'edittutcat' => '\Site\controllers\Tutorials\EditCategories',
+			'edittut' => '\Site\controllers\Projects\AddEditTutorial',
 		);
 	}
 

@@ -12,7 +12,7 @@ class Experiences extends \CAction {
 
 	public function run() {
 		$this->controller->pageTitle = \t2::SitePageTitle(\t2::site_site('Experiences'));
-		\html::TagIt_Load();
+		\html::TagIt_AC_URLFactor();
 		\html::jqUI_AutoComplete_Load();
 		\html::DatePicker_Load();
 
@@ -95,7 +95,7 @@ class Experiences extends \CAction {
 
 	/**
 	 * 
-	 * @param \Site\controllers\EditProfile\Experiences $ctrl
+	 * @param \Site\controllers\ProfileController $ctrl
 	 * @param \Site\models\Profile\Experiences $Model
 	 * @return \Base\DataGrid
 	 */

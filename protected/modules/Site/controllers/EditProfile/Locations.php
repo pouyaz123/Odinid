@@ -75,7 +75,7 @@ class Locations extends \CAction {
 
 	/**
 	 * 
-	 * @param \Site\controllers\EditProfile\Locations $ctrl
+	 * @param \Site\controllers\ProfileController $ctrl
 	 * @param \Site\models\Profile\Info $Model
 	 * @return \Base\DataGrid
 	 */

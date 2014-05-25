@@ -1,6 +1,6 @@
 <?php
 
-namespace Site\controllers\EditProfile;
+namespace Site\controllers\Projects;
 
 use \Site\models\User\Login;
 use Tools as T;
@@ -8,12 +8,12 @@ use Tools as T;
 /**
  * @author Abbas Hashemian <tondarweb@gmail.com>
  */
-class Additionals extends \CAction {
+class EditCategories extends \CAction {
 
 	public function run() {
-		$this->controller->pageTitle = \t2::SitePageTitle(\t2::site_site('Additionals'));
+		$this->controller->pageTitle = \t2::SitePageTitle(\t2::site_site('Project Categories'));
 
-		$Model = new \Site\models\Profile\Additionals('Add');
+		$Model = new \Site\models\Projects\Categories('Add');
 		$Model->UserID = Login::GetSessionDR('ID');
 
 		$btnAdd = \GPCS::POST('btnAdd');
@@ -28,16 +28,16 @@ class Additionals extends \CAction {
 		elseif ($btnDelete)
 			$Model->scenario = 'Delete';
 
-		$ID = \GPCS::POST('hdnAdditionalID');
+		$ID = \GPCS::POST('hdnID');
 		if ($btnDelete && !$ID) { //Delete button of the edit form. We will not assign whole form
-			$ID = \GPCS::POST('UserAdditionals');
-			$ID = $ID ? $ID['hdnAdditionalID'] : $ID;
+			$ID = \GPCS::POST('PrjCat');
+			$ID = $ID ? $ID['hdnID'] : $ID;
 		}
 		if ($ID)
-			$Model->attributes = array('hdnAdditionalID' => $ID);
+			$Model->attributes = array('hdnID' => $ID);
 
 		if ($btnAdd || $btnSaveEdit) {
-			$Model->attributes = \GPCS::POST('UserAdditionals');
+			$Model->attributes = \GPCS::POST('PrjCat');
 			$Model->Save();
 		} elseif ($btnEdit)
 			$Model->SetForm();
@@ -46,7 +46,7 @@ class Additionals extends \CAction {
 
 		\Output::Render($this->controller
 				, ($btnEdit ?
-						'editinfo/additionals_addedit' : 'editinfo/additionals')
+						'/projects/cats_addedit' : '/projects/cats')
 				, array(
 			'Model' => $Model,
 			'dg' => $this->DataGrid($this->controller, $Model),
@@ -57,12 +57,12 @@ class Additionals extends \CAction {
 	/**
 	 * 
 	 * @param \Site\controllers\ProfileController $ctrl
-	 * @param \Site\models\Profile\Additionals $Model
+	 * @param \Site\models\Profile\Categories $Model
 	 * @return \Base\DataGrid
 	 */
-	private function DataGrid(\Site\controllers\ProfileController $ctrl, \Site\models\Profile\Additionals $Model) {
-		$dg = \html::DataGrid_Ready2('dgAdditionals', 'Site', 'tr_site')
-				->DataKey('CombinedID')
+	private function DataGrid(\Site\controllers\ProfileController $ctrl, \Site\models\Projects\Categories $Model) {
+		$dg = \html::DataGrid_Ready2('dgCategories', 'Site', 'tr_site')
+				->DataKey('ID')
 				->Options(
 						\html::DataGridConfig()
 						->caption($ctrl->pageTitle)
@@ -72,10 +72,6 @@ class Additionals extends \CAction {
 				->index('Title')
 				->header($Model->getAttributeLabel('txtTitle'))
 				#
-//				, \html::DataGridColumn()
-//				->index('Description')
-//				->header($Model->getAttributeLabel('ddlYear'))
-//				#
 				, \html::DataGridColumn()
 				->index('Actions')
 				->header(\t2::site_site('Actions'))
@@ -87,23 +83,24 @@ class Additionals extends \CAction {
 		);
 		$dg
 				->SelectQuery(function(\Base\DataGridParams $DGP)use($Model) {
-					$dt = $Model->getdtAdditionals(NULL, true, $DGP);
-					if ($dt)
+					$dt = $Model->getdtCategories(NULL, true, $DGP);
+					if ($dt) {
 						foreach ($dt as $idx => $dr) {
-							$dt[$idx]['Actions'] = $DGP->DataGrid->GetActionColButtons($dr['CombinedID'], "LnkBtn", false, true)
+							$dt[$idx]['Actions'] = $DGP->DataGrid->GetActionColButtons($dr['ID'], "LnkBtn", false, true)
 									. \html::ButtonContainer(
 											\CHtml::button(\t2::site_site('Edit')
 													, array(
 												'name' => 'btnEdit',
-												'rel' => \html::AjaxElement('#divEditAdditionals', NULL, "hdnAdditionalID={$dr['CombinedID']}") . \html::SimpleAjaxPanel,
+												'rel' => \html::AjaxElement('#divEditCategories', NULL, "hdnID={$dr['ID']}") . \html::SimpleAjaxPanel,
 													)
 							));
 						}
+					}
 					return $dt;
 				})
 				->DeleteQuery(function(\Base\DataGridParams $DGP)use($Model) {
 					$Model->scenario = 'Delete';
-					$Model->attributes = array('hdnAdditionalID' => $DGP->RowID);
+					$Model->attributes = array('hdnID' => $DGP->RowID);
 					return $Model->Delete();
 				});
 		return $dg;

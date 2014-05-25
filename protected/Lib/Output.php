@@ -37,6 +37,33 @@ class Output {
 
 	public static $IsRenderPassed = false;
 
+	/**
+	 * @param type $objController
+	 * @param type $view
+	 * When a theme is currently active, this method will call {@link CTheme::getViewFile} to determine
+	 * which view file should be returned.
+	 *
+	 * Otherwise, this method will return the corresponding view file based on the following criteria:
+	 * <ul>
+	 * <li>absolute view within a module: the view name starts with a single slash '/'.
+	 * In this case, the view will be searched for under the currently active module's view path.
+	 * If there is no active module, the view will be searched for under the application's view path.</li>
+	 * <li>absolute view within the application: the view name starts with double slashes '//'.
+	 * In this case, the view will be searched for under the application's view path.
+	 * This syntax has been available since version 1.1.3.</li>
+	 * <li>aliased view: the view name contains dots and refers to a path alias.
+	 * The view file is determined by calling {@link YiiBase::getPathOfAlias()}. Note that aliased views
+	 * cannot be themed because they can refer to a view file located at arbitrary places.</li>
+	 * <li>relative view: otherwise. Relative views will be searched for under the currently active
+	 * controller's view path.</li>
+	 * </ul>
+	 *
+	 * @param type $data
+	 * @param type $ActiveFormID
+	 * @param type $return
+	 * @param type $processOutput
+	 * @throws \Err
+	 */
 	public static function Render($objController = NULL, $view = NULL, $data = NULL, $ActiveFormID = NULL, $return = false, $processOutput = false) {
 		self::$IsRenderPassed = true;
 		$IsAjax = T\HTTP::IsAsync();

@@ -78,7 +78,7 @@ class Awards extends \CAction {
 
 	/**
 	 * 
-	 * @param \Site\controllers\EditProfile\Awards $ctrl
+	 * @param \Site\controllers\ProfileController $ctrl
 	 * @param \Site\models\Profile\Awards $Model
 	 * @return \Base\DataGrid
 	 */

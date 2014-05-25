@@ -28,5 +28,10 @@
 		| <?= \CHtml::link(t2::site_site('Experiences'), \Site\Consts\Routes::User_EditExperiences()) ?>
 		| <?= \CHtml::link(t2::site_site('Additionals'), \Site\Consts\Routes::User_EditAdditionals()) ?>
 	</div>
+		<?= \CHtml::link(t2::site_site('Project Categories'), \Site\Consts\Routes::User_EditPrjCat()) ?>
+		| <?= \CHtml::link(t2::site_site('Blog Categories'), \Site\Consts\Routes::User_EditBlogCat()) ?>
+		| <?= \CHtml::link(t2::site_site('Tutorial Categories'), \Site\Consts\Routes::User_EditTutCat()) ?>
+	<div>
+	</div>
 	<?= $content; ?>
 </div>

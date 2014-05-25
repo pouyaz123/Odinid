@@ -263,11 +263,25 @@ final class html {
 	 * @param array $htmlOptions
 	 * @return string
 	 */
-	static function activeTextField($model, \CActiveForm $ActiveForm = null, $attribute, $htmlOptions = array()) {
+	static function activeTextField(\CModel $model, \CActiveForm $ActiveForm = null, $attribute, $htmlOptions = array()) {
 		return $ActiveForm ?
 				$ActiveForm->textField($model, $attribute, $htmlOptions) :
 				\CHtml::activeTextField($model, $attribute, $htmlOptions);
 	}
+//
+//	/**
+//	 * same as \CHtml::activeHiddenField but if you provide the $form with a valid CActiveForm object you will patch the field to the form(client validator and ...)
+//	 * @param \CModel $model
+//	 * @param \CActiveForm $ActiveForm
+//	 * @param string $attribute
+//	 * @param array $htmlOptions
+//	 * @return string
+//	 */
+//	static function activeHiddenField(\CModel $model, \CActiveForm $ActiveForm = null, $attribute, $htmlOptions = array()) {
+//		return $ActiveForm ?
+//				$ActiveForm->hiddenField($model, $attribute, $htmlOptions) :
+//				\CHtml::activeHiddenField($model, $attribute, $htmlOptions);
+//	}
 
 	/**
 	 * same as \CHtml::activeDropDownList but if you provide the $form with a valid CActiveForm object you will patch the field to the form(client validator and ...)
@@ -505,6 +519,7 @@ final class html {
 	}
 
 	#----------------- Other -----------------#
+
 	static function AltRow($Reset = false, $JustClassName = false, $JustBool = false) {
 		static $IsAltRow = false;
 		if ($Reset)
@@ -610,6 +625,7 @@ final class html {
 	}
 
 	#----------------- head tags -----------------#
+
 	private static $CSS_RootDir = '/_css';
 	private static $CSS_Ext = '.css';
 
@@ -686,7 +702,7 @@ final class html {
 			if (T\HTTP::IsAsync())
 				\Output::AddIn_AjaxOutput($fncLoad, $AjaxKW, null, 'HTMLLoadCSS');
 			else
-				self::CSS_Include($fncLoad, 'HTMLLoadCSS');
+				self::CSS_Include($fncLoad, NULL, 'HTMLLoadCSS');
 		}
 	}
 
@@ -919,7 +935,7 @@ $.superbox.settings = {
 		\html::InlineJS("_t.RunScriptAfterLoad('jqGrid/myOptimize.jqGrid', function(){"
 				. "DGConstruct('" . strtolower($locale[0]) . "')"
 				. "})"
-				, 'DataGrid_Load', '');//empty str for AjaxKW to override the false behviour
+				, 'DataGrid_Load', ''); //empty str for AjaxKW to override the false behviour
 //		\html::LoadCSS("*/_js/jqUI/themes/$Theme/jquery-ui.custom.css");
 ////		\html::LoadJS('jqGrid/jQueryUI/jquery-ui.custom.min');
 //		\html::LoadJS('jqUI/jquery.ui.core.min');
@@ -982,7 +998,13 @@ $.superbox.settings = {
 		\html::LoadJS('jqUI/jquery.ui.widget.min');
 		\html::LoadJS('jqUI/jquery.ui.position.min');
 		\html::LoadJS('jqUI/jquery.ui.autocomplete.min');
-		\html::LoadJS('tagit/tag-it.min');
+		\html::LoadJS('tagit/MyTagIt');
+//		\html::LoadJS('tagit/tag-it.min');
+	}
+	
+	static function TagIt_AC_URLFactor() {
+		self::TagIt_Load();
+		\html::LoadJS('tagit_ac_urlFactor');
 	}
 
 	static function Balloon_Load() {

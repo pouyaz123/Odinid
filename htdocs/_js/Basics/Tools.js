@@ -165,6 +165,13 @@ _t = new function() {
 		return src
 	}
 	t.RunScriptAfterLoad = function(jssrc, fnc) {
+		if (typeof jssrc != 'string' && typeof jssrc == 'object') {
+			t.RunScriptAfterLoad(jssrc[0], jssrc.length > 1 ?
+					function() {
+						t.RunScriptAfterLoad(jssrc.slice(1), fnc)
+					} : fnc)
+			return;
+		}
 		jssrc = GetSrcURL(jssrc)
 		if (!arrOnLoadFncs[jssrc] && arrLoadedJS[jssrc])
 			fnc()
@@ -174,6 +181,7 @@ _t = new function() {
 		}
 	}
 	/**
+	 * call all of your loads before this. the LoadJS here will not work in non-ajax mode
 	 * @param {String} src the source code requires this dependencies
 	 * @param {Array} arrDs dependencies
 	 */

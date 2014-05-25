@@ -23,11 +23,11 @@ class Project extends \Base\FormModel {
 	}
 
 	protected function XSSPurify_Exceptions() {
-		return "hdnPrjID";
+		return "hdnID";
 	}
 
 	//----- attrs
-	public $hdnPrjID;
+	public $hdnID;
 	#
 	public $txtTitle;
 	public $txtSmallDesc;
@@ -68,9 +68,9 @@ class Project extends \Base\FormModel {
 	public function rules() {
 		$vl = \ValidationLimits\User::GetInstance();
 		return array(
-			array('$hdnPrjID', 'required',
+			array('$hdnID', 'required',
 				'on' => 'Edit, Delete'),
-			array('$hdnPrjID', 'IsExist',
+			array('$hdnID', 'IsExist',
 				'SQL' => 'SELECT COUNT(*) FROM `_projects` WHERE `ID`=:val AND `UID`=:uid',
 				'SQLParams' => array(':uid' => $this->UserID),
 				'on' => 'Edit, Delete'),
@@ -109,7 +109,7 @@ class Project extends \Base\FormModel {
 			array('hdnCats', 'match',
 				'pattern' => C\Regexp::HdnFieldIntIDs,
 				'on' => 'Add, Edit'),
-//	public $hdnPrjID;
+//	public $hdnID;
 //	#
 //	public $txtTitle;
 //	public $txtSmallDesc;
@@ -132,7 +132,7 @@ class Project extends \Base\FormModel {
 	}
 
 	protected function afterValidate() {
-		if (!$this->$hdnPrjID) {//means in add mode not edit mode
+		if (!$this->$hdnID) {//means in add mode not edit mode
 			$Count = T\DB::GetField("SELECT COUNT(*) FROM `_project_pcats` WHERE `UID`=:uid"
 							, array(':uid' => $this->UserID));
 			if ($Count && $Count >= T\Settings::GetInstance()->MaxProjectCats)
@@ -150,18 +150,18 @@ class Project extends \Base\FormModel {
 		if (!$this->validate())
 			return false;
 		$Result = T\DB::Execute(
-						!$this->hdnPrjID ?
+						!$this->hdnID ?
 								"INSERT INTO `_project_pcats`(`UID`, `Title`) VALUES(:uid, :ttl)" :
 								"UPDATE `_project_pcats` SET `Title`=:ttl WHERE `ID`=:id AND `UID`=:uid"
 						, array(
-					':id' => $this->hdnPrjID,
+					':id' => $this->hdnID,
 					':ttl' => $this->txtTitle,
 					':uid' => $this->UserID,
 						)
 		);
-		if ($Result && !$this->hdnPrjID && $this->scenario == "Add") {
+		if ($Result && !$this->hdnID && $this->scenario == "Add") {
 			$this->scenario = 'Edit';
-			$this->hdnPrjID = T\DB::GetField("SELECT LAST_INSERT_ID()");
+			$this->hdnID = T\DB::GetField("SELECT LAST_INSERT_ID()");
 		}
 		return $Result ? true : false;
 	}
@@ -172,7 +172,7 @@ class Project extends \Base\FormModel {
 			return false;
 		$Result = T\DB::Execute("DELETE FROM `_project_pcats` WHERE `ID`=:id AND `UID`=:uid"
 						, array(
-					':id' => $this->$hdnPrjID,
+					':id' => $this->$hdnID,
 					':uid' => $this->UserID,
 						)
 		);
@@ -222,11 +222,11 @@ class Project extends \Base\FormModel {
 	}
 
 	public function SetForm() {
-		$dr = $this->getdtProjects($this->$hdnPrjID);
+		$dr = $this->getdtProjects($this->$hdnID);
 		if ($dr) {
 			$dr = $dr[0];
 			$arrAttrs = array(
-				'$hdnPrjID' => $dr['ID'],
+				'$hdnID' => $dr['ID'],
 				'txtTitle' => $dr['Title'],
 			);
 			$this->attributes = $arrAttrs;

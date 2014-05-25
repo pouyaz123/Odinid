@@ -161,5 +161,8 @@ return array_merge(
 //	'Home' => 'Home',
 #
 //	'This combination has been taken previously' => 'This combination has been taken previously'
+//	'Project Categories' => 'Project Categories',
+//	'Blog Categories' => 'Blog Categories',
+//	'Tutorial Categories' => 'Tutorial Categories',
 		)
 );

@@ -95,7 +95,7 @@ class Certificates extends \CAction {
 
 	/**
 	 * 
-	 * @param \Site\controllers\EditProfile\Certificates $ctrl
+	 * @param \Site\controllers\ProfileController $ctrl
 	 * @param \Site\models\Profile\Certificates $Model
 	 * @return \Base\DataGrid
 	 */

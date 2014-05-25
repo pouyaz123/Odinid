@@ -1,6 +1,6 @@
 <?php
 
-namespace Site\models\Projects;
+namespace Site\models\Blogs;
 
 use \Consts as C;
 use \Tools as T;
@@ -17,7 +17,7 @@ use \Tools as T;
 class Categories extends \Base\FormModel {
 
 	public function getPostName() {
-		return "PrjCat";
+		return "BlogCat";
 	}
 
 	protected function XSSPurify_Exceptions() {
@@ -36,14 +36,14 @@ class Categories extends \Base\FormModel {
 			array('hdnID', 'required',
 				'on' => 'Edit, Delete'),
 			array('hdnID', 'IsExist',
-				'SQL' => 'SELECT COUNT(*) FROM `_project_pcats` WHERE `ID`=:val AND `UID`=:uid',
+				'SQL' => 'SELECT COUNT(*) FROM `_blog_cats` WHERE `ID`=:val AND `UID`=:uid',
 				'SQLParams' => array(':uid' => $this->UserID),
 				'on' => 'Edit, Delete'),
 			#
 			array('txtTitle', 'required'
 				, 'on' => 'Add, Edit'),
 			array('txtTitle', 'IsUnique',
-				'SQL' => 'SELECT COUNT(*) FROM `_project_pcats` WHERE `UID`=:uid AND `Title`=:val',
+				'SQL' => 'SELECT COUNT(*) FROM `_blog_cats` WHERE `UID`=:uid AND `Title`=:val',
 				'SQLParams' => array(':uid' => $this->UserID),
 				'on' => 'Add, Edit'),
 			array_merge(array('txtTitle', 'length'
@@ -53,9 +53,9 @@ class Categories extends \Base\FormModel {
 
 	protected function afterValidate() {
 		if (!$this->hdnID) {//means in add mode not edit mode
-			$Count = T\DB::GetField("SELECT COUNT(*) FROM `_project_pcats` WHERE `UID`=:uid"
+			$Count = T\DB::GetField("SELECT COUNT(*) FROM `_blog_cats` WHERE `UID`=:uid"
 							, array(':uid' => $this->UserID));
-			if ($Count && $Count >= T\Settings::GetInstance()->MaxProjectCats)
+			if ($Count && $Count >= T\Settings::GetInstance()->MaxBlogCats)
 				$this->addError('', \t2::site_site('You have reached the maximum'));
 		}
 	}
@@ -71,7 +71,7 @@ class Categories extends \Base\FormModel {
 			return false;
 		if (!$this->hdnID)
 			$ID = T\DB::GetNewID_Combined(
-							'_project_pcats'
+							'_blog_cats'
 							, 'ID'
 							, 'UID=:uid'
 							, array(':uid' => $this->UserID)
@@ -82,8 +82,8 @@ class Categories extends \Base\FormModel {
 			);
 		$Result = T\DB::Execute(
 						!$this->hdnID ?
-								"INSERT INTO `_project_pcats`(`ID`, `UID`, `Title`) VALUES(:id, :uid, :ttl)" :
-								"UPDATE `_project_pcats` SET `Title`=:ttl WHERE `ID`=:id AND `UID`=:uid"
+								"INSERT INTO `_blog_cats`(`ID`, `UID`, `Title`) VALUES(:id, :uid, :ttl)" :
+								"UPDATE `_blog_cats` SET `Title`=:ttl WHERE `ID`=:id AND `UID`=:uid"
 						, array(
 					':id' => $this->hdnID? : $ID,
 					':ttl' => $this->txtTitle,
@@ -101,7 +101,7 @@ class Categories extends \Base\FormModel {
 		$this->scenario = 'Delete';
 		if (!$this->validate())
 			return false;
-		$Result = T\DB::Execute("DELETE FROM `_project_pcats` WHERE `ID`=:id AND `UID`=:uid"
+		$Result = T\DB::Execute("DELETE FROM `_blog_cats` WHERE `ID`=:id AND `UID`=:uid"
 						, array(
 					':id' => $this->hdnID,
 					':uid' => $this->UserID,
@@ -119,13 +119,13 @@ class Categories extends \Base\FormModel {
 		static $arrDTs = array();
 		if (!isset($arrDTs[$StaticIndex]) || $refresh) {
 			if ($DGP) {
-				$AllCount = T\DB::GetField('SELECT COUNT(*) FROM `_project_pcats` WHERE `UID`=:uid'
+				$AllCount = T\DB::GetField('SELECT COUNT(*) FROM `_blog_cats` WHERE `UID`=:uid'
 								, array(':uid' => $this->UserID));
 				$Limit = $DGP->QueryLimitParams($AllCount, $ref_LimitIdx, $ref_LimitLen);
 			}
 			$arrDTs[$StaticIndex] = T\DB::GetTable(
 							"SELECT *"
-							. " FROM `_project_pcats`"
+							. " FROM `_blog_cats`"
 							. " WHERE " . ($ID ? " `ID`=:id AND " : '') . " UID=:uid"
 							. ($DGP ?
 									" AND {$DGP->SQLWhereClause}"

@@ -72,6 +72,7 @@ class Routes {
 	static function User_EditEducations($Username = null) {
 		
 	}
+
 	static function User_EditCertificates($Username = null) {
 		
 	}
@@ -81,6 +82,19 @@ class Routes {
 	}
 
 	static function User_EditAdditionals($Username = null) {
+		
+	}
+
+	//----- categories
+	static function User_EditPrjCat($Username = null) {
+		
+	}
+
+	static function User_EditBlogCat($Username = null) {
+		
+	}
+
+	static function User_EditTutCat($Username = null) {
 		
 	}
 

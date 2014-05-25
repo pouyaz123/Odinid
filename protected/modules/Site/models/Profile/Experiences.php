@@ -383,6 +383,7 @@ class Experiences extends \Base\FormModel {
 			)
 		);
 		$Result = T\DB::Transaction($Queries, NULL, function(\Exception $ex) {
+			\Err::DebugBreakPoint($ex);
 					\html::ErrMsg_Exit(\t2::site_site('Failed! Plz retry.'));
 				});
 		if ($Result) {

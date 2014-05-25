@@ -26,6 +26,10 @@ use \Tools as T;
  * @property-read integer|string $MaxProjectTools
  * @property-read integer|string $MaxProjectSchool
  * @property-read integer|string $MaxProjectCompany
+ * 
+ * @property-read integer|string $MaxBlogCats
+ * 
+ * @property-read integer|string $MaxTutCats
  */
 class Settings {
 
@@ -46,31 +50,17 @@ class Settings {
 	}
 
 	static function GetValue($LogicName) {
-		switch ($LogicName) {
-			case 'MaxResumeTagItemsPerCase':
-				return 10;
-				break;
-			case 'MaxResumeBigItemsPerCase':
-				return 5;
-				break;
-			case 'MaxProjectCats':
-				return 50;
-				break;
-			case 'MaxProjectWorkfields':
-				return 3;
-				break;
-			case 'MaxProjectTools':
-				return 5;
-				break;
-			case 'MaxProjectSchool':
-				return 2;
-				break;
-			case 'MaxProjectCompany':
-				return 2;
-				break;
-			default:
-				break;
-		}
+		$arrDefaultSettings=array(
+			'MaxResumeTagItemsPerCase'=>10,
+			'MaxResumeBigItemsPerCase'=>5,
+			'MaxProjectCats'=>50,
+			'MaxProjectWorkfields'=>3,
+			'MaxProjectTools'=>5,
+			'MaxProjectSchool'=>2,
+			'MaxProjectCompany'=>2,
+		);
+		if(isset($arrDefaultSettings[$LogicName]))
+			return $arrDefaultSettings[$LogicName];
 		static $Settings = null;
 		if (!$Settings)
 			$Settings = T\Cache::rabbitCache()->get("SiteSettings");

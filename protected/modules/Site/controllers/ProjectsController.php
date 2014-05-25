@@ -12,7 +12,6 @@ class ProjectsController extends \Site\Components\BaseController {
 	//layout "column1" has been chosen by BaseContoller
 	public function actions() {
 		return array(
-			'categories' => '\Site\controllers\Projects\Categories',
 		);
 	}
 

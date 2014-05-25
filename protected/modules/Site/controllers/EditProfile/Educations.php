@@ -123,7 +123,7 @@ class Educations extends \CAction {
 
 	/**
 	 * 
-	 * @param \Site\controllers\EditProfile\Educations $ctrl
+	 * @param \Site\controllers\ProfileController $ctrl
 	 * @param \Site\models\Profile\Educations $Model
 	 * @return \Base\DataGrid
 	 */
