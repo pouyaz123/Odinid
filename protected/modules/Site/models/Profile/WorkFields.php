@@ -32,6 +32,7 @@ class WorkFields extends \Base\FormModel {
 		foreach ($this->dtWorkFields as $drWorkField) {
 			$txtWorkFields.=',' . $drWorkField['WorkField'];
 		}
+		$txtWorkFields = trim($txtWorkFields, ',');
 		return $txtWorkFields;
 	}
 

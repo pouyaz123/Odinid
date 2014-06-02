@@ -212,6 +212,8 @@ _t = new function() {
 				PostBack.LoadingCover(document.body, 1)
 			}
 			function HandleOnloadFncs(src) {
+				if(!arrOnLoadFncs[src])
+					return
 				var i
 				for (i = 0; i < arrOnLoadFncs[src].length; i++)
 					arrOnLoadFncs[src][i]()
@@ -221,8 +223,9 @@ _t = new function() {
 			}
 			function SuccessHandler() {
 				var eachD
-				for (eachD in arrOnLoadFncs[src].dependencies)
-					return//so there is atleast a D
+				if (arrOnLoadFncs[src])
+					for (eachD in arrOnLoadFncs[src].dependencies)
+						return//so there is atleast a D
 				var eachSrc, arrEachSrc, anyD = false
 				for (eachSrc in arrOnLoadFncs) {
 					arrEachSrc = arrOnLoadFncs[eachSrc]

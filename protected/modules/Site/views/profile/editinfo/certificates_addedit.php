@@ -33,53 +33,13 @@
 							, $form->labelEx($Model, 'txtInstitutionURL')
 							, $form->error($Model, 'txtInstitutionURL'))
 					?>
-					<script>
-						_t.RunScriptAfterLoad('tagit/tag-it.min', function() {
-							_t.RunScriptAfterLoad('MyJuiAutoComplete/MyAutoComplete', function() {
-								function TagStartup($obj) {
-									$($obj).next('ul').find('a').attr('rel', 'AjaxExcept')
-								}
-								var $obj = $('#UserCertificates_txtInstitutionTitle')
-										, ACOpts = MyAutoComplete(
-												$obj, {
-													source: '<?= Tools\HTTP::URL_InsertGetParams($_SERVER['REQUEST_URI'], "__AjaxPostKW=AutoComplete_UserCertificates_txtInstitutionTitle") ?>'
-													, select: function(e, ui) {
-														if (ui.item.label) {
-															var dr = $.parseJSON($(ui.item.label).attr('rel'))
-															if (dr['ID'])
-																$('#UserCertificates_hdnInstitutionID').attr('value', dr['ID'])
-															if (dr['URL'])
-																$('#UserCertificates_txtInstitutionURL').tagit('createTag', dr['URL'])
-														}
-													}
-												}, 0, 1, 1, 1)
-
-								$obj.tagit({
-									allowSpaces: true
-									, autocomplete: ACOpts
-									, tagLimit: 1
-									, afterTagAdded: function(e, ui) {
-										TagStartup($(this))
-									}
-									, afterTagRemoved: function() {
-										$('#UserCertificates_txtInstitutionURL').tagit('removeAll')
-										$('#UserCertificates_hdnInstitutionID').attr('value', '')
-									}
-								})
-								TagStartup($obj)
-								TagStartup($('#UserCertificates_txtInstitutionURL').tagit({
-									allowSpaces: true
-									, tagLimit: 1
-									, afterTagAdded: function(e, ui) {
-										TagStartup($(this))
-									}
-									, afterTagRemoved: function() {
-										$('#UserCertificates_hdnInstitutionID').attr('value', '')
-									}
-								}))
-							})
-						})
-					</script>
+<script>
+_t.RunScriptAfterLoad(['tagit/tag-it.min', 'MyJuiAutoComplete/MyAutoComplete', 'tagit_ac_urlFactor'], function() {
+	tagit_ac_urlFactor(
+		'#UserCertificates_txtInstitutionTitle', '#UserCertificates_hdnInstitutionID', '#UserCertificates_txtInstitutionURL',
+		'<?= Tools\HTTP::URL_InsertGetParams($_SERVER['REQUEST_URI'], "__AjaxPostKW=AutoComplete_UserCertificates_txtInstitutionTitle") ?>')
+})
+</script>
 					<?=
 					html::FieldContainer(
 							$form->textField($Model, 'txtTitle')
@@ -96,17 +56,19 @@
 							, $form->labelEx($Model, 'txtDate')
 							, $form->error($Model, 'txtDate'))
 					?>
-					<script>
-						$("#<?= $Model->PostName ?>_txtDate").datepicker({
-							showOn: "both",
-							dateFormat: 'yy-mm-dd',
-							buttonText: '<span class="ui-icon ui-icon-calendar"></span>',
-							maxDate: "+0D",
-							changeMonth: true,
-							changeYear: true,
-							yearRange: '<?= date('Y') - Site\models\Profile\Certificates::OldestYearLimitation ?>:<?= date('Y') ?>'
-								});
-					</script>
+<script>
+_t.RunScriptAfterLoad('jqUI/jquery.ui.datepicker.min', function() {
+	$("#<?= $Model->PostName ?>_txtDate").datepicker({
+		showOn: "both",
+		dateFormat: 'yy-mm-dd',
+		buttonText: '<span class="ui-icon ui-icon-calendar"></span>',
+		maxDate: "+0D",
+		changeMonth: true,
+		changeYear: true,
+		yearRange: '<?= date('Y') - Site\models\Profile\Certificates::OldestYearLimitation ?>:<?= date('Y') ?>'
+	})
+})
+</script>
 					<?=
 					html::FieldContainer(
 							$form->textArea($Model, 'txtDescription')

@@ -22,6 +22,7 @@ class Skills extends \CAction {
 			$Post = \GPCS::POST($Model->PostName);
 			$Items = $Post['txtSkills'];
 			if ($Items) {
+				$Items = trim($Items, ",\t\n\r\0\x0B");
 				$arrItems = explode(',', $Items);
 				foreach ($arrItems as $idx => $Item) {
 					$Model->attributes = array(

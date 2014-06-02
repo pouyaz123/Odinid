@@ -116,4 +116,5 @@ return array(
 	// using Yii::app()->params['paramName']
 	'params' => array(
 	),
+	'charset'=>'UTF-8',
 );

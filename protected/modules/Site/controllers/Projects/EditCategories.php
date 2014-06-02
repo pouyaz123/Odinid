@@ -4,17 +4,32 @@ namespace Site\controllers\Projects;
 
 use \Site\models\User\Login;
 use Tools as T;
+use \Site\models\Projects\Categories;
 
 /**
  * @author Abbas Hashemian <tondarweb@gmail.com>
  */
 class EditCategories extends \CAction {
 
-	public function run() {
-		$this->controller->pageTitle = \t2::SitePageTitle(\t2::site_site('Project Categories'));
+	protected $Type = Categories::Type_Project;
 
-		$Model = new \Site\models\Projects\Categories('Add');
+	public function run() {
+		switch ($this->Type) {
+			case Categories::Type_Project:
+				$Title = 'Project Categories';
+				break;
+			case Categories::Type_Blog:
+				$Title = 'Blog Categories';
+				break;
+			case Categories::Type_Tutorial:
+				$Title = 'Tutorial Categories';
+				break;
+		}
+		$this->controller->pageTitle = \t2::SitePageTitle(\t2::site_site($Title));
+
+		$Model = new Categories('Add');
 		$Model->UserID = Login::GetSessionDR('ID');
+		$Model->Type = $this->Type;
 
 		$btnAdd = \GPCS::POST('btnAdd');
 		$btnSaveEdit = \GPCS::POST('btnSaveEdit');

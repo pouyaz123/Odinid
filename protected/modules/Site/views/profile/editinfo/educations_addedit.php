@@ -33,73 +33,39 @@
 							, $form->labelEx($Model, 'txtSchoolURL')
 							, $form->error($Model, 'txtSchoolURL'))
 					?>
-					<script>
-						_t.RunScriptAfterLoad('tagit/tag-it.min', function() {
-							_t.RunScriptAfterLoad('MyJuiAutoComplete/MyAutoComplete', function() {
-								function TagStartup($obj) {
-									$($obj).next('ul').find('a').attr('rel', 'AjaxExcept')
-								}
-								var $obj = $('#UserEducations_txtSchoolTitle')
-										, ACOpts = MyAutoComplete(
-												$obj, {
-													source: '<?= Tools\HTTP::URL_InsertGetParams($_SERVER['REQUEST_URI'], "__AjaxPostKW=AutoComplete_UserEducations_txtSchoolTitle") ?>'
-													, select: function(e, ui) {
-														if (ui.item.label) {
-															var dr = $.parseJSON($(ui.item.label).attr('rel'))
-															if (dr['ID'])
-																$('#UserEducations_hdnSchoolID').attr('value', dr['ID'])
-															if (dr['URL'])
-																$('#UserEducations_txtSchoolURL').tagit('createTag', dr['URL'])
-														}
-													}
-												}, 0, 1, 1, 1)
-
-								$obj.tagit({
-									allowSpaces: true
-									, autocomplete: ACOpts
-									, tagLimit: 1
-									, afterTagAdded: function(e, ui) {
-										TagStartup($(this))
-									}
-									, afterTagRemoved: function() {
-										$('#UserEducations_txtSchoolURL').tagit('removeAll')
-										$('#UserEducations_hdnSchoolID').attr('value', '')
-									}
-								})
-								TagStartup($obj)
-								TagStartup($('#UserEducations_txtSchoolURL').tagit({
-									allowSpaces: true
-									, tagLimit: 1
-									, afterTagAdded: function(e, ui) {
-										TagStartup($(this))
-									}
-									, afterTagRemoved: function() {
-										$('#UserEducations_hdnSchoolID').attr('value', '')
-									}
-								}))
-							})
-						})
-					</script>
+<script>
+_t.RunScriptAfterLoad(['tagit/tag-it.min', 'MyJuiAutoComplete/MyAutoComplete', 'tagit_ac_urlFactor'], function() {
+	tagit_ac_urlFactor(
+		'#UserEducations_txtSchoolTitle', '#UserEducations_hdnSchoolID', '#UserEducations_txtSchoolURL',
+		'<?= Tools\HTTP::URL_InsertGetParams($_SERVER['REQUEST_URI'], "__AjaxPostKW=AutoComplete_UserEducations_txtSchoolTitle") ?>')
+})
+</script>
 					<?=
 					html::FieldContainer(
 							$form->textField($Model, 'txtStudyField')
 							, $form->labelEx($Model, 'txtStudyField')
 							, $form->error($Model, 'txtStudyField'))
 					?>
-					<script>MyAutoComplete(
-								$("#UserEducations_txtStudyField"), {
-							source: '<?= Tools\HTTP::URL_InsertGetParams($_SERVER['REQUEST_URI'], "__AjaxPostKW=AutoComplete_UserEducations_txtStudyField") ?>'
-						}, 0, 1, 1, 0)</script>
+<script>
+_t.RunScriptAfterLoad('MyJuiAutoComplete/MyAutoComplete', function() {
+	MyAutoComplete($("#UserEducations_txtStudyField")
+		, {source: '<?= Tools\HTTP::URL_InsertGetParams($_SERVER['REQUEST_URI'], "__AjaxPostKW=AutoComplete_UserEducations_txtStudyField") ?>'}
+		, 0, 1, 1, 0)
+})
+</script>
 					<?=
 					html::FieldContainer(
 							$form->textField($Model, 'txtDegree')
 							, $form->labelEx($Model, 'txtDegree')
 							, $form->error($Model, 'txtDegree'))
 					?>
-					<script>MyAutoComplete(
-								$("#UserEducations_txtDegree"), {
-							source: '<?= Tools\HTTP::URL_InsertGetParams($_SERVER['REQUEST_URI'], "__AjaxPostKW=AutoComplete_UserEducations_txtDegree") ?>'
-						}, 0, 1, 1, 0)</script>
+<script>
+_t.RunScriptAfterLoad('MyJuiAutoComplete/MyAutoComplete', function() {
+	MyAutoComplete($("#UserEducations_txtDegree")
+		, {source: '<?= Tools\HTTP::URL_InsertGetParams($_SERVER['REQUEST_URI'], "__AjaxPostKW=AutoComplete_UserEducations_txtDegree") ?>'}
+		, 0, 1, 1, 0)
+})
+</script>
 					<?
 					$wdgGeoLocation->ActiveForm = $form;
 					echo $wdgGeoLocation;
@@ -124,27 +90,28 @@
 							, $form->labelEx($Model, 'chkToPresent')
 							, $form->error($Model, 'chkToPresent'))
 					?>
-					<script>
-								(function() {
-									var frmJQSlct = "#<?= $Model->PostName ?>_txtFromDate"
-											, toJQSlct = "#<?= $Model->PostName ?>_txtToDate"
-											, opts = {
-												showOn: "both",
-												dateFormat: 'yy-mm-dd',
-												buttonText: '<span class="ui-icon ui-icon-calendar"></span>',
-												maxDate: "+0D",
-												changeMonth: true,
-												changeYear: true,
-												numberOfMonths: 1,
-												onSelect: function(selectedDate) {
-													var isTo = $(this).is(toJQSlct)
-													$(isTo ? frmJQSlct : toJQSlct).datepicker("option", isTo ? "maxDate" : "minDate", selectedDate);
-												},
-												yearRange: '<?= date('Y') - Site\models\Profile\Educations::OldestYearLimitation ?>:<?= date('Y') ?>'};
-																$(frmJQSlct).datepicker(opts);
-																$(toJQSlct).datepicker(opts);
-															})()
-					</script>
+<script>
+_t.RunScriptAfterLoad('jqUI/jquery.ui.datepicker.min', function() {
+	var frmJQSlct = "#<?= $Model->PostName ?>_txtFromDate"
+		, toJQSlct = "#<?= $Model->PostName ?>_txtToDate"
+		, opts = {
+			showOn: "both",
+			dateFormat: 'yy-mm-dd',
+			buttonText: '<span class="ui-icon ui-icon-calendar"></span>',
+			maxDate: "+0D",
+			changeMonth: true,
+			changeYear: true,
+			numberOfMonths: 1,
+			onSelect: function(selectedDate) {
+				var isTo = $(this).is(toJQSlct)
+				$(isTo ? frmJQSlct : toJQSlct).datepicker("option", isTo ? "maxDate" : "minDate", selectedDate);
+			},
+			yearRange: '<?= date('Y') - Site\models\Profile\Educations::OldestYearLimitation ?>:<?= date('Y') ?>'
+		};
+	$(frmJQSlct).datepicker(opts);
+	$(toJQSlct).datepicker(opts);
+})
+</script>
 					<?=
 					html::FieldContainer(
 							$form->textArea($Model, 'txtDescription')

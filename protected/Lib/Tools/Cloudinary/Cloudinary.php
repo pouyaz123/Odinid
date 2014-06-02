@@ -73,6 +73,23 @@ class Cloudinary {
 		self::Load();
 		return cl_image_tag($file, $options);
 	}
+	
+//	public static function GetNewUniqueID() {
+//		return uniqid();
+//	}
+
+//	public static function GetTheUploadID(
+//	$UploadPath, $Prefix = null, $DBPhotoField = 'Picture', $fncGetDatarow = null
+//	, $GenerateNewOne = false, &$UniqueKey = null, $Refresh = false) {
+//		if ($GenerateNewOne)
+//			$UniqueKey = uniqid(); //reference
+//		else {
+//			$dr = $fncGetDatarow ? $fncGetDatarow($Refresh) : null;
+//			if (!$dr || !$dr[$DBPhotoField])
+//				return null;
+//		}
+//		return $UploadPath . $Prefix . '_' . ($GenerateNewOne ? $UniqueKey : $dr[$DBPhotoField]);
+//	}
 
 //	/**
 //	 * 

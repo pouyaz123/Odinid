@@ -27,6 +27,12 @@ class Categories extends \Base\FormModel {
 	//----- attrs
 	public $hdnID;
 	public $txtTitle;
+
+	const Type_Project = 'Project';
+	const Type_Blog = 'Blog';
+	const Type_Tutorial = 'Tutorial';
+
+	public $Type = self::Type_Project;
 	#
 	public $UserID;
 
@@ -36,16 +42,16 @@ class Categories extends \Base\FormModel {
 			array('hdnID', 'required',
 				'on' => 'Edit, Delete'),
 			array('hdnID', 'IsExist',
-				'SQL' => 'SELECT COUNT(*) FROM `_project_pcats` WHERE `ID`=:val AND `UID`=:uid',
-				'SQLParams' => array(':uid' => $this->UserID),
+				'SQL' => 'SELECT COUNT(*) FROM `_project_cats` WHERE `ID`=:val AND `UID`=:uid AND `Type`=:type',
+				'SQLParams' => array(':uid' => $this->UserID, ':type' => $this->Type),
 				'on' => 'Edit, Delete'),
 			#
 			array('txtTitle', 'required'
 				, 'on' => 'Add, Edit'),
-			array('txtTitle', 'IsUnique',
-				'SQL' => 'SELECT COUNT(*) FROM `_project_pcats` WHERE `UID`=:uid AND `Title`=:val',
-				'SQLParams' => array(':uid' => $this->UserID),
-				'on' => 'Add, Edit'),
+//			array('txtTitle', 'IsUnique',
+//				'SQL' => 'SELECT COUNT(*) FROM `_project_cats` WHERE `UID`=:uid AND `Title`=:val',
+//				'SQLParams' => array(':uid' => $this->UserID),
+//				'on' => 'Add, Edit'),
 			array_merge(array('txtTitle', 'length'
 				, 'on' => 'Add, Edit'), $vl->Title),
 		);
@@ -53,8 +59,8 @@ class Categories extends \Base\FormModel {
 
 	protected function afterValidate() {
 		if (!$this->hdnID) {//means in add mode not edit mode
-			$Count = T\DB::GetField("SELECT COUNT(*) FROM `_project_pcats` WHERE `UID`=:uid"
-							, array(':uid' => $this->UserID));
+			$Count = T\DB::GetField("SELECT COUNT(*) FROM `_project_cats` WHERE `UID`=:uid AND `Type`=:type"
+							, array(':uid' => $this->UserID, ':type' => $this->Type));
 			if ($Count && $Count >= T\Settings::GetInstance()->MaxProjectCats)
 				$this->addError('', \t2::site_site('You have reached the maximum'));
 		}
@@ -71,7 +77,7 @@ class Categories extends \Base\FormModel {
 			return false;
 		if (!$this->hdnID)
 			$ID = T\DB::GetNewID_Combined(
-							'_project_pcats'
+							'_project_cats'
 							, 'ID'
 							, 'UID=:uid'
 							, array(':uid' => $this->UserID)
@@ -82,12 +88,13 @@ class Categories extends \Base\FormModel {
 			);
 		$Result = T\DB::Execute(
 						!$this->hdnID ?
-								"INSERT INTO `_project_pcats`(`ID`, `UID`, `Title`) VALUES(:id, :uid, :ttl)" :
-								"UPDATE `_project_pcats` SET `Title`=:ttl WHERE `ID`=:id AND `UID`=:uid"
+								"INSERT INTO `_project_cats`(`ID`, `UID`, `Title`, `Type`) VALUES(:id, :uid, :ttl, :type)" :
+								"UPDATE `_project_cats` SET `Title`=:ttl WHERE `ID`=:id AND `UID`=:uid AND `Type`=:type"
 						, array(
 					':id' => $this->hdnID? : $ID,
 					':ttl' => $this->txtTitle,
 					':uid' => $this->UserID,
+					':type' => $this->Type,
 						)
 		);
 		if ($Result && !$this->hdnID && $this->scenario == "Add") {
@@ -101,10 +108,11 @@ class Categories extends \Base\FormModel {
 		$this->scenario = 'Delete';
 		if (!$this->validate())
 			return false;
-		$Result = T\DB::Execute("DELETE FROM `_project_pcats` WHERE `ID`=:id AND `UID`=:uid"
+		$Result = T\DB::Execute("DELETE FROM `_project_cats` WHERE `ID`=:id AND `UID`=:uid AND `Type`=:type"
 						, array(
 					':id' => $this->hdnID,
 					':uid' => $this->UserID,
+					':type' => $this->Type,
 						)
 		);
 		if ($Result)
@@ -119,14 +127,14 @@ class Categories extends \Base\FormModel {
 		static $arrDTs = array();
 		if (!isset($arrDTs[$StaticIndex]) || $refresh) {
 			if ($DGP) {
-				$AllCount = T\DB::GetField('SELECT COUNT(*) FROM `_project_pcats` WHERE `UID`=:uid'
-								, array(':uid' => $this->UserID));
+				$AllCount = T\DB::GetField('SELECT COUNT(*) FROM `_project_cats` WHERE `UID`=:uid AND `Type`=:type'
+								, array(':uid' => $this->UserID, ':type' => $this->Type));
 				$Limit = $DGP->QueryLimitParams($AllCount, $ref_LimitIdx, $ref_LimitLen);
 			}
 			$arrDTs[$StaticIndex] = T\DB::GetTable(
 							"SELECT *"
-							. " FROM `_project_pcats`"
-							. " WHERE " . ($ID ? " `ID`=:id AND " : '') . " UID=:uid"
+							. " FROM `_project_cats`"
+							. " WHERE " . ($ID ? " `ID`=:id AND " : '') . " UID=:uid AND Type=:type"
 							. ($DGP ?
 									" AND {$DGP->SQLWhereClause}"
 									. " ORDER BY {$DGP->Sort}"
@@ -134,6 +142,7 @@ class Categories extends \Base\FormModel {
 							, array(
 						':uid' => $this->UserID,
 						':id' => $ID,
+						':type' => $this->Type,
 							)
 			);
 		}

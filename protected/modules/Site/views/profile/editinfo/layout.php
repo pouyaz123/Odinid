@@ -17,7 +17,7 @@
 	</div>
 	<div>
 		<?= \CHtml::link(t2::site_site('Skills'), \Site\Consts\Routes::User_EditSkills()) ?>
-		| <?= \CHtml::link(t2::site_site('Softwares'), \Site\Consts\Routes::User_EditTools()) ?>
+		| <?= \CHtml::link(t2::site_site('Tools'), \Site\Consts\Routes::User_EditTools()) ?>
 		| <?= \CHtml::link(t2::site_site('Languages'), \Site\Consts\Routes::User_EditLanguages()) ?>
 		| <?= \CHtml::link(t2::site_site('Work fields'), \Site\Consts\Routes::User_EditWorkFields()) ?>
 	</div>

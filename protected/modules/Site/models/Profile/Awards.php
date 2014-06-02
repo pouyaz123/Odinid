@@ -87,12 +87,27 @@ class Awards extends \Base\FormModel {
 	}
 
 	protected function afterValidate() {
+		#max
 		if (!$this->hdnAwardID) {//means in add mode not edit mode
 			$Count = T\DB::GetField("SELECT COUNT(*) FROM `_user_awards` WHERE `UID`=:uid"
 							, array(':uid' => $this->UserID));
 			if ($Count && $Count >= T\Settings::GetInstance()->MaxResumeBigItemsPerCase)
 				$this->addError('', \t2::site_site('You have reached the maximum'));
 		}
+		#domain uniqueness
+		$Domain = $this->OrgDomain;
+		if ($this->txtOrganizationTitle && T\DB::GetField("SELECT COUNT(*) FROM `_organizations` WHERE `Title`!=:ttl AND (
+				`Domain` <=> :dom
+				OR `Domain` LIKE CONCAT('%', :dom_likeescaped) ESCAPE '='
+				OR :dom LIKE CONCAT('%', `Domain`) ESCAPE '='
+			)", array(
+					':ttl' => $this->txtOrganizationTitle? : null,
+					':dom' => $Domain? : null,
+					':dom_likeescaped' => $Domain ? T\DB::EscapeLikeWildCards($Domain) : null,
+				))) {
+			$this->addError('txtOrganizationURL', \t2::site_site('This domain has been occupied for another organization.'));
+		}
+		#award uniqueness
 		if ($this->scenario == 'Add' || $this->scenario == 'Edit') {
 			if (T\DB::GetField("SELECT COUNT(*)"
 							. " FROM `_user_awards` uawrd"

@@ -99,6 +99,11 @@ class Basics {
 //		return self::Descending_Recursive($DataTable, $Subs, $ParentIDField, $IDField, $OpenKW, $CloseKW, $MaxDepth);
 //	}
 
+	/**
+	 * configs the properties of an object to the items of an array
+	 * @param mixed $Obj
+	 * @param array $arrConfig
+	 */
 	static function ConfigureObject($Obj, $arrConfig) {
 		if (is_array($arrConfig)) {
 			foreach ($arrConfig as $key => $value)

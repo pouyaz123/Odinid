@@ -32,53 +32,13 @@
 							, $form->labelEx($Model, 'txtOrganizationURL')
 							, $form->error($Model, 'txtOrganizationURL'))
 					?>
-					<script>
-						_t.RunScriptAfterLoad('tagit/tag-it.min', function() {
-							_t.RunScriptAfterLoad('MyJuiAutoComplete/MyAutoComplete', function() {
-								function TagStartup($obj) {
-									$($obj).next('ul').find('a').attr('rel', 'AjaxExcept')
-								}
-								var $obj = $('#UserAwards_txtOrganizationTitle')
-										, ACOpts = MyAutoComplete(
-												$obj, {
-													source: '<?= Tools\HTTP::URL_InsertGetParams($_SERVER['REQUEST_URI'], "__AjaxPostKW=AutoComplete_UserAwards_txtOrganizationTitle") ?>'
-													, select: function(e, ui) {
-														if (ui.item.label) {
-															var dr = $.parseJSON($(ui.item.label).attr('rel'))
-															if (dr['ID'])
-																$('#UserAwards_hdnOrganizationID').attr('value', dr['ID'])
-															if (dr['URL'])
-																$('#UserAwards_txtOrganizationURL').tagit('createTag', dr['URL'])
-														}
-													}
-												}, 0, 1, 1, 1)
-
-								$obj.tagit({
-									allowSpaces: true
-									, autocomplete: ACOpts
-									, tagLimit: 1
-									, afterTagAdded: function(e, ui) {
-										TagStartup($(this))
-									}
-									, afterTagRemoved: function() {
-										$('#UserAwards_txtOrganizationURL').tagit('removeAll')
-										$('#UserAwards_hdnOrganizationID').attr('value', '')
-									}
-								})
-								TagStartup($obj)
-								TagStartup($('#UserAwards_txtOrganizationURL').tagit({
-									allowSpaces: true
-									, tagLimit: 1
-									, afterTagAdded: function(e, ui) {
-										TagStartup($(this))
-									}
-									, afterTagRemoved: function() {
-										$('#UserAwards_hdnOrganizationID').attr('value', '')
-									}
-								}))
-							})
-						})
-					</script>
+<script>
+_t.RunScriptAfterLoad(['tagit/tag-it.min', 'MyJuiAutoComplete/MyAutoComplete', 'tagit_ac_urlFactor'], function() {
+	tagit_ac_urlFactor(
+		'#UserAwards_txtOrganizationTitle', '#UserAwards_hdnOrganizationID', '#UserAwards_txtOrganizationURL',
+		'<?= Tools\HTTP::URL_InsertGetParams($_SERVER['REQUEST_URI'], "__AjaxPostKW=AutoComplete_UserAwards_txtOrganizationTitle") ?>')
+})
+</script>
 					<?=
 					html::FieldContainer(
 							$form->textField($Model, 'txtTitle')

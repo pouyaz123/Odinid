@@ -38,6 +38,7 @@ class Languages extends \Base\FormModel {
 		foreach ($this->dtLanguages as $drLanguage) {
 			$txtLanguages.=',' . $drLanguage['Language'];
 		}
+		$txtLanguages = trim($txtLanguages, ',');
 		return $txtLanguages;
 	}
 

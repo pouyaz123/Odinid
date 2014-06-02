@@ -12,7 +12,7 @@ class Educations extends \CAction {
 
 	public function run() {
 		$this->controller->pageTitle = \t2::SitePageTitle(\t2::site_site('Educations'));
-		\html::TagIt_Load();
+		\html::TagIt_AC_URLFactor();
 		\html::jqUI_AutoComplete_Load();
 		\html::DatePicker_Load();
 

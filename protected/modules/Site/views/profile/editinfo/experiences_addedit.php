@@ -33,16 +33,13 @@
 							, $form->labelEx($Model, 'txtCompanyURL')
 							, $form->error($Model, 'txtCompanyURL'))
 					?>
-					<script>
-						_t.RunScriptAfterLoad(
-							['tagit/tag-it.min', 'MyJuiAutoComplete/MyAutoComplete', 'tagit_ac_urlFactor']
-							, function() {
-								tagit_ac_urlFactor(
-									'#UserExperiences_txtCompanyTitle', '#UserExperiences_hdnCompanyID', '#UserExperiences_txtCompanyURL',
-									'<?= Tools\HTTP::URL_InsertGetParams($_SERVER['REQUEST_URI'], "__AjaxPostKW=AutoComplete_UserExperiences_txtCompanyTitle") ?>')
-							}
-						)
-					</script>
+<script>
+_t.RunScriptAfterLoad(['tagit/tag-it.min', 'MyJuiAutoComplete/MyAutoComplete', 'tagit_ac_urlFactor'], function() {
+	tagit_ac_urlFactor(
+		'#UserExperiences_txtCompanyTitle', '#UserExperiences_hdnCompanyID', '#UserExperiences_txtCompanyURL',
+		'<?= Tools\HTTP::URL_InsertGetParams($_SERVER['REQUEST_URI'], "__AjaxPostKW=AutoComplete_UserExperiences_txtCompanyTitle") ?>')
+})
+</script>
 					<?=
 					html::FieldContainer(
 							$form->textField($Model, 'txtJobTitle')
@@ -137,38 +134,28 @@
 							, $form->labelEx($Model, 'chkToPresent')
 							, $form->error($Model, 'chkToPresent'))
 					?>
-					<script>
+<script>
 _t.RunScriptAfterLoad('jqUI/jquery.ui.datepicker.min', function() {
 	var frmJQSlct = "#<?= $Model->PostName ?>_txtFromDate"
-			, toJQSlct = "#<?= $Model->PostName ?>_txtToDate"
-			, opts = {
-				showOn: "both",
-				dateFormat: 'yy-mm-dd',
-				buttonText: '<span class="ui-icon ui-icon-calendar"></span>',
-				maxDate: "+0D",
-				changeMonth: true,
-				changeYear: true,
-				numberOfMonths: 1,
-				onSelect: function(selectedDate) {
-					var isTo = $(this).is(toJQSlct)
-					$(isTo ? frmJQSlct : toJQSlct).datepicker("option", isTo ? "maxDate" : "minDate", selectedDate);
-				},
-				yearRange: '<?= date('Y') - Site\models\Profile\Experiences::OldestYearLimitation ?>:<?= date('Y') ?>'};
+		, toJQSlct = "#<?= $Model->PostName ?>_txtToDate"
+		, opts = {
+			showOn: "both",
+			dateFormat: 'yy-mm-dd',
+			buttonText: '<span class="ui-icon ui-icon-calendar"></span>',
+			maxDate: "+0D",
+			changeMonth: true,
+			changeYear: true,
+			numberOfMonths: 1,
+			onSelect: function(selectedDate) {
+				var isTo = $(this).is(toJQSlct)
+				$(isTo ? frmJQSlct : toJQSlct).datepicker("option", isTo ? "maxDate" : "minDate", selectedDate);
+			},
+			yearRange: '<?= date('Y') - Site\models\Profile\Experiences::OldestYearLimitation ?>:<?= date('Y') ?>'
+		};
 	$(frmJQSlct).datepicker(opts);
 	$(toJQSlct).datepicker(opts);
 })
-<?/*
-$("#<?= $Model->PostName ?>_txtFromDate, #<?= $Model->PostName ?>_txtToDate").datepicker({
-	showOn: "both",
-	dateFormat: 'yy-mm-dd',
-	buttonText: '<span class="ui-icon ui-icon-calendar"></span>',
-	maxDate: "+0D",
-	changeMonth: true,
-	changeYear: true,
-	yearRange: '<?= date('Y') - Site\models\Profile\Experiences::OldestYearLimitation ?>:<?= date('Y') ?>'
-		});
- */?>
-					</script>
+</script>
 					<?=
 					html::FieldContainer(
 							$form->textArea($Model, 'txtDescription')

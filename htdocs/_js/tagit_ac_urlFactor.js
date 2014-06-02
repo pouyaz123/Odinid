@@ -3,19 +3,19 @@ function tagit_ac_urlFactor(txtTitle_JQS, hdnID_JQS, txtURL_JQS, ajaxURL) {
 		$($obj).next('ul').find('a').attr('rel', 'AjaxExcept')
 	}
 	var $obj = $(txtTitle_JQS)
-			, ACOpts = MyAutoComplete(
-					$obj, {
-						source: ajaxURL
-								, select: function(e, ui) {
-									if (ui.item.label) {
-										var dr = $.parseJSON($(ui.item.label).attr('rel'))
-										if (dr['ID'])
-											$(hdnID_JQS).attr('value', dr['ID'])
-										if (dr['URL'])
-											$(txtURL_JQS).tagit('createTag', dr['URL'])
-									}
-								}
-					}, 0, 1, 1, 1)
+	var ACOpts = MyAutoComplete(
+		$obj, {
+			source: ajaxURL
+			, select: function(e, ui) {
+				if (ui.item.label) {
+					var dr = $.parseJSON($(ui.item.label).attr('rel'))
+					if (dr['ID'])
+						$(hdnID_JQS).attr('value', dr['ID'])
+					if (dr['URL'])
+						$(txtURL_JQS).tagit('createTag', dr['URL'])
+				}
+			}
+		}, 0, 1, 1, 1)
 
 	$obj.tagit({
 		allowSpaces: true

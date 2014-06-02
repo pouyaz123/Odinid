@@ -38,6 +38,7 @@ class Tools extends \Base\FormModel {
 		foreach ($this->dtTools as $drTool) {
 			$txtTools.=',' . $drTool['Tool'];
 		}
+		$txtTools = trim($txtTools, ',');
 		return $txtTools;
 	}
 

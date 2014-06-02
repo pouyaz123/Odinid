@@ -38,6 +38,7 @@ class Skills extends \Base\FormModel {
 		foreach ($this->dtSkills as $drSkill) {
 			$txtSkills.=',' . $drSkill['Skill'];
 		}
+		$txtSkills = trim($txtSkills, ',');
 		return $txtSkills;
 	}
 

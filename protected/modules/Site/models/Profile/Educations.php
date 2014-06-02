@@ -114,12 +114,14 @@ class Educations extends \Base\FormModel {
 	}
 
 	protected function afterValidate() {
+		#max
 		if (!$this->hdnEducationID) {//means in add mode not edit mode
 			$Count = T\DB::GetField("SELECT COUNT(*) FROM `_user_educations` WHERE `UID`=:uid"
 							, array(':uid' => $this->UserID));
 			if ($Count && $Count >= T\Settings::GetValue('MaxResumeBigItemsPerCase'))
 				$this->addError('', \t2::site_site('You have reached the maximum'));
 		}
+		#dates
 		if ($this->txtFromDate && $this->txtToDate &&
 				preg_match(C\Regexp::DateFormat_FullDigit, $this->txtFromDate) &&
 				preg_match(C\Regexp::DateFormat_FullDigit, $this->txtToDate) &&
@@ -130,6 +132,20 @@ class Educations extends \Base\FormModel {
 			$this->addError('txtToDate', \t2::yii('{attribute} "{value}" is invalid.'
 							, array('{attribute}' => $this->getAttributeLabel('txtToDate'), '{value}' => $this->txtToDate)));
 		}
+		#domain uniqueness
+		$Domain = $this->SchoolDomain;
+		if ($this->txtSchoolTitle && T\DB::GetField("SELECT COUNT(*) FROM `_school_info` WHERE `Title`!=:ttl AND (
+				`Domain` <=> :dom
+				OR `Domain` LIKE CONCAT('%', :dom_likeescaped) ESCAPE '='
+				OR :dom LIKE CONCAT('%', `Domain`) ESCAPE '='
+			)", array(
+					':ttl' => $this->txtSchoolTitle? : null,
+					':dom' => $Domain? : null,
+					':dom_likeescaped' => $Domain ? T\DB::EscapeLikeWildCards($Domain) : null,
+				))) {
+			$this->addError('txtSchoolURL', \t2::site_site('This domain has been occupied for another school.'));
+		}
+		#edu uniqueness
 		if ($this->scenario == 'Add' || $this->scenario == 'Edit') {
 			if (T\DB::GetField("SELECT COUNT(*)"
 							. " FROM `_user_educations` uedu"

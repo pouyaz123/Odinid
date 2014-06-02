@@ -212,6 +212,14 @@ class Experiences extends \Base\FormModel {
 	}
 
 	protected function afterValidate() {
+		#max
+		if (!$this->hdnExperienceID) {//means in add mode not edit mode
+			$Count = T\DB::GetField("SELECT COUNT(*) FROM `_user_experiences` WHERE `UID`=:uid"
+							, array(':uid' => $this->UserID));
+			if ($Count && $Count >= T\Settings::GetValue('MaxResumeBigItemsPerCase'))
+				$this->addError('', \t2::site_site('You have reached the maximum'));
+		}
+		#dates
 		if ($this->txtFromDate && $this->txtToDate &&
 				preg_match(C\Regexp::DateFormat_FullDigit, $this->txtFromDate) &&
 				preg_match(C\Regexp::DateFormat_FullDigit, $this->txtToDate) &&
@@ -221,42 +229,18 @@ class Experiences extends \Base\FormModel {
 			$this->addError('txtToDate', \t2::yii('{attribute} "{value}" is invalid.'
 							, array('{attribute}' => $this->getAttributeLabel('txtToDate'), '{value}' => $this->txtToDate)));
 		}
-		if (!$this->hdnExperienceID) {//means in add mode not edit mode
-			$Count = T\DB::GetField("SELECT COUNT(*) FROM `_user_experiences` WHERE `UID`=:uid"
-							, array(':uid' => $this->UserID));
-			if ($Count && $Count >= T\Settings::GetValue('MaxResumeBigItemsPerCase'))
-				$this->addError('', \t2::site_site('You have reached the maximum'));
-		}
-		//validating repeated experience based on the combination (from certificates. is not ready)
-//		if ($this->scenario == 'Add' || $this->scenario == 'Edit') {
-//			if (T\DB::GetField("SELECT COUNT(*)"
-//							. " FROM `_user_certificates` ucrt"
-//							. " INNER JOIN (SELECT 1) tmp ON ucrt.`UID`=:uid AND ucrt.`Title`=:ttl"
-//							. ($this->hdnCertificateID ? " AND ucrt.`CombinedID`!=:id" : "")
-//							. " INNER JOIN `_institutions` insts ON ucrt.`InstitutionID`=insts.`ID`"
-//							. " WHERE " . ($this->hdnInstitutionID ? " ucrt.`InstitutionID`=:insid OR " : "")
-//							. "(insts.`Title`=:insttl AND"
-//							. "	("
-//							. "		insts.`Domain` <=> :insdom"
-//							. "		OR insts.`Domain` LIKE CONCAT('%', :insEscDom) ESCAPE '='"
-//							. "		OR :insdom LIKE CONCAT('%', insts.`Domain`) ESCAPE '='"
-//							. "	)"
-//							. ")"
-//							, array(
-//						':id' => $this->hdnCertificateID,
-//						':uid' => $this->UserID,
-//						':ttl' => $this->txtTitle,
-//						':insid' => $this->hdnInstitutionID? : null,
-//						':insttl' => $this->txtInstitutionTitle,
-//						':insdom' => $this->CompDomain? : null,
-//						':insEscDom' => T\DB::EscapeLikeWildCards($this->CompDomain)? : null,
-//							)
-//					)
-//			) {
-//				$this->addError('txtInstitutionTitle', \t2::yii('This combination has been taken previously'));
-//				$this->addError('txtTitle', \t2::yii('This combination has been taken previously'));
-//			}
-//		}
+		#domain uniqueness
+		$Domain=  $this->CompDomain;
+		if ($this->txtCompanyTitle && T\DB::GetField("SELECT COUNT(*) FROM `_company_info` WHERE `Title`!=:ttl AND (
+				`Domain` <=> :dom
+				OR `Domain` LIKE CONCAT('%', :dom_likeescaped) ESCAPE '='
+				OR :dom LIKE CONCAT('%', `Domain`) ESCAPE '='
+			)", array(
+				':ttl' => $this->txtCompanyTitle? : null,
+				':dom' => $Domain? : null,
+				':dom_likeescaped' => $Domain ? T\DB::EscapeLikeWildCards($Domain) : null,
+				)))
+			$this->addError('txtCompanyURL', \t2::site_site('This domain has been claimed by another company.'));
 	}
 
 	public function attributeLabels() {
@@ -383,7 +367,6 @@ class Experiences extends \Base\FormModel {
 			)
 		);
 		$Result = T\DB::Transaction($Queries, NULL, function(\Exception $ex) {
-			\Err::DebugBreakPoint($ex);
 					\html::ErrMsg_Exit(\t2::site_site('Failed! Plz retry.'));
 				});
 		if ($Result) {
