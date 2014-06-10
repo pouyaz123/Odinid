@@ -165,8 +165,8 @@ class Info_WebAddresses extends \Base\FormModelBehavior {
 						'PrefixQuery' => "CONCAT(:uid, '_')",
 							)
 			);
-		$arrTransactions = array();
-		$arrTransactions[] = array(
+		$arrTrans = array();
+		$arrTrans[] = array(
 			(!$this->hdnWebAddrID ?
 					"INSERT INTO `_user_webaddresses` SET "
 					. " `CombinedID`=($strSQLPart_CombinedID)"
@@ -188,7 +188,7 @@ class Info_WebAddresses extends \Base\FormModelBehavior {
 				':customtype' => $this->txtCustomType? : null,
 			)
 		);
-		$owner->addTransactions($arrTransactions);
+		$owner->addTransactions($arrTrans);
 	}
 
 	public function onSetForm(\CEvent $e) {

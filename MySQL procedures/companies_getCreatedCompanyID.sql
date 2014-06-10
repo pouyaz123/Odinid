@@ -15,7 +15,7 @@ RETURNS INT(10)	--check your _company_info datatable to ensure about identical t
 BEGIN
 -- 	DECLARE $companyID INT(10);
 -- 	DECLARE $tagID CHAR(17);
-	SET $companyID = (SELECT `ID` FROM `_company_info` WHERE `ID` = $companyID
+	SET $companyID = (SELECT `ID` FROM `_company_info` WHERE `ID` <=> $companyID
 		OR (
 			`Title` = $title
 			AND (

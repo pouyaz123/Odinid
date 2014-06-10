@@ -15,6 +15,8 @@ use \Tools as T;
  * @property-read array $dtFreshProjects
  * @property-read array $arrStatuses
  * @property-read array $arrDividerLineTypes
+ * @property-read string|integer $ThumbID
+ * @property-read string|integer $FreshThumbID
  */
 class Project extends \Base\FormModel {
 
@@ -29,7 +31,7 @@ class Project extends \Base\FormModel {
 	//----- attrs
 	public $hdnID;
 	#
-	public $txtTitle;
+	public $txtTitle = 'Untitled project';
 	public $txtSmallDesc;
 	public $chkIsReel = 0;
 	public $chkPaidTutorial = 0;
@@ -90,11 +92,11 @@ class Project extends \Base\FormModel {
 		$vl = \ValidationLimits\User::GetInstance();
 		$rules = array(
 			array('hdnID', 'required',
-				'on' => 'Edit, Delete'),
+				'on' => 'Edit, Delete, Crop, Upload'),
 			array('hdnID', 'IsExist',
 				'SQL' => 'SELECT COUNT(*) FROM `_projects` WHERE `ID`=:val AND `UID`=:uid AND `Type`=:type',
 				'SQLParams' => array(':uid' => $this->UserID, ':type' => $this->Type),
-				'on' => 'Edit, Delete'),
+				'on' => 'Edit, Delete, Crop, Upload'),
 			#
 			array('txtTitle, ddlStatus', 'required'
 				, 'on' => 'Add, Edit'),
@@ -117,10 +119,10 @@ class Project extends \Base\FormModel {
 				'on' => 'Add, Edit'),
 			#
 			array_merge(array('fileThumb', 'file',
-				'on' => 'Upload'), $vl->ProjectThumb),
+				'on' => 'Add, Edit, Upload'), $vl->ProjectThumb),
 			array('hdnThumbCrop', 'match',
 				'pattern' => C\Regexp::CropDims,
-				'on' => 'Crop'),
+				'on' => 'Add, Edit, Crop'),
 			#
 			array('hdnCatIDs, hdnSchoolIDs, hdnCompanyIDs', 'match',
 				'pattern' => C\Regexp::HdnFieldIntIDs,
@@ -152,36 +154,38 @@ class Project extends \Base\FormModel {
 	protected function afterValidate() {
 		if ($this->_ValidationPassed)
 			return;
-		$this->_ValidationPassed = true;
-		if (!$this->hdnID) {//means in add mode not edit mode
-			$Count = T\DB::GetField("SELECT COUNT(*) FROM `_project_cats` WHERE `UID`=:uid"
+		$this->_ValidationPassed = true; //prevent recursion
+		if ($this->scenario == 'Add') {
+			$Count = T\DB::GetField("SELECT COUNT(*) FROM `_projects` WHERE `UID`=:uid"
 							, array(':uid' => $this->UserID));
-			if ($Count && $Count >= T\Settings::GetInstance()->MaxProjectCats)
+			if ($Count && $Count >= T\Settings::GetInstance()->MaxProjects)
 				$this->addError('', \t2::site_site('You have reached the maximum'));
 		}
-		$v = \ValidationLimits\User::GetInstance();
-		$fncMassLenVld = function ($MassField, $vldField, $arrVldConf) {
-			$Items = $this->$MassField;
-			if ($Items) {
-				$vld = new \CStringValidator();
-				$vld->on = array('Add', 'Edit');
-				$vld->attributes = array($vldField);
-				T\Basics::ConfigureObject($vld, $arrVldConf);
+		//recursion's causer
+		if ($this->scenario == 'Add' || $this->scenario == 'Edit') {
+			$v = \ValidationLimits\User::GetInstance();
+			$fncMassLenVld = function ($MassField, $vldField, $arrVldConf) {
+				$Items = $this->$MassField;
+				if ($Items) {
+					$vld = new \CStringValidator();
+					$vld->on = array('Add', 'Edit');
+					$vld->attributes = array($vldField);
+					T\Basics::ConfigureObject($vld, $arrVldConf);
 
-				$Items = trim($Items, ",\t\n\r\0\x0B");
-				$arrItems = explode(',', $Items);
-				foreach ($arrItems as $Item) {
-					$this->$vldField = $Item;
-					$this->validate($vldField);
+					$Items = T\String::SafeExplode($Items);
+					foreach ($Items as $Item) {
+						$this->$vldField = $Item;
+						$this->validate($vldField);
+					}
 				}
-			}
-		};
-		$fncMassLenVld('txtWorkFields', 'vldWorkField', $v->LongTitle);
-		$fncMassLenVld('txtTools', 'vldTool', $v->LongTitle);
-		$fncMassLenVld('txtTags', 'vldTag', $v->LongTitle);
-		$fncMassLenVld('txtSkills', 'vldSkill', $v->LongTitle);
-		$fncMassLenVld('txtSchools', 'vldSchool', $v->Title);
-		$fncMassLenVld('txtCompanies', 'vldCompany', $v->Title);
+			};
+			$fncMassLenVld('txtWorkFields', 'vldWorkField', $v->LongTitle);
+			$fncMassLenVld('txtTools', 'vldTool', $v->LongTitle);
+			$fncMassLenVld('txtTags', 'vldTag', $v->LongTitle);
+			$fncMassLenVld('txtSkills', 'vldSkill', $v->LongTitle);
+			$fncMassLenVld('txtSchools', 'vldSchool', $v->Title);
+			$fncMassLenVld('txtCompanies', 'vldCompany', $v->Title);
+		}
 	}
 
 	public function attributeLabels() {
@@ -207,43 +211,9 @@ class Project extends \Base\FormModel {
 		);
 	}
 
-	public function UploadThumbnail() {
-		$this->scenario = 'Upload';
-		if (!$this->validate())
-			return false;
-		$PicUnqID = null;
-		if ($this->fileThumb) {
-			$CldR = T\Cloudinary\Cloudinary::Uplaod($_FILES[$this->PostName]['tmp_name']['fileThumb']
-							, array(
-						'public_id' => $this->getThumbID("NEW", $PicUnqID, false, 1)
-							)
-			);
-		}
-	}
-
-	public function Upload() {
-		$this->scenario = 'Upload';
-		if (!$this->validate())
-			return false;
-		if ($this->AvatarID)
-			$this->Delete();
-		$CldR = T\Cloudinary\Cloudinary::Uplaod($_FILES[$this->PostName]['tmp_name']['fileAvatar']
-						, array(
-					'public_id' => $this->getAvatarID("NEW", $PicUnqID, false, 1)
-						)
-		);
-		if ($CldR && $CldR['public_id']) {
-			T\DB::Execute("INSERT INTO `_user_info`(`UID`, `Picture`)"
-					. " VALUES(:uid, :picunq) ON DUPLICATE KEY UPDATE `Picture`=:picunq"
-					, array(':uid' => $this->UserID, ':picunq' => $PicUnqID)
-			);
-		} else {
-			\Err::TraceMsg_Method(__METHOD__, "Cloudinary upload failed!", $CldR);
-			$this->addError('fileAvatar', \t2::site_site('Failed!'));
-		}
-	}
-
 	public function Save() {
+		$Snrio = &$this->scenario;
+		$Snrio = $this->hdnID ? 'Edit' : 'Add';
 		if (!$this->validate())
 			return false;
 		$ID = $this->hdnID? : T\DB::GetNewID_Combined(
@@ -256,62 +226,195 @@ class Project extends \Base\FormModel {
 					'PrefixQuery' => "CONCAT(:uid, '_')",
 						)
 		);
-		$Result = T\DB::Execute(
-						!$this->hdnID ?
-								"INSERT INTO `_projects`("
-								. "`ID`, `UID`, `Type`"
-								. ", `Title`, `SmallDesc`"
-								. ", `IsReel`, `PaidTutorial`, `Status`"
-//								. ", `Thumbnail`"
-								. ", `ThumbnailCrop`"
-								. ", `Visibility`, `ShowInHomePage`, `Adult`"
-								. ", `Password`, `DividerLineType`, `ContentSpacing`"
-								. ") VALUES("
-								. " :id, :uid, :type"
-								. ", :ttl, :smldsc"
-								. ", :reel, :paidtut, :status"
-								. ", :thumb, :thumbcrop"
-								. ", :vsblty, :home, :adult"
-								. ", :pwd, :dvdr, :cntspc)" :
-								"UPDATE `_projects` SET"
-								. " `Title`=:ttl, `SmallDesc`=:smldsc"
-								. ", `IsReel`=:reel, `PaidTutorial`=:paidtut, `Status`=:status"
-//								. ", `Thumbnail`=:thumb"
-								. ", `ThumbnailCrop`=:thumbcrop"
-								. ", `Visibility`=:vsblty, `ShowInHomePage`=:home, `Adult`=:adult"
-								. ", `Password`=:pwd, `DividerLineType`=:dvdr, `ContentSpacing`=:cntspc"
-								. " WHERE `ID`=:id AND `UID`=:uid AND `Type`=:type"
-						, array(
-					':id' => $ID,
-					':uid' => $this->UserID,
-					':type' => $this->Type,
-					':ttl' => $this->txtTitle,
-					':smldsc' => $this->txtSmallDesc? : null,
-					':reel' => $this->chkIsReel? : 0,
-					':paidtut' => $this->chkPaidTutorial? : 0,
-					':status' => $this->ddlStatus,
-//					':thumb' => $PicUnqID,
-					':thumbcrop' => $this->hdnThumbCrop? : null,
-					':vsblty' => $this->chkVisibility? : 0,
-					':home' => $this->chkShowInHome? : 0,
-					':adult' => $this->chkAdult? : 0,
-					':pwd' => $this->txtPassword? : null,
-					':dvdr' => $this->ddlDividerLineType? : null,
-					':cntspc' => $this->txtContentSpacing? : null,
-						)
+		$PicUnqID = $this->_UploadThumb();
+		if (!$PicUnqID)
+			$PicUnqID = $this->ThumbID;
+		$Qries = array();
+		$CommonParams = array(
+			':id' => $ID,
+			':uid' => $this->UserID,
 		);
-		if ($Result && !$this->hdnID && $this->scenario == "Add") {
-			$this->scenario = 'Edit';
+		$Qries[] = array(
+			!$this->hdnID ?
+					"INSERT INTO `_projects`("
+					. "`ID`, `UID`, `Type`"
+					. ($Snrio == 'Add' ?
+							", `Title`, `SmallDesc`"
+							. ", `IsReel`, `PaidTutorial`, `Status`"
+							. ", `Visibility`, `ShowInHomePage`, `Adult`"
+							. ", `Password`, `DividerLineType`, `ContentSpacing`"
+							. ", `Thumbnail`" : "")
+//					. ($Snrio == 'Upload' ? " `Thumbnail`" : "")
+					. ") VALUES("
+					. ($Snrio == 'Add' ? " :id, :uid, :type"
+							. ", :ttl, :smldsc"
+							. ", :reel, :paidtut, :status"
+							. ", :vsblty, :home, :adult"
+							. ", :pwd, :dvdr, :cntspc"
+							. ", :thumb_unqid" : "")
+//					. ($Snrio == 'Upload' ? " :thumb_unqid" : "")
+					. ")" :
+					"UPDATE `_projects` SET "
+					. ($Snrio == 'Edit' ?
+							" `Title`=:ttl, `SmallDesc`=:smldsc"
+							. ", `IsReel`=:reel, `PaidTutorial`=:paidtut, `Status`=:status"
+							. ", `Visibility`=:vsblty, `ShowInHomePage`=:home, `Adult`=:adult"
+							. ", `Password`=:pwd, `DividerLineType`=:dvdr, `ContentSpacing`=:cntspc"
+							. ", `Thumbnail`=:thumb_unqid, `ThumbnailCrop`=:thumbcrop" : "")//keep this additional comma
+//					. ($Snrio == 'Upload' ? " `Thumbnail`=:thumb_unqid" : "")
+//					. ($Snrio == 'Crop' ? " `ThumbnailCrop`=:thumbcrop" : "")
+					. " WHERE `ID`=:id AND `UID`=:uid AND `Type`=:type"
+			, array(
+				':type' => $this->Type,
+				':ttl' => $this->txtTitle,
+				':smldsc' => $this->txtSmallDesc? : null,
+				':reel' => $this->chkIsReel? : 0,
+				':paidtut' => $this->chkPaidTutorial? : 0,
+				':status' => $this->ddlStatus,
+				':thumb_unqid' => $PicUnqID,
+				':thumbcrop' => $this->hdnThumbCrop? : null,
+				':vsblty' => $this->chkVisibility? : 0,
+				':home' => $this->chkShowInHome? : 0,
+				':adult' => $this->chkAdult? : 0,
+				':pwd' => $this->txtPassword? : null,
+				':dvdr' => $this->ddlDividerLineType? : null,
+				':cntspc' => $this->txtContentSpacing? : null,
+			)
+		);
+		if ($Snrio == 'Add' || $Snrio == 'Edit') {
+			$this->GetSaveTransQuery_CatIDs($Qries, $ID);
+			$this->GetSaveTransQuery_Tags($Qries, $ID, 'txtWorkFields'
+					, '_project_workfields', 'WorkFieldID'
+					, 'workFields_getCreatedWorkFieldID'
+					, '_workfields', 'WorkField'
+			);
+			$this->GetSaveTransQuery_Tags($Qries, $ID, 'txtTools'
+					, '_project_tools', 'ToolID'
+					, 'tools_getCreatedToolID'
+					, '_tools', 'Tool'
+			);
+			$this->GetSaveTransQuery_Tags($Qries, $ID, 'txtTags'
+					, '_project_workfields', 'WorkFieldID'
+					, 'simpletags_getCreatedSimpleTagID'
+					, '_simpletags', 'Tag'
+			);
+			$this->GetSaveTransQuery_Tags($Qries, $ID, 'txtSkills'
+					, '_project_skills', 'SkillID'
+					, 'skills_getCreatedSkillID'
+					, '_skills', 'Skill'
+			);
+			$this->GetSaveTransQuery_Tags($Qries, $ID, 'txtSchools'
+					, '_project_schools', 'SchoolID'
+					, 'schools_getCreatedSchoolID'
+					, '_school_info', 'Title'
+					, 'Profile', 'hdnSchoolIDs');
+			$this->GetSaveTransQuery_Tags($Qries, $ID, 'txtCompanies'
+					, '_project_companies', 'CompanyID'
+					, 'companies_getCreatedCompanyID'
+					, '_company_info', 'Title'
+					, 'Profile', 'hdnCompanyIDs');
+		}
+		$Result = T\DB::Transaction($Qries, $CommonParams);
+		if ($Result && !$this->hdnID && $Snrio == "Add") {
+			$Snrio = 'Edit';
 			$this->hdnID = $ID;
 		}
 		return $Result ? true : false;
+	}
+
+	/**
+	 * @param array $Qries transaction queries
+	 * @param type $ItemID
+	 */
+	private function GetSaveTransQuery_CatIDs(&$Qries, $ItemID) {
+		$qryInsert = "INSERT IGNORE INTO `_project_cat_cnn`(`CatID`, `ItemID`)";
+		$Prms = array(':itemid' => $ItemID);
+		$CatIDPrms = array();
+		if ($CatIDs = T\String::SafeExplode($this->hdnCatIDs)) {
+			foreach ($CatIDs as $Idx => $CatID) {
+				$qryInsert.=" VALUES(:catid$Idx, :itemid)";
+				$CatIDPrms[":catid$Idx"] = $CatID;
+			}
+			if ($CatIDPrms)
+				$Qries[] = array(
+					$qryInsert
+					, $Prms = array_merge($CatIDPrms, $Prms)
+				);
+		}
+		if ($this->scenario == 'Edit' && $this->hdnID) {
+			$Qries[] = array(
+				"DELETE FROM `_project_cat_cnn` WHERE `ItemID`=:itemid"
+				. ($CatIDPrms ? implode(" AND `CatID`!=", array_keys($CatIDPrms)) : "")
+				, $Prms);
+		}
+	}
+
+	/**
+	 * @param array $Qries transaction queries
+	 * @param type $ItemID
+	 * @param type $Attr
+	 * @param type $CnnDBTable
+	 * @param type $CnnDBField_SrcID
+	 * @param type $MySQLProcedure_Creator
+	 * @param type $SrcDBTable
+	 * @param type $SrcDBField_Tag
+	 * @param string $Type can be Tag(for skills, tools, ...) or Profile(for company, school, ...)<br/>
+	 * 	this type has been used to choose the right sort of parameters of the mysql procedure
+	 * @return type
+	 */
+	private function GetSaveTransQuery_Tags(&$Qries, $ItemID, $Attr
+	, $CnnDBTable, $CnnDBField_SrcID
+	, $MySQLProcedure_Creator
+	, $SrcDBTable, $SrcDBField_Tag
+	, $Type = 'Tag', $TagIDsAttr = NULL) {
+		$qryInsert = "INSERT IGNORE INTO `$CnnDBTable`(`ItemID`, `$CnnDBField_SrcID`)";
+		$Prms = array(':itemid' => $ItemID);
+		$TagPrms = array();
+		if ($Type == 'Profile' && $TagIDsAttr)
+			$TagIDs = T\String::SafeExplode($this->$TagIDsAttr);
+		if ($Tags = T\String::SafeExplode($this->$Attr)) {
+			foreach ($Tags as $Idx => $Tag) {
+				$TagPrms[":tag$Idx"] = $Tag;
+				if ($Type == 'Tag')
+					$qryInsert.=" VALUES(:itemid, $MySQLProcedure_Creator(:tag$Idx))";
+				elseif ($Type == 'Profile') {
+					$TagPrms[":tagid$Idx"] = isset($TagIDs[$Idx]) && $TagIDs[$Idx] ? $TagIDs[$Idx] : NULL;
+					$qryInsert.=" VALUES(:itemid, $MySQLProcedure_Creator(:tagid$Idx, :tag$Idx, NULL, NULL, NULL))";
+				}
+			}
+			if ($TagPrms)
+				$Qries[] = array(
+					$qryInsert
+					, $Prms = array_merge($TagPrms, $Prms)
+				);
+		}
+		if ($this->scenario == 'Edit' && $this->hdnID) {
+			$RemovableIDs = T\DB::GetField(
+							"SELECT GROUP_CONCAT(src.`ID` SEPARATOR ',') AS IDs"
+							. " FROM `$CnnDBTable` cnn"
+							. " INNER JOIN (SELECT 1) tmp ON cnn.`ItemID` = :itemid"
+							. " INNER JOIN `$SrcDBTable` src ON src.`ID` = cnn.`$CnnDBField_SrcID`"
+							. ($TagPrms ?
+									" WHERE src.`$SrcDBField_Tag` != " . implode(" AND src.`$SrcDBField_Tag` != ", array_keys($TagPrms)) :
+									"")
+							, $Prms);
+			if (!$RemovableIDs)
+				return;
+			$RemovableIDs = explode(',', $RemovableIDs);
+			$Qries[] = array(
+				"DELETE FROM `$CnnDBTable` WHERE `ItemID`=:itemid AND (`$CnnDBField_SrcID` = " . implode(" OR `$CnnDBField_SrcID` = ", $RemovableIDs) . ")"
+				, array(':itemid' => $ItemID)
+			);
+		}
 	}
 
 	public function Delete() {
 		$this->scenario = 'Delete';
 		if (!$this->validate())
 			return false;
-		$Result = T\DB::Execute("DELETE FROM `_project_cats` WHERE `ID`=:id AND `UID`=:uid"
+		if (!$this->_DeleteThumb())
+			return false;
+		$Result = T\DB::Execute("DELETE FROM `_projects` WHERE `ID`=:id AND `UID`=:uid"
 						, array(
 					':id' => $this->hdnID,
 					':uid' => $this->UserID,
@@ -322,24 +425,68 @@ class Project extends \Base\FormModel {
 		return $Result;
 	}
 
+	public function getdtCategories() {
+		return T\DB::GetTable("SELECT `ID`, `Title`"
+						. " FROM `_project_cats`"
+						. " WHERE `UID`=:uid AND `Type`=:type"
+						. " ORDER BY `OrderNumber`"
+						, array(':uid' => $this->UserID, ':type' => $this->Type));
+	}
+
 	public function getdtProjects($ID = NULL, $refresh = false, \Base\DataGridParams $DGP = NULL) {
+		return $this->_getdtProjects('View', $ID, $refresh, $DGP);
+	}
+
+	private function _getdtProjects($Scenario = null, $ID = NULL, $refresh = false, \Base\DataGridParams $DGP = NULL) {
 		$StaticIndex = $ID;
 		if (!$StaticIndex)
 			$StaticIndex = "ALL";
 		static $arrDTs = array();
 		if (!isset($arrDTs[$StaticIndex]) || $refresh) {
 			if ($DGP) {
-				$AllCount = T\DB::GetField('SELECT COUNT(*) FROM `_project_cats` WHERE `UID`=:uid'
+				$AllCount = T\DB::GetField('SELECT COUNT(*) FROM `_projects` WHERE `UID`=:uid'
 								, array(':uid' => $this->UserID));
 				$Limit = $DGP->QueryLimitParams($AllCount, $ref_LimitIdx, $ref_LimitLen);
 			}
 			$arrDTs[$StaticIndex] = T\DB::GetTable(
-							"SELECT *"
-							. " FROM `_project_cats`"
-							. " WHERE " . ($ID ? " `ID`=:id AND " : '') . " UID=:uid"
+							"SELECT prj.*"
+							. ($Scenario == 'Edit' ?
+									", GROUP_CONCAT(DISTINCT pcnn.ID SEPARATOR ',') AS CatIDs"
+									. ", GROUP_CONCAT(DISTINCT wf.WorkField ORDER BY wf.WorkField ASC SEPARATOR ',') AS WorkFields"
+									. ", GROUP_CONCAT(DISTINCT tl.Tool ORDER BY tl.Tool ASC SEPARATOR ',') AS Tools"
+									. ", GROUP_CONCAT(DISTINCT tg.Tag ORDER BY tg.Tag ASC SEPARATOR ',') AS Tags"
+									. ", GROUP_CONCAT(DISTINCT skl.Skill ORDER BY skl.Skill ASC SEPARATOR ',') AS Skills"
+									. ", GROUP_CONCAT(DISTINCT comp.Title ORDER BY comp.Title ASC SEPARATOR ',') AS Companies"
+									. ", GROUP_CONCAT(DISTINCT comp.Title SEPARATOR ',') AS CompanyIDs"
+									. ", GROUP_CONCAT(DISTINCT scl.Title ORDER BY scl.Title ASC SEPARATOR ',') AS Schools"
+									. ", GROUP_CONCAT(DISTINCT scl.Title SEPARATOR ',') AS SchoolIDs" : "")
+							. " FROM `_projects` AS prj"
+							. " INNER JOIN (SELECT 1) AS tmp ON " . ($ID ? " prj.`ID`=:id AND " : '') . " prj.UID=:uid"
+							. ($Scenario == 'Edit' ?
+									" LEFT JOIN `_project_cat_cnn` AS pcnn ON pcnn.ItemID=prj.ID"
+									#
+									. " LEFT JOIN `_project_workfields` AS wfcnn ON wfcnn.ItemID=prj.ID"
+									. " LEFT JOIN `_workfields` AS wf ON wf.ID=wfcnn.WorkFieldID"
+									. " LEFT JOIN `_project_tools` AS tlcnn ON tlcnn.ItemID=prj.ID"
+									. " LEFT JOIN `_tools` AS tl ON tl.ID=tlcnn.ToolID"
+									. " LEFT JOIN `_project_tags` AS tgcnn ON tgcnn.ItemID=prj.ID"
+									. " LEFT JOIN `_tags` AS tg ON tg.ID=tgcnn.TagID"
+									. " LEFT JOIN `_project_skills` AS sklcnn ON sklcnn.ItemID=prj.ID"
+									. " LEFT JOIN `_skills` AS skl ON skl.ID=sklcnn.SkillID"
+									#
+									. " LEFT JOIN `_project_skills` AS sklcnn ON sklcnn.ItemID=prj.ID"
+									. " LEFT JOIN `_skills` AS skl ON skl.ID=sklcnn.SkillID"
+									. " LEFT JOIN `_project_skills` AS sklcnn ON sklcnn.ItemID=prj.ID"
+									. " LEFT JOIN `_skills` AS skl ON skl.ID=sklcnn.SkillID"
+									#
+									. " LEFT JOIN `_project_companies` AS compcnn ON compcnn.ItemID=prj.ID"
+									. " LEFT JOIN `_company_info` AS comp ON comp.ID=compcnn.CompanyID"
+									. " LEFT JOIN `_project_schools` AS sclcnn ON sclcnn.ItemID=prj.ID"
+									. " LEFT JOIN `_school_info` AS scl ON scl.ID=scl.SchoolID" : "")
+							. ($DGP ? " WHERE AND {$DGP->SQLWhereClause}" : "")
+							. " GROUP BY prj.ID"
 							. ($DGP ?
-									" AND {$DGP->SQLWhereClause}"
-									. " ORDER BY {$DGP->Sort}"
+									" ORDER BY {$DGP->Sort}"
 									. " LIMIT $Limit" : "")
 							, array(
 						':uid' => $this->UserID,
@@ -369,10 +516,33 @@ class Project extends \Base\FormModel {
 			$arrAttrs = array(
 				'hdnID' => $dr['ID'],
 				'txtTitle' => $dr['Title'],
+				'txtSmallDesc' => $dr['SmallDesc'],
+				'chkIsReel' => $dr['IsReel'],
+				'chkPaidTutorial' => $dr['PaidTutorial'],
+				'ddlStatus' => $dr['Status'],
+				'hdnThumbCrop' => $dr['ThumbCrop'],
+				'chkVisibility' => $dr['SmallDesc'],
+				'hdnCatIDs' => $dr['CatIDs'],
+				'chkShowInHome' => $dr['ShowInHome'],
+				'chkAdult' => $dr['Adult'],
+				'ddlDividerLineType' => $dr['DividerLineType'],
+				'txtContentSpacing' => $dr['ContentSpacing'],
+				#
+				'txtWorkFields' => $dr['WorkFields'],
+				'txtTools' => $dr['Tools'],
+				'txtTags' => $dr['Tags'],
+				'txtSkills' => $dr['Skills'],
+				#
+				'hdnSchoolIDs' => $dr['SchoolIDs'],
+				'txtSchools' => $dr['Schools'],
+				'hdnCompanyIDs' => $dr['CompanyIDs'],
+				'txtCompanies' => $dr['Companies'],
 			);
 			$this->attributes = $arrAttrs;
 		}
 	}
+
+	#------------ Thumbnail --------------#
 
 	const UploadPath = 'Projects/';
 
@@ -382,7 +552,7 @@ class Project extends \Base\FormModel {
 			if ($GenerateNewOne)
 				$UniqueKey = uniqid(); //reference
 			else {
-				$dr = $this->getdrAvatar($Refresh);
+				$dr = $this->getdtProjects($this->hdnID, $Refresh);
 				if (!$dr || !$dr['Thumbnail'])
 					return null;
 			}
@@ -393,6 +563,52 @@ class Project extends \Base\FormModel {
 
 	public function getFreshThumbID(&$UnqID = null) {
 		return $this->getThumbID(false, $UnqID, TRUE);
+	}
+
+//	public function UploadThumb() {
+//		$this->scenario = 'Upload';
+//		if (!$this->validate())
+//			return false;
+//		$this->_UploadThumb();
+//	}
+
+	private function _UploadThumb(&$CldR = null) {
+		if ($this->fileThumb) {
+			if ($this->ThumbID)
+				$this->_DeleteThumb();
+			$CldR = T\Cloudinary\Cloudinary::Uplaod($_FILES[$this->PostName]['tmp_name']['fileThumb']
+							, array(
+						'public_id' => $this->getThumbID("NEW", $PicUnqID)
+							)
+			);
+			if ($CldR && $CldR['public_id'])
+				return $PicUnqID;
+			else {
+				\Err::TraceMsg_Method(__METHOD__, "Cloudinary upload failed!", $CldR);
+				$this->addError('fileThumb', \t2::site_site('Failed!'));
+				return false;
+			}
+		}
+		return null;
+	}
+
+	public function DeleteThumb() {
+		$this->scenario = 'Edit';
+		if (!$this->validate())
+			return false;
+		if ($this->_DeleteThumb()) {
+			T\DB::Execute("UPDATE `_projects` SET `Thumbnail`=NULL, `ThumbnailCrop`=NULL WHERE `ID`=:id AND `UID`=:uid"
+					, array(':id' => $this->hdnID, ':uid' => $this->UserID));
+		}
+	}
+
+	private function _DeleteThumb() {
+		$CldR = T\Cloudinary\Cloudinary::Destroy($this->ThumbID, array('invalidate' => true));
+		if (!$CldR) {
+			\Err::TraceMsg_Method(__METHOD__, "Cloudinary delete failed!", $CldR);
+			$this->addError('fileThumb', \t2::site_site('Failed!'));
+		}
+		return $CldR;
 	}
 
 }

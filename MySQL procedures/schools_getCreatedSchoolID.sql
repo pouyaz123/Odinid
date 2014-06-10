@@ -15,7 +15,7 @@ RETURNS INT(10)	--check your _school_info datatable to ensure about identical ty
 BEGIN
 -- 	DECLARE $schoolID INT(10);
 -- 	DECLARE $tagID CHAR(17);
-	SET $schoolID = (SELECT `ID` FROM `_school_info` WHERE `ID` = $schoolID
+	SET $schoolID = (SELECT `ID` FROM `_school_info` WHERE `ID` <=> $schoolID
 		OR (
 			`Title` = $title
 			AND (

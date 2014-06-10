@@ -22,14 +22,17 @@ use \Tools as T;
  * @property-read integer|string $MaxResumeBigItemsPerCase
  * 
  * @property-read integer|string $MaxProjectCats
+ * @property-read integer|string $MaxProjects
  * @property-read integer|string $MaxProjectWorkfields
  * @property-read integer|string $MaxProjectTools
  * @property-read integer|string $MaxProjectSchool
  * @property-read integer|string $MaxProjectCompany
  * 
  * @property-read integer|string $MaxBlogCats
+ * @property-read integer|string $MaxBlogs
  * 
  * @property-read integer|string $MaxTutCats
+ * @property-read integer|string $MaxTuts
  */
 class Settings {
 

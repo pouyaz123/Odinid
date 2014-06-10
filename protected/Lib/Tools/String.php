@@ -153,4 +153,15 @@ class String {
 //		}
 //		return round($Digits, 1, PHP_ROUND_HALF_DOWN) . $arr[$Unit];
 //	}
+	/**
+	 * @param string $String
+	 * @param string $Delimiter
+	 * @return array
+	 */
+	public static function SafeExplode($String, $Delimiter = ',') {
+		if (!$String)
+			return $String;
+		return explode($Delimiter, trim($String, "$Delimiter\t\n\r\0\x0B"));
+	}
+
 }

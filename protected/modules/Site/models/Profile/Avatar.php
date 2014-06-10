@@ -30,7 +30,6 @@ class Avatar extends \Base\FormModel {
 	public $hdnCropDims;
 
 #
-
 	public $UserID;
 
 	public function rules() {
@@ -66,10 +65,10 @@ class Avatar extends \Base\FormModel {
 		if (!$this->validate())
 			return false;
 		if ($this->AvatarID)
-			$this->Delete();
+			$this->_Delete();
 		$CldR = T\Cloudinary\Cloudinary::Uplaod($_FILES[$this->PostName]['tmp_name']['fileAvatar']
 						, array(
-					'public_id' => $this->getAvatarID("NEW", $PicUnqID, false, 1)
+					'public_id' => $this->getAvatarID("NEW", $PicUnqID)
 						)
 		);
 		if ($CldR && $CldR['public_id']) {
@@ -86,6 +85,10 @@ class Avatar extends \Base\FormModel {
 	public function Delete() {
 		if (!$this->validate() || !$this->AvatarID)
 			return false;
+		$this->_Delete();
+	}
+
+	private function _Delete() {
 		$CldR = T\Cloudinary\Cloudinary::Destroy($this->AvatarID, array('invalidate' => true));
 		if ($CldR) {
 			T\DB::Execute("UPDATE `_user_info` SET `Picture`=NULL, `PictureCrop`=NULL WHERE `UID`=:uid"
@@ -150,4 +153,5 @@ class Avatar extends \Base\FormModel {
 			$this->attributes = $arrAttrs;
 		}
 	}
+
 }
