@@ -1,15 +1,14 @@
 <?php
 
-namespace Site\controllers\Projects;
+namespace Site\controllers\EditProjects;
 
 use \Site\models\User\Login;
-use Tools as T;
 use \Site\models\Projects\Categories;
 
 /**
  * @author Abbas Hashemian <tondarweb@gmail.com>
  */
-class EditCategories extends \CAction {
+class Cats_Base extends \CAction {
 
 	protected $Type = Categories::Type_Project;
 
@@ -61,7 +60,7 @@ class EditCategories extends \CAction {
 
 		\Output::Render($this->controller
 				, ($btnEdit ?
-						'/projects/cats_addedit' : '/projects/cats')
+						'/editprojects/cats_form' : '/editprojects/cats_list')
 				, array(
 			'Model' => $Model,
 			'dg' => $this->DataGrid($this->controller, $Model),

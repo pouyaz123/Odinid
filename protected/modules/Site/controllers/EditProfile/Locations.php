@@ -44,8 +44,8 @@ class Locations extends \CAction {
 			$Model->SetForm();
 		elseif ($btnDelete)
 			$Model->Delete();
-		else
-			\Base\FormModel::AjaxValidation('ProfileInfo', $Model, true);
+//		else
+//			\Base\FormModel::AjaxValidation('formProfileInfo', $Model, true);
 
 		$wdgGeoLocation = $this->controller->createWidget(
 				'\Widgets\GeoLocationFields\GeoLocationFields'

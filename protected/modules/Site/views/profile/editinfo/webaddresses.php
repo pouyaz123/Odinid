@@ -16,7 +16,7 @@
 			<td>
 				<?
 				if ($form = $this->beginWidget('Widgets\ActiveForm', array(
-					'id' => 'EditWebAddr',
+					'id' => 'formEditWebAddr',
 					'method' => 'POST',
 						))):
 					/* @var $form Widgets\ActiveForm */

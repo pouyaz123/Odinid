@@ -51,13 +51,13 @@ class ProfileController extends \Site\Components\BaseController {
 			'editexperiences' => '\Site\controllers\EditProfile\Experiences',
 			'editadditionals' => '\Site\controllers\EditProfile\Additionals',
 			#
-			'editprjcat' => '\Site\controllers\Projects\EditPrjCats',
-			'editblogcat' => '\Site\controllers\Projects\EditBlogCats',
-			'edittutcat' => '\Site\controllers\Projects\EditTutCats',
+			'editprjcat' => '\Site\controllers\EditProjects\Cats_Prj',
+			'editblogcat' => '\Site\controllers\EditProjects\Cats_Blog',
+			'edittutcat' => '\Site\controllers\EditProjects\Cats_Tut',
 			#
-			'editprj' => '\Site\controllers\Projects\AddEditProject',
-			'editblog' => '\Site\controllers\Projects\AddEditBlog',
-			'edittut' => '\Site\controllers\Projects\AddEditTutorial',
+			'editprj' => '\Site\controllers\EditProjects\Prj_Prj',
+			'editblog' => '\Site\controllers\EditProjects\Prj_Blog',
+			'edittut' => '\Site\controllers\EditProjects\Prj_Tut',
 		);
 	}
 

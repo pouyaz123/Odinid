@@ -6,7 +6,7 @@
 	<? $this->beginContent('Site.views.user.layout') ?>
 	<?
 	if ($form = $this->beginWidget('Widgets\ActiveForm', array(
-		'id' => 'Activation',
+		'id' => 'formActivation',
 		'method' => 'POST',
 		'enableClientValidation' => true,
 		'clientOptions' => array(

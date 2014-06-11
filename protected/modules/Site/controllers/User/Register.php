@@ -59,7 +59,7 @@ class Register extends \CAction {
 			$Result = $Model->Register();
 			$ActivationCode = $Model->ActivationCode;
 		} else
-			\Base\FormModel::AjaxValidation('Register', $Model, true);
+			\Base\FormModel::AjaxValidation('formRegister', $Model, true);
 		#
 		if ($Result) {
 			\Site\models\User\Activation::SendActivationEmail(

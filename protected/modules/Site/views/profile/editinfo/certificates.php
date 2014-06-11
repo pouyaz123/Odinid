@@ -23,7 +23,7 @@
 			<td>
 				<?
 				if ($form = $this->beginWidget('Widgets\ActiveForm', array(
-					'id' => 'EditCertificates',
+					'id' => 'formEditCertificates',
 					'method' => 'POST',
 						))):
 					/* @var $form Widgets\ActiveForm * /

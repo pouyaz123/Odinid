@@ -18,7 +18,7 @@ use \Tools as T;
  * @property-read string|integer $ThumbID
  * @property-read string|integer $FreshThumbID
  */
-class Project extends \Base\FormModel {
+class Projects extends \Base\FormModel {
 
 	public function getPostName() {
 		return "Prj";

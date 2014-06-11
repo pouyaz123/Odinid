@@ -183,5 +183,11 @@ return array_merge(
 //	'Project Categories' => 'Project Categories',
 //	'Blog Categories' => 'Blog Categories',
 //	'Tutorial Categories' => 'Tutorial Categories',
+//	'Add Project' => 'Add Project',
+//	'Add Blog' => 'Add Blog',
+//	'Add Tutorial' => 'Add Tutorial',
+//	'Edit Project' => 'Edit Project',
+//	'Edit Blog' => 'Edit Blog',
+//	'Edit Tutorial' => 'Edit Tutorial',
 		)
 );

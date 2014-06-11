@@ -34,7 +34,7 @@
 			<td>
 				<?
 				if ($form = $this->beginWidget('Widgets\ActiveForm', array(
-					'id' => 'EditExperiences',
+					'id' => 'formEditExperiences',
 					'method' => 'POST',
 						))):
 					/* @var $form Widgets\ActiveForm * /

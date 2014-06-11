@@ -5,7 +5,7 @@
 <div id="divEditEmail">
 	<?
 	if ($form = $this->beginWidget('Widgets\ActiveForm', array(
-		'id' => 'ProfileInfo',
+		'id' => 'formProfileInfo',
 		'method' => 'POST',
 		'enableClientValidation' => true,
 //		'enableAjaxValidation' => true,	//disabled because of the Edit mode which the ID of the current email must be passed

@@ -97,5 +97,19 @@ class Routes {
 	static function User_EditTutCat($Username = null) {
 		
 	}
+	
+	//----- Projects
+	static function User_EditPrj($Username = null) {
+		
+	}
+
+	static function User_EditBlog($Username = null) {
+		
+	}
+
+	static function User_EditTut($Username = null) {
+		
+	}
+
 
 }

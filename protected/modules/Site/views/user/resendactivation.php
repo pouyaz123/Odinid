@@ -6,7 +6,7 @@
 	<? $this->beginContent('Site.views.user.layout') ?>
 	<?
 	if ($form = $this->beginWidget('Widgets\ActiveForm', array(
-		'id' => 'ResendActivation',
+		'id' => 'formResendActivation',
 		'method' => 'POST',
 		'enableClientValidation' => true,
 		'clientOptions' => array(

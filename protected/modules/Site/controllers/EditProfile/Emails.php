@@ -55,8 +55,8 @@ class Emails extends \CAction {
 			$Model->ResetActivationLink();
 		elseif ($btnPrimary)
 			$Model->SetAsPrimary();
-		else
-			\Base\FormModel::AjaxValidation('ProfileInfo', $Model, true);
+//		else
+//			\Base\FormModel::AjaxValidation('formProfileInfo', $Model, true);
 
 		if ($ActivationCode = $Model->ActivationCode) {
 			if (!\Site\models\User\Activation::SendActivationEmail(

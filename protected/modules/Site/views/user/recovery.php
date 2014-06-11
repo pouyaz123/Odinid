@@ -6,7 +6,7 @@
 	<? $this->beginContent('Site.views.user.layout') ?>
 	<?
 	if ($form = $this->beginWidget('Widgets\ActiveForm', array(
-		'id' => 'SendRecoveryLink',
+		'id' => 'formSendRecoveryLink',
 		'method' => 'POST',
 		'enableClientValidation' => true,
 		'clientOptions' => array(

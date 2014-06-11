@@ -6,7 +6,7 @@
 <div id="divEditCertificates">
 	<?
 	if ($form = $this->beginWidget('Widgets\ActiveForm', array(
-		'id' => 'ProfileInfo',
+		'id' => 'formProfileInfo',
 		'method' => 'POST',
 		'enableClientValidation' => true,
 		'clientOptions' => array(

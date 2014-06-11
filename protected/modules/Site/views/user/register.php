@@ -13,7 +13,7 @@ use Site\models\User\Register as Model;
 	<? $this->beginContent('Site.views.user.layout') ?>
 	<?
 	if ($form = $this->beginWidget('Widgets\ActiveForm', array(
-		'id' => 'Register',
+		'id' => 'formRegister',
 		'method' => 'POST',
 		'enableClientValidation' => true,
 		'enableAjaxValidation' => true,

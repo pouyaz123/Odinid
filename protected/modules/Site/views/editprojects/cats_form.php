@@ -1,11 +1,14 @@
 <?php
 /* @var $this \Site\controllers\ProfileController */
-/* @var $Model \Site\models\Tutorials\Categories */
+/* @var $Model \Site\models\Projects\Categories */
+
+use Site\models\Projects\Categories;
+use Site\Consts\Routes;
 ?>
 <div id="divEditCategories">
 	<?
 	if ($form = $this->beginWidget('Widgets\ActiveForm', array(
-		'id' => 'ProfileInfo',
+		'id' => 'formPrjCat',
 		'method' => 'POST',
 		'enableClientValidation' => true,
 		'clientOptions' => array(
@@ -14,7 +17,16 @@
 			))):
 		/* @var $form Widgets\ActiveForm */
 		?>
-		<?= $Model->scenario == 'Edit' ? \CHtml::link(t2::site_site('Add new'), \Site\Consts\Routes::User_EditTutCat()) : '' ?>
+		<?=
+		$Model->scenario == 'Edit' ? \CHtml::link(t2::site_site('Add new')
+						, $Model->Type == Categories::Type_Blog ?
+								Routes::User_EditBlogCat() :
+								($Model->Type == Categories::Type_Project ?
+										Routes::User_EditPrjCat() :
+										Routes::User_EditTutCat()
+								)
+				) : ''
+		?>
 		<table class="FullW">
 			<tr>
 				<td style="width: 350px">

@@ -28,10 +28,15 @@
 		| <?= \CHtml::link(t2::site_site('Experiences'), \Site\Consts\Routes::User_EditExperiences()) ?>
 		| <?= \CHtml::link(t2::site_site('Additionals'), \Site\Consts\Routes::User_EditAdditionals()) ?>
 	</div>
+	<div>
 		<?= \CHtml::link(t2::site_site('Project Categories'), \Site\Consts\Routes::User_EditPrjCat()) ?>
 		| <?= \CHtml::link(t2::site_site('Blog Categories'), \Site\Consts\Routes::User_EditBlogCat()) ?>
 		| <?= \CHtml::link(t2::site_site('Tutorial Categories'), \Site\Consts\Routes::User_EditTutCat()) ?>
+	</div>
 	<div>
+		<?= \CHtml::link(t2::site_site('Add Project'), \Site\Consts\Routes::User_EditPrj()) ?>
+		| <?= \CHtml::link(t2::site_site('Add Blog'), \Site\Consts\Routes::User_EditBlog()) ?>
+		| <?= \CHtml::link(t2::site_site('Add Tutorial'), \Site\Consts\Routes::User_EditTut()) ?>
 	</div>
 	<?= $content; ?>
 </div>

@@ -1,6 +1,6 @@
 <?php
 
-namespace Site\controllers\Projects;
+namespace Site\controllers\EditProjects;
 
 /**
  * @author Abbas Ali Hashemian <info@namedin.com> <tondarweb@gmail.com> http://webdesignir.com
@@ -9,8 +9,8 @@ namespace Site\controllers\Projects;
  * @copyright (c) Odinid
  * @access public
  */
-class EditTutCats extends EditCategories {
+class Cats_Prj extends Cats_Base {
 
-	protected $Type = \Site\models\Projects\Categories::Type_Tutorial;
+	protected $Type = \Site\models\Projects\Categories::Type_Project;
 
 }

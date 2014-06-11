@@ -5,7 +5,7 @@
 <div id="divEditAdditionals">
 	<?
 	if ($form = $this->beginWidget('Widgets\ActiveForm', array(
-		'id' => 'ProfileInfo',
+		'id' => 'formProfileInfo',
 		'method' => 'POST',
 		'enableClientValidation' => true,
 		'clientOptions' => array(
