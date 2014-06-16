@@ -13,7 +13,7 @@ class Tools extends \CAction {
 
 	public function run() {
 		$this->controller->pageTitle = \t2::SitePageTitle(\t2::site_site('Tools'));
-		\html::TagIt_Load();
+		\html::TagIt_AC_Lib_Load();
 		\html::Balloon_Load();
 		\html::jqUI_AutoComplete_Load();
 		$Model = new Model();

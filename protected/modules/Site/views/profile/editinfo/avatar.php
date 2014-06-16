@@ -19,32 +19,29 @@ if ($form = $this->beginWidget('Widgets\ActiveForm', array(
 		<tr>
 			<td style="width: 350px">
 				<? if ($Model->FreshAvatarID): ?>
-					<div class="UserAvatar">
-						<?=
-						Tools\Cloudinary\Cloudinary::cl_image_tag($Model->AvatarID, array('id' => 'imgAvatar',
-							'width' => 256))
-						?>
+					<div class="ThmbGnrl">
+						<?= Tools\Cloudinary\Cloudinary::ThumbnailImageTag($Model->AvatarID, array('id' => 'imgAvatar')) ?>
 					</div>
 					<?= $form->hiddenField($Model, 'hdnCropDims') ?>
-					<script>
-						_t.RunScriptAfterLoad('jcrop/jquery.Jcrop.min', function() {
-							$('#imgAvatar').Jcrop({
-							aspectRatio: 0
-									, onSelect: function(c) {
-										$('#<?= $Model->PostName ?>_hdnCropDims').attr('value', c.x + ',' + c.y + ',' + c.x2 + ',' + c.y2)
-									}
-							, onRelease: function(c) {
-								$('#<?= $Model->PostName ?>_hdnCropDims').attr('value', '')
-							}
-							}
-		<? if ($Model->drAvatar['PictureCrop']): ?>
-								, function() {
-								this.animateTo([<?= $Model->drAvatar['PictureCrop'] ?>])
-								}
-		<? endif; ?>
-							)
-						})
-					</script>
+<script>
+	_t.RunScriptAfterLoad('jcrop/jquery.Jcrop.min', function() {
+		$('#imgAvatar').Jcrop({
+			aspectRatio: 0
+			, onSelect: function(c) {
+				$('#<?= $Model->PostName ?>_hdnCropDims').attr('value', c.x + ',' + c.y + ',' + c.x2 + ',' + c.y2)
+			}
+			, onRelease: function(c) {
+				$('#<?= $Model->PostName ?>_hdnCropDims').attr('value', '')
+			}
+		}
+	<? if ($Model->drAvatar['PictureCrop']): ?>
+		, function() {
+			this.animateTo([<?= $Model->drAvatar['PictureCrop'] ?>])
+		}
+	<? endif; ?>
+		)
+	})
+</script>
 					<?=
 					html::ButtonContainer(
 							CHtml::button(\t2::site_site('Crop')

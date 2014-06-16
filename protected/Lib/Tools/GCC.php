@@ -60,7 +60,7 @@ class GCC {
 ////			T\DB::Execute("DELETE FROM `_user_recoveries`"
 ////					. " WHERE `TimeStamp`<:time AND `Type`!=:activation" //to avoid wild user accounts(like the c++ wild pointers)
 ////					, array(
-////				':time' => time() - (T\Settings::GetValue('ActivationLink_LifeTime') * 60 * 60),
+////				':time' => time() - (T\Settings::GetInstance()->ActivationLink_LifeTime * 60 * 60),
 ////				':activation' => C\User::Recovery_Activation,
 ////					)
 ////			);

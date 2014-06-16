@@ -31,7 +31,7 @@ html::FieldContainer(
 			var $obj = $('#UserExperiences_txtCompanyTitle')
 					, ACOpts = MyAutoComplete(
 							$obj, {
-								source: '<?= Tools\HTTP::URL_InsertGetParams($_SERVER['REQUEST_URI'], "__AjaxPostKW=AutoComplete_UserExperiences_txtCompanyTitle") ?>'
+								source: '<?= Tools\HTTP::URL_InsertAjaxKW("AutoComplete_UserExperiences_txtCompanyTitle") ?>'
 								, select: function(e, ui) {
 									if (ui.item.label) {
 										var dr = $.parseJSON($(ui.item.label).attr('rel'))

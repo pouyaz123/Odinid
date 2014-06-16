@@ -13,6 +13,7 @@ use \Tools as T;
  * @access public
  * @property-read array $dtProjects
  * @property-read array $dtFreshProjects
+ * @property-read array $drProject_Edit
  * @property-read array $arrStatuses
  * @property-read array $arrDividerLineTypes
  * @property-read string|integer $ThumbID
@@ -92,11 +93,11 @@ class Projects extends \Base\FormModel {
 		$vl = \ValidationLimits\User::GetInstance();
 		$rules = array(
 			array('hdnID', 'required',
-				'on' => 'Edit, Delete, Crop, Upload'),
+				'on' => 'Edit, Delete, Crop, Upload, DeleteThumb'),
 			array('hdnID', 'IsExist',
 				'SQL' => 'SELECT COUNT(*) FROM `_projects` WHERE `ID`=:val AND `UID`=:uid AND `Type`=:type',
 				'SQLParams' => array(':uid' => $this->UserID, ':type' => $this->Type),
-				'on' => 'Edit, Delete, Crop, Upload'),
+				'on' => 'Edit, Delete, Crop, Upload, DeleteThumb'),
 			#
 			array('txtTitle, ddlStatus', 'required'
 				, 'on' => 'Add, Edit'),
@@ -163,9 +164,9 @@ class Projects extends \Base\FormModel {
 		}
 		//recursion's causer
 		if ($this->scenario == 'Add' || $this->scenario == 'Edit') {
-			$v = \ValidationLimits\User::GetInstance();
-			$fncMassLenVld = function ($MassField, $vldField, $arrVldConf) {
-				$Items = $this->$MassField;
+			$_this = $this;
+			$fncMassLenVld = function ($MassField, $vldField, $arrVldConf, $Max = null)use($_this) {
+				$Items = $_this->$MassField;
 				if ($Items) {
 					$vld = new \CStringValidator();
 					$vld->on = array('Add', 'Edit');
@@ -173,18 +174,26 @@ class Projects extends \Base\FormModel {
 					T\Basics::ConfigureObject($vld, $arrVldConf);
 
 					$Items = T\String::SafeExplode($Items);
-					foreach ($Items as $Item) {
-						$this->$vldField = $Item;
-						$this->validate($vldField);
+					for ($Idx = 0; $Idx < count($Items); $Idx++) {
+						if ($Max && $Idx > $Max - 1) {
+							$_this->addError($MassField, \t2::site_site('You have reached the maximum'));
+							break;
+						}
+						$_this->$vldField = $Items[$Idx];
+						if (!$_this->validate($vldField))
+							$_this->addError($MassField
+									, \Yii::t('yii', '{attribute} is invalid.', $_this->getAttributeLabel($MassField)));
 					}
 				}
 			};
-			$fncMassLenVld('txtWorkFields', 'vldWorkField', $v->LongTitle);
-			$fncMassLenVld('txtTools', 'vldTool', $v->LongTitle);
-			$fncMassLenVld('txtTags', 'vldTag', $v->LongTitle);
-			$fncMassLenVld('txtSkills', 'vldSkill', $v->LongTitle);
-			$fncMassLenVld('txtSchools', 'vldSchool', $v->Title);
-			$fncMassLenVld('txtCompanies', 'vldCompany', $v->Title);
+			$v = \ValidationLimits\User::GetInstance();
+			$stg=  T\Settings::GetInstance();
+			$fncMassLenVld('txtWorkFields', 'vldWorkField', $v->LongTitle, $stg->MaxProjectWorkfields);
+			$fncMassLenVld('txtTools', 'vldTool', $v->LongTitle, $stg->MaxProjectTools);
+			$fncMassLenVld('txtTags', 'vldTag', $v->LongTitle, $stg->MaxProjectTags);
+			$fncMassLenVld('txtSkills', 'vldSkill', $v->LongTitle, $stg->MaxProjectSkills);
+			$fncMassLenVld('txtSchools', 'vldSchool', $v->Title, $stg->MaxProjectSchools);
+			$fncMassLenVld('txtCompanies', 'vldCompany', $v->Title, $stg->MaxProjectCompanies);
 		}
 	}
 
@@ -261,8 +270,8 @@ class Projects extends \Base\FormModel {
 							. ", `Visibility`=:vsblty, `ShowInHomePage`=:home, `Adult`=:adult"
 							. ", `Password`=:pwd, `DividerLineType`=:dvdr, `ContentSpacing`=:cntspc"
 							. ", `Thumbnail`=:thumb_unqid, `ThumbnailCrop`=:thumbcrop" : "")//keep this additional comma
-//					. ($Snrio == 'Upload' ? " `Thumbnail`=:thumb_unqid" : "")
-//					. ($Snrio == 'Crop' ? " `ThumbnailCrop`=:thumbcrop" : "")
+					. ($Snrio == 'Upload' ? " `Thumbnail`=:thumb_unqid" : "")
+					. ($Snrio == 'Crop' ? " `ThumbnailCrop`=:thumbcrop" : "")
 					. " WHERE `ID`=:id AND `UID`=:uid AND `Type`=:type"
 			, array(
 				':type' => $this->Type,
@@ -437,6 +446,22 @@ class Projects extends \Base\FormModel {
 		return $this->_getdtProjects('View', $ID, $refresh, $DGP);
 	}
 
+	/**
+	 * gets fresh data table only once after the edit or delete process
+	 * @param string $ID
+	 * @return array
+	 */
+	public function getdtFreshProjects($ID = null) {
+		static $F = true;
+		$R = $this->getdtProjects($ID, $F);
+		$F = false;
+		return $R;
+	}
+
+	public function getdrProject_Edit($refresh = false, \Base\DataGridParams $DGP = NULL) {
+		return $this->_getdtProjects('Edit', $this->hdnID, $refresh, $DGP);
+	}
+
 	private function _getdtProjects($Scenario = null, $ID = NULL, $refresh = false, \Base\DataGridParams $DGP = NULL) {
 		$StaticIndex = $ID;
 		if (!$StaticIndex)
@@ -497,18 +522,6 @@ class Projects extends \Base\FormModel {
 		return $arrDTs[$StaticIndex]? : array();
 	}
 
-	/**
-	 * gets fresh data table only once after the edit or delete process
-	 * @param string $ID
-	 * @return array
-	 */
-	public function getdtFreshProjects($ID = null) {
-		static $F = true;
-		$R = $this->getdtProjects($ID, $F);
-		$F = false;
-		return $R;
-	}
-
 	public function SetForm() {
 		$dr = $this->getdtProjects($this->hdnID);
 		if ($dr) {
@@ -565,12 +578,15 @@ class Projects extends \Base\FormModel {
 		return $this->getThumbID(false, $UnqID, TRUE);
 	}
 
-//	public function UploadThumb() {
-//		$this->scenario = 'Upload';
-//		if (!$this->validate())
-//			return false;
-//		$this->_UploadThumb();
-//	}
+	public function UploadThumb() {
+		$this->scenario = 'Upload';
+		$this->Save();
+	}
+
+	public function CropThumb() {
+		$this->scenario = 'Crop';
+		$this->Save();
+	}
 
 	private function _UploadThumb(&$CldR = null) {
 		if ($this->fileThumb) {
@@ -593,7 +609,7 @@ class Projects extends \Base\FormModel {
 	}
 
 	public function DeleteThumb() {
-		$this->scenario = 'Edit';
+		$this->scenario = 'DeleteThumb';
 		if (!$this->validate())
 			return false;
 		if ($this->_DeleteThumb()) {

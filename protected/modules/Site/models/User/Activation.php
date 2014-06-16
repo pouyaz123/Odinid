@@ -90,7 +90,7 @@ class Activation extends \Base\FormModel {
 						"SELECT `UID`, `PendingEmail` AS Email, `CompanyDomain`, `Code`, `Type`, `EmailID`"
 						. " FROM `_user_recoveries`"
 						. " WHERE `Code`=:code AND (`Type`=:activation OR `Type`=:emailverify)"
-						. " AND `TimeStamp`>" . (time() - (T\Settings::GetValue('ActivationLink_LifeTime') * 60 * 60))
+						. " AND `TimeStamp`>" . (time() - (T\Settings::GetInstance()->ActivationLink_LifeTime * 60 * 60))
 						, array(
 					':code' => $this->txtActivationCode,
 					':activation' => C\User::Recovery_Activation,

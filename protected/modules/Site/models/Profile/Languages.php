@@ -47,7 +47,7 @@ class Languages extends \Base\FormModel {
 	}
 
 	public function getMaxItems() {
-		return T\Settings::GetValue('MaxResumeTagItemsPerCase');
+		return T\Settings::GetInstance()->MaxResumeTagItemsPerCase;
 	}
 
 	//Language Rates

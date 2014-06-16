@@ -73,11 +73,14 @@ class Cloudinary {
 		self::Load();
 		return cl_image_tag($file, $options);
 	}
-	
+
+	public static function ThumbnailImageTag($file, $options = array()) {
+		return self::cl_image_tag($file, array_merge(array('width' => 256), $options));
+	}
+
 //	public static function GetNewUniqueID() {
 //		return uniqid();
 //	}
-
 //	public static function GetTheUploadID(
 //	$UploadPath, $Prefix = null, $DBPhotoField = 'Picture', $fncGetDatarow = null
 //	, $GenerateNewOne = false, &$UniqueKey = null, $Refresh = false) {
@@ -90,7 +93,6 @@ class Cloudinary {
 //		}
 //		return $UploadPath . $Prefix . '_' . ($GenerateNewOne ? $UniqueKey : $dr[$DBPhotoField]);
 //	}
-
 //	/**
 //	 * 
 //	 * @param type $source

@@ -109,7 +109,7 @@ class Info_Residencies extends \Base\FormModelBehavior {
 		if (!$this->hdnResidencyID) {//means in add mode not edit mode
 			$Count = T\DB::GetField("SELECT COUNT(*) FROM `_user_residencies` WHERE `UID`=:uid"
 							, array(':uid' => $owner->drUser['ID']));
-			if ($Count && $Count >= T\Settings::GetValue('MaxUserResidencies'))
+			if ($Count && $Count >= T\Settings::GetInstance()->MaxUserResidencies)
 				$owner->addError('', \t2::site_site('You have reached the maximum'));
 		}
 	}

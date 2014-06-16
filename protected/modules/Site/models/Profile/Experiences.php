@@ -216,7 +216,7 @@ class Experiences extends \Base\FormModel {
 		if (!$this->hdnExperienceID) {//means in add mode not edit mode
 			$Count = T\DB::GetField("SELECT COUNT(*) FROM `_user_experiences` WHERE `UID`=:uid"
 							, array(':uid' => $this->UserID));
-			if ($Count && $Count >= T\Settings::GetValue('MaxResumeBigItemsPerCase'))
+			if ($Count && $Count >= T\Settings::GetInstance()->MaxResumeBigItemsPerCase)
 				$this->addError('', \t2::site_site('You have reached the maximum'));
 		}
 		#dates

@@ -72,20 +72,16 @@ class HTTP {
 //				. '</script>';
 //	}
 	#----------------- About URL -----------------#
-
 //	static function URLSection($URL = NULL, $intSectionNo = 2, $strDelimiter = '/') {
 //		if (!$URL)
 //			$URL = $_SERVER['REQUEST_URI'];
 //		$Sections = explode($strDelimiter, $URL);
 //		return isset($Sections[$intSectionNo]) ? strtoupper($Sections[$intSectionNo]) : '';
 //	}
-
 	//protocol
-
 //	public static function GetCurrentProtocol() {
 //		return \GPCS::SERVER('HTTPS') ? 'https' : 'http';
 //	}
-
 //	static function DomainName() {
 //		static $SN;
 //		if ($SN)
@@ -94,7 +90,6 @@ class HTTP {
 //		$SN = stripos($SN, 'www.') === 0 ? substr($SN, 4) : $SN;
 //		return $SN;
 //	}
-
 	//Domain
 //	public static function Get3WDomain($Protocol = null, $Domain = NULL) {
 //		$CurrentProtocol = strtolower(self::GetCurrentProtocol());
@@ -117,7 +112,6 @@ class HTTP {
 //		}
 //		return $W3Domain;
 //	}
-
 //	//URL+URI
 //	public static function GetAbsoluteURL($URI = null, $Protocol = null) {
 //		if (!$Protocol)
@@ -165,6 +159,18 @@ class HTTP {
 			$URL[0] = $URL[0] . (strpos($URL[0], '?') !== false ? '&' : '?') . $strParam;
 		$URL = implode('#', $URL);
 		return $URL;
+	}
+
+	/**
+	 * inserts the ajax kw to the URL query string (URL get parameters)
+	 * @param string $AjaxKW
+	 * @param string $URL	defaults to $_SERVER['REQUEST_URI']
+	 * @return string
+	 */
+	public static function URL_InsertAjaxKW($AjaxKW, $URL = NULL) {
+		if (!$URL)
+			$URL = $_SERVER['REQUEST_URI'];
+		return self::URL_InsertGetParams($URL, \Output::AjaxKeyword_PostParamName . "=$AjaxKW");
 	}
 
 	#----------------- Headers -----------------#

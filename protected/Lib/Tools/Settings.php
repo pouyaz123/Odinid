@@ -25,8 +25,10 @@ use \Tools as T;
  * @property-read integer|string $MaxProjects
  * @property-read integer|string $MaxProjectWorkfields
  * @property-read integer|string $MaxProjectTools
- * @property-read integer|string $MaxProjectSchool
- * @property-read integer|string $MaxProjectCompany
+ * @property-read integer|string $MaxProjectTags
+ * @property-read integer|string $MaxProjectSkills
+ * @property-read integer|string $MaxProjectSchools
+ * @property-read integer|string $MaxProjectCompanies
  * 
  * @property-read integer|string $MaxBlogCats
  * @property-read integer|string $MaxBlogs
@@ -59,6 +61,8 @@ class Settings {
 			'MaxProjectCats'=>50,
 			'MaxProjectWorkfields'=>3,
 			'MaxProjectTools'=>5,
+			'MaxProjectTags'=>5,
+			'MaxProjectSkills'=>5,
 			'MaxProjectSchool'=>2,
 			'MaxProjectCompany'=>2,
 		);

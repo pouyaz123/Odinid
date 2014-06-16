@@ -47,7 +47,7 @@ class Tools extends \Base\FormModel {
 	}
 	
 	public function getMaxItems() {
-		return T\Settings::GetValue('MaxResumeTagItemsPerCase');
+		return T\Settings::GetInstance()->MaxResumeTagItemsPerCase;
 	}
 
 	//Tool Rates

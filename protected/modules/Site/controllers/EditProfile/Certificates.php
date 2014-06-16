@@ -12,7 +12,7 @@ class Certificates extends \CAction {
 
 	public function run() {
 		$this->controller->pageTitle = \t2::SitePageTitle(\t2::site_site('Certificates'));
-		\html::TagIt_AC_URLFactor();
+		\html::TagIt_AC_Companies_Load();
 		\html::jqUI_AutoComplete_Load();
 		\html::DatePicker_Load();
 

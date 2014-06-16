@@ -21,28 +21,10 @@ class HeaderNav {
 
 	public function __toString() {
 		$ctrl = \Yii::app()->controller;
-		$Result = $ctrl->widget(
-				'zii.widgets.CMenu'
-				, array(
-			'items' => array(
-				array('label' => \t2::site_site('Activity'), 'url' => $ctrl->createAbsoluteUrl(Routes::Home)),
-				array('label' => 'About', 'url' => array('/site/page', 'view' => 'about')),
-				array('label' => 'About', 'url' => array('/site/page', 'view' => 'about')),
-				array('label' => 'About', 'url' => array('/site/page', 'view' => 'about')),
-			),
-			'id' => 'mnuHdrNav'
-				)
-				, true
+		$NavItems = array(
+			array('label' => \t2::site_site('Home'), 'url' => $ctrl->createAbsoluteUrl(Routes::Home)),
 		);
-		$Result.=' '; //to have a tiny html space
-		if (!Login::IsLoggedIn()) {
-			$arrUsrPanelItems = array(
-				array('label' => \t2::site_site('Sign in')
-					, 'url' => array(Routes::UserLogin)),
-				array('label' => \t2::site_site('Sign up')
-					, 'url' => array(Routes::UserRegister)),
-			);
-		} else {
+		if (Login::IsLoggedIn()) {
 			$Username = Login::GetSessionDR('Username');
 			$arrUsrPanelItems = array(
 				array('label' => \CHtml::encode(T\String::ucwords_ASCIISafe($Username))
@@ -51,12 +33,30 @@ class HeaderNav {
 					, 'url' => array(Routes::UserLogout)
 					, 'linkOptions' => array('rel' => \html::AjaxExcept)),
 			);
+			$NavItems[] = array('label' => \t2::site_site('Add Project'), 'url' => Routes::User_EditPrj());
+		} else {
+			$arrUsrPanelItems = array(
+				array('label' => \t2::site_site('Sign in')
+					, 'url' => array(Routes::UserLogin)),
+				array('label' => \t2::site_site('Sign up')
+					, 'url' => array(Routes::UserRegister)),
+			);
 		}
-		$Result.=$ctrl->widget('zii.widgets.CMenu', array(
-			'items' => $arrUsrPanelItems,
-			'id' => 'mnuUsrPanel',
-			'htmlOptions' => array('rel' => \html::AjaxLinks('#divContent:insert'))
-				), true);
+		$Result = $ctrl->widget(
+						'zii.widgets.CMenu'
+						, array(
+					'items' => $NavItems,
+					'id' => 'mnuHdrNav',
+					'htmlOptions' => array('rel' => \html::AjaxLinks('#divContent:insert'))
+						)
+						, true
+				)
+				. ' ' //to have a tiny html space
+				. $ctrl->widget('zii.widgets.CMenu', array(
+					'items' => $arrUsrPanelItems,
+					'id' => 'mnuUsrPanel',
+					'htmlOptions' => array('rel' => \html::AjaxLinks('#divContent:insert'))
+						), true);
 		return $Result;
 	}
 

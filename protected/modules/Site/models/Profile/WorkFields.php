@@ -41,7 +41,7 @@ class WorkFields extends \Base\FormModel {
 	}
 
 	public function getMaxItems() {
-		return T\Settings::GetValue('MaxResumeTagItemsPerCase');
+		return T\Settings::GetInstance()->MaxResumeTagItemsPerCase;
 	}
 
 	public function rules() {

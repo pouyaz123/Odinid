@@ -1002,9 +1002,14 @@ $.superbox.settings = {
 //		\html::LoadJS('tagit/tag-it.min');
 	}
 	
-	static function TagIt_AC_URLFactor() {
+	static function TagIt_AC_Companies_Load() {
 		self::TagIt_Load();
-		\html::LoadJS('tagit_ac_urlFactor');
+		\html::LoadJS('tagit/ac_companies');
+	}
+	
+	static function TagIt_AC_Lib_Load() {
+		self::TagIt_Load();
+		\html::LoadJS('tagit/ac_lib');
 	}
 
 	static function Balloon_Load() {

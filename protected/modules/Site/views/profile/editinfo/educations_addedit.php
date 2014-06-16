@@ -34,10 +34,10 @@
 							, $form->error($Model, 'txtSchoolURL'))
 					?>
 <script>
-_t.RunScriptAfterLoad(['tagit/tag-it.min', 'MyJuiAutoComplete/MyAutoComplete', 'tagit_ac_urlFactor'], function() {
-	tagit_ac_urlFactor(
+_t.RunScriptAfterLoad(['tagit/tag-it.min', 'MyJuiAutoComplete/MyAutoComplete', 'tagit/ac_urlFactor'], function() {
+	tagit_ac_companies(
 		'#UserEducations_txtSchoolTitle', '#UserEducations_hdnSchoolID', '#UserEducations_txtSchoolURL',
-		'<?= Tools\HTTP::URL_InsertGetParams($_SERVER['REQUEST_URI'], "__AjaxPostKW=AutoComplete_UserEducations_txtSchoolTitle") ?>')
+		'<?= Tools\HTTP::URL_InsertAjaxKW("AutoComplete_UserEducations_txtSchoolTitle") ?>')
 })
 </script>
 					<?=
@@ -46,13 +46,6 @@ _t.RunScriptAfterLoad(['tagit/tag-it.min', 'MyJuiAutoComplete/MyAutoComplete', '
 							, $form->labelEx($Model, 'txtStudyField')
 							, $form->error($Model, 'txtStudyField'))
 					?>
-<script>
-_t.RunScriptAfterLoad('MyJuiAutoComplete/MyAutoComplete', function() {
-	MyAutoComplete($("#UserEducations_txtStudyField")
-		, {source: '<?= Tools\HTTP::URL_InsertGetParams($_SERVER['REQUEST_URI'], "__AjaxPostKW=AutoComplete_UserEducations_txtStudyField") ?>'}
-		, 0, 1, 1, 0)
-})
-</script>
 					<?=
 					html::FieldContainer(
 							$form->textField($Model, 'txtDegree')
@@ -61,8 +54,11 @@ _t.RunScriptAfterLoad('MyJuiAutoComplete/MyAutoComplete', function() {
 					?>
 <script>
 _t.RunScriptAfterLoad('MyJuiAutoComplete/MyAutoComplete', function() {
+	MyAutoComplete($("#UserEducations_txtStudyField")
+		, {source: '<?= Tools\HTTP::URL_InsertAjaxKW("AutoComplete_UserEducations_txtStudyField") ?>'}
+		, 0, 1, 1, 0)
 	MyAutoComplete($("#UserEducations_txtDegree")
-		, {source: '<?= Tools\HTTP::URL_InsertGetParams($_SERVER['REQUEST_URI'], "__AjaxPostKW=AutoComplete_UserEducations_txtDegree") ?>'}
+		, {source: '<?= Tools\HTTP::URL_InsertAjaxKW("AutoComplete_UserEducations_txtDegree") ?>'}
 		, 0, 1, 1, 0)
 })
 </script>

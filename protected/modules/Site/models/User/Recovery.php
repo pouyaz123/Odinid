@@ -96,7 +96,7 @@ class Recovery extends \Base\FormModel {
 		$this->_drRecoveryRow = T\DB::GetRow(
 						"SELECT `UID`, `Code` FROM `_user_recoveries`"
 						. " WHERE `Code`=:code AND `Type`=:recovery"
-						. " AND `TimeStamp`>" . (time() - (T\Settings::GetValue('RecoveryLink_LifeTime') * 60 * 60))
+						. " AND `TimeStamp`>" . (time() - (T\Settings::GetInstance()->RecoveryLink_LifeTime * 60 * 60))
 						, array(
 					':code' => $this->txtRecoveryCode,
 					':recovery' => C\User::Recovery_Recovery,

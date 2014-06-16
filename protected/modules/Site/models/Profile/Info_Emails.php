@@ -112,7 +112,7 @@ class Info_Emails extends \Base\FormModelBehavior {
 		if (!$this->hdnEmailID) {//means in add mode not edit mode
 			$Count = T\DB::GetField("SELECT COUNT(*) FROM `_user_emails` WHERE `UID`=:uid"
 							, array(':uid' => $owner->drUser['ID']));
-			if ($Count && $Count >= T\Settings::GetValue('MaxUserContacts'))
+			if ($Count && $Count >= T\Settings::GetInstance()->MaxUserContacts)
 				$owner->addError('', \t2::site_site('You have reached the maximum'));
 		}
 	}

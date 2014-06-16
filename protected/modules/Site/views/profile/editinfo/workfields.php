@@ -34,32 +34,13 @@
 							, $form->error($Model, 'txtWorkFields'))
 					?>
 					<div><?= t2::site_site('TagsHelp') ?></div>
-					<script>
-_t.RunScriptAfterLoad('tagit/tag-it.min', function() {
-	_t.RunScriptAfterLoad('MyJuiAutoComplete/MyAutoComplete', function() {
-		var $obj = $('#UserWorkFields_txtWorkFields')
-		function TagStartup() {
-			var $tags = $obj.next('ul')
-			$tags.find('a').attr('rel', 'AjaxExcept')
-		}
-		$obj.tagit({
-			allowSpaces: true
-			, autocomplete: MyAutoComplete(
-					$obj, {
-						source: '<?= Tools\HTTP::URL_InsertGetParams($_SERVER['REQUEST_URI'], "__AjaxPostKW=AutoComplete_UserWorkFields_txtWorkFields") ?>'
-					}, 0, 1, 1, 1)
-			, tagLimit: <?= $Model->MaxItems ?>
-			, afterTagAdded: function(e, ui) {
-				if (!ui.duringInitialization) {
-					TagStartup()
-				}
-			}
-		})
-		TagStartup()
-	})
+<script>
+_t.RunScriptAfterLoad(['tagit/tag-it.min', 'MyJuiAutoComplete/MyAutoComplete', 'tagit/ac_lib'], function() {
+	tagit_ac(
+		'#UserWorkFields_txtWorkFields', <?= $Model->MaxItems ?>
+		, '<?= Tools\HTTP::URL_InsertAjaxKW("AutoComplete_UserWorkFields_txtWorkFields") ?>')
 })
-					</script>
-
+</script>
 					<?=
 					html::ButtonContainer(
 							CHtml::submitButton(\t2::site_site('Edit')
