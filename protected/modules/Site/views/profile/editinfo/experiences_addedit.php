@@ -34,7 +34,7 @@
 							, $form->error($Model, 'txtCompanyURL'))
 					?>
 <script>
-_t.RunScriptAfterLoad(['tagit/tag-it.min', 'MyJuiAutoComplete/MyAutoComplete', 'tagit/ac_urlFactor'], function() {
+_t.RunScriptAfterLoad(['tagit/tag-it.min', 'MyJuiAutoComplete/MyAutoComplete', 'tagit/ac_companies'], function() {
 	tagit_ac_companies(
 		'#UserExperiences_txtCompanyTitle', '#UserExperiences_hdnCompanyID', '#UserExperiences_txtCompanyURL',
 		'<?= Tools\HTTP::URL_InsertAjaxKW("AutoComplete_UserExperiences_txtCompanyTitle") ?>')
@@ -135,7 +135,7 @@ _t.RunScriptAfterLoad(['tagit/tag-it.min', 'MyJuiAutoComplete/MyAutoComplete', '
 							, $form->error($Model, 'chkToPresent'))
 					?>
 <script>
-_t.RunScriptAfterLoad('jqUI/jquery.ui.datepicker.min', function() {
+_t.RunScriptAfterLoad(['jqUI/jquery.ui.widget.min', 'jqUI/jquery.ui.datepicker.min'], function() {
 	var frmJQSlct = "#<?= $Model->PostName ?>_txtFromDate"
 		, toJQSlct = "#<?= $Model->PostName ?>_txtToDate"
 		, opts = {

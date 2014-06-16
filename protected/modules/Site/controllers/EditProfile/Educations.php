@@ -48,50 +48,13 @@ class Educations extends \CAction {
 			$Model->Delete();
 		else {//school name autocomplete
 			\Output::AddIn_AjaxOutput(function() {
-				$term = \GPCS::GET('term')? : \GPCS::POST('term');
-				if ($term) {
-					$dt = T\DB::GetTable("SELECT `Title`, `URL`, `ID`"
-									. " FROM `_school_info`"
-									. " WHERE `Title` LIKE CONCAT(" . T\DB::MySQLConvert(':term', 2) . ", '%') ESCAPE '" . T\DB::LikeEscapeChar . "'"
-									, array(':term' => T\DB::EscapeLikeWildCards($term)));
-					if ($dt) {
-						foreach ($dt as $idx => $dr) {
-							$item = array(
-								'label' => "<div rel='" . json_encode(array('ID' => $dr['ID'], 'URL' => $dr['URL'])) . "'>{$dr['Title']}" . ($dr['URL'] ? " ({$dr['URL']})" : '') . "</div>"
-								, 'value' => $dr['Title']);
-							$dt[$idx] = $item;
-						}
-						echo json_encode($dt);
-					}
-				}
+				echo \Site\models\Profile\Educations::AC_School_GetSuggestions(\GPCS::GET('term')? : \GPCS::POST('term'));
 			}, 'AutoComplete_UserEducations_txtSchoolTitle');
 			\Output::AddIn_AjaxOutput(function() {
-				$term = \GPCS::GET('term')? : \GPCS::POST('term');
-				if ($term) {
-					$dt = T\DB::GetTable("SELECT `StudyField`"
-									. " FROM `_education_studyfields`"
-									. " WHERE `StudyField` LIKE CONCAT(:term, '%') ESCAPE '" . T\DB::LikeEscapeChar . "'"
-									, array(':term' => T\DB::EscapeLikeWildCards($term)));
-					if ($dt) {
-						foreach ($dt as $idx => $dr)
-							$dt[$idx] = $dr['StudyField'];
-						echo json_encode($dt);
-					}
-				}
+				echo \Site\models\Profile\Educations::AC_StudyField_GetSuggestions(\GPCS::GET('term')? : \GPCS::POST('term'));
 			}, 'AutoComplete_UserEducations_txtStudyField');
 			\Output::AddIn_AjaxOutput(function() {
-				$term = \GPCS::GET('term')? : \GPCS::POST('term');
-				if ($term) {
-					$dt = T\DB::GetTable("SELECT `Degree`"
-									. " FROM `_education_degrees`"
-									. " WHERE `Degree` LIKE CONCAT(:term, '%') ESCAPE '" . T\DB::LikeEscapeChar . "'"
-									, array(':term' => T\DB::EscapeLikeWildCards($term)));
-					if ($dt) {
-						foreach ($dt as $idx => $dr)
-							$dt[$idx] = $dr['Degree'];
-						echo json_encode($dt);
-					}
-				}
+				echo \Site\models\Profile\Educations::AC_Degree_GetSuggestions(\GPCS::GET('term')? : \GPCS::POST('term'));
 			}, 'AutoComplete_UserEducations_txtDegree');
 		}
 

@@ -202,4 +202,14 @@ class Languages extends \Base\FormModel {
 			self::$arrTransactions = array_merge(self::$arrTransactions, $arrTransactions);
 	}
 
+	static function AC_GetSuggestions($term) {
+		if ($term) {
+			$Items = T\DB::GetField("SELECT GROUP_CONCAT(`Language` ORDER BY `IsOfficial` DESC, `Language` SEPARATOR ',')"
+							. " FROM `_languages`"
+							. " WHERE `Language` LIKE CONCAT(:term, '%') ESCAPE '" . T\DB::LikeEscapeChar . "'"
+							, array(':term' => T\DB::EscapeLikeWildCards(mb_convert_encoding($term, 'UTF8', 'UTF8'))));
+			return $Items ? json_encode(explode(',', $Items)) : '';
+		}
+	}
+
 }

@@ -33,7 +33,7 @@
 							, $form->error($Model, 'txtOrganizationURL'))
 					?>
 <script>
-_t.RunScriptAfterLoad(['tagit/tag-it.min', 'MyJuiAutoComplete/MyAutoComplete', 'tagit/ac_urlFactor'], function() {
+_t.RunScriptAfterLoad(['tagit/tag-it.min', 'MyJuiAutoComplete/MyAutoComplete', 'tagit/ac_companies'], function() {
 	tagit_ac_companies(
 		'#UserAwards_txtOrganizationTitle', '#UserAwards_hdnOrganizationID', '#UserAwards_txtOrganizationURL',
 		'<?= Tools\HTTP::URL_InsertAjaxKW("AutoComplete_UserAwards_txtOrganizationTitle") ?>')

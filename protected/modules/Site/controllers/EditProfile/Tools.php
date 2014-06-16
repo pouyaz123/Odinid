@@ -36,15 +36,7 @@ class Tools extends \CAction {
 			Model::Commit();
 		}
 		\Output::AddIn_AjaxOutput(function() {
-			$term = \GPCS::GET('term')? : \GPCS::POST('term');
-			if ($term) {
-				$Items = T\DB::GetField("SELECT GROUP_CONCAT(`Tool` ORDER BY `IsOfficial` DESC, `Tool` SEPARATOR ',')"
-								. " FROM `_tools`"
-								. " WHERE `Tool` LIKE CONCAT(:term, '%') ESCAPE '" . T\DB::LikeEscapeChar . "'"
-								, array(':term' => T\DB::EscapeLikeWildCards(mb_convert_encoding($term, 'UTF8', 'UTF8'))));
-				if ($Items)
-					echo json_encode(explode(',', $Items));
-			}
+			echo \Site\models\Profile\Tools::AC_GetSuggestions(\GPCS::GET('term')? : \GPCS::POST('term'));
 		}, 'AutoComplete_UserTools_txtTools');
 
 		\Output::Render($this->controller

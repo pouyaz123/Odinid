@@ -35,15 +35,7 @@ class WorkFields extends \CAction {
 			Model::Commit();
 		}
 		\Output::AddIn_AjaxOutput(function() {
-			$term = \GPCS::GET('term')? : \GPCS::POST('term');
-			if ($term) {
-				$Items = T\DB::GetField("SELECT GROUP_CONCAT(`WorkField` ORDER BY `IsOfficial` DESC, `WorkField` SEPARATOR ',')"
-								. " FROM `_workfields`"
-								. " WHERE `WorkField` LIKE CONCAT(:term, '%') ESCAPE '" . T\DB::LikeEscapeChar . "'"
-								, array(':term' => T\DB::EscapeLikeWildCards(mb_convert_encoding($term, 'UTF8', 'UTF8'))));
-				if ($Items)
-					echo json_encode(explode(',', $Items));
-			}
+			echo \Site\models\Profile\WorkFields::AC_GetSuggestions(\GPCS::GET('term')? : \GPCS::POST('term'));
 		}, 'AutoComplete_UserWorkFields_txtWorkFields');
 
 		\Output::Render($this->controller

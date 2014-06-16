@@ -352,4 +352,22 @@ class Certificates extends \Base\FormModel {
 		}
 	}
 
+	static function AC_Insts_GetSuggestions($term) {
+		if ($term) {
+			$dt = T\DB::GetTable("SELECT `Title`, `URL`, `ID`"
+							. " FROM `_institutions`"
+							. " WHERE `Title` LIKE CONCAT(" . T\DB::MySQLConvert(':term', 2) . ", '%') ESCAPE '" . T\DB::LikeEscapeChar . "'"
+							, array(':term' => T\DB::EscapeLikeWildCards($term)));
+			if ($dt) {
+				foreach ($dt as $idx => $dr) {
+					$item = array(
+						'label' => "<div rel='" . json_encode(array('ID' => $dr['ID'], 'URL' => $dr['URL'])) . "'>{$dr['Title']}" . ($dr['URL'] ? " ({$dr['URL']})" : '') . "</div>"
+						, 'value' => $dr['Title']);
+					$dt[$idx] = $item;
+				}
+				return json_encode($dt);
+			}
+		}
+	}
+
 }

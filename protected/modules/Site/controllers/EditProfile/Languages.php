@@ -36,15 +36,7 @@ class Languages extends \CAction {
 			Model::Commit();
 		}
 		\Output::AddIn_AjaxOutput(function() {
-			$term = \GPCS::GET('term')? : \GPCS::POST('term');
-			if ($term) {
-				$Items = T\DB::GetField("SELECT GROUP_CONCAT(`Language` ORDER BY `IsOfficial` DESC, `Language` SEPARATOR ',')"
-								. " FROM `_languages`"
-								. " WHERE `Language` LIKE CONCAT(:term, '%') ESCAPE '" . T\DB::LikeEscapeChar . "'"
-								, array(':term' => T\DB::EscapeLikeWildCards(mb_convert_encoding($term, 'UTF8', 'UTF8'))));
-				if ($Items)
-					echo json_encode(explode(',', $Items));
-			}
+			echo \Site\models\Profile\Languages::AC_GetSuggestions(\GPCS::GET('term')? : \GPCS::POST('term'));
 		}, 'AutoComplete_UserLanguages_txtLanguages');
 
 		\Output::Render($this->controller

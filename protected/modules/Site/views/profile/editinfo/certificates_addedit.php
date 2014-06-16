@@ -34,7 +34,7 @@
 							, $form->error($Model, 'txtInstitutionURL'))
 					?>
 <script>
-_t.RunScriptAfterLoad(['tagit/tag-it.min', 'MyJuiAutoComplete/MyAutoComplete', 'tagit/ac_urlFactor'], function() {
+_t.RunScriptAfterLoad(['tagit/tag-it.min', 'MyJuiAutoComplete/MyAutoComplete', 'tagit/ac_companies'], function() {
 	tagit_ac_companies(
 		'#UserCertificates_txtInstitutionTitle', '#UserCertificates_hdnInstitutionID', '#UserCertificates_txtInstitutionURL',
 		'<?= Tools\HTTP::URL_InsertAjaxKW("AutoComplete_UserCertificates_txtInstitutionTitle") ?>')

@@ -395,4 +395,50 @@ class Educations extends \Base\FormModel {
 		}
 	}
 
+	static function AC_School_GetSuggestions($term) {
+		if ($term) {
+			$dt = T\DB::GetTable("SELECT `Title`, `URL`, `ID`"
+							. " FROM `_school_info`"
+							. " WHERE `Title` LIKE CONCAT(" . T\DB::MySQLConvert(':term', 2) . ", '%') ESCAPE '" . T\DB::LikeEscapeChar . "'"
+							, array(':term' => T\DB::EscapeLikeWildCards($term)));
+			if ($dt) {
+				foreach ($dt as $idx => $dr) {
+					$item = array(
+						'label' => "<div rel='" . json_encode(array('ID' => $dr['ID'], 'URL' => $dr['URL'])) . "'>{$dr['Title']}" . ($dr['URL'] ? " ({$dr['URL']})" : '') . "</div>"
+						, 'value' => $dr['Title']);
+					$dt[$idx] = $item;
+				}
+				return json_encode($dt);
+			}
+		}
+	}
+
+	static function AC_StudyField_GetSuggestions($term) {
+		if ($term) {
+			$dt = T\DB::GetTable("SELECT `StudyField`"
+							. " FROM `_education_studyfields`"
+							. " WHERE `StudyField` LIKE CONCAT(:term, '%') ESCAPE '" . T\DB::LikeEscapeChar . "'"
+							, array(':term' => T\DB::EscapeLikeWildCards($term)));
+			if ($dt) {
+				foreach ($dt as $idx => $dr)
+					$dt[$idx] = $dr['StudyField'];
+				return json_encode($dt);
+			}
+		}
+	}
+
+	static function AC_Degree_GetSuggestions($term) {
+		if ($term) {
+			$dt = T\DB::GetTable("SELECT `Degree`"
+							. " FROM `_education_degrees`"
+							. " WHERE `Degree` LIKE CONCAT(:term, '%') ESCAPE '" . T\DB::LikeEscapeChar . "'"
+							, array(':term' => T\DB::EscapeLikeWildCards($term)));
+			if ($dt) {
+				foreach ($dt as $idx => $dr)
+					$dt[$idx] = $dr['Degree'];
+				return json_encode($dt);
+			}
+		}
+	}
+
 }

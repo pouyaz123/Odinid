@@ -36,15 +36,7 @@ class Skills extends \CAction {
 			Model::Commit();
 		}
 		\Output::AddIn_AjaxOutput(function() {
-			$term = \GPCS::GET('term')? : \GPCS::POST('term');
-			if ($term) {
-				$Items = T\DB::GetField("SELECT GROUP_CONCAT(`Skill` ORDER BY `IsOfficial` DESC, `Skill` SEPARATOR ',')"
-								. " FROM `_skills`"
-								. " WHERE `Skill` LIKE CONCAT(:term, '%') ESCAPE '" . T\DB::LikeEscapeChar . "'"
-								, array(':term' => T\DB::EscapeLikeWildCards(mb_convert_encoding($term, 'UTF8', 'UTF8'))));
-				if ($Items)
-					echo json_encode(explode(',', $Items));
-			}
+			echo \Site\models\Profile\Skills::AC_GetSuggestions(\GPCS::GET('term')? : \GPCS::POST('term'));
 		}, 'AutoComplete_UserSkills_txtSkills');
 
 		\Output::Render($this->controller

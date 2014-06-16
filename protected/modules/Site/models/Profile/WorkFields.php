@@ -174,4 +174,14 @@ class WorkFields extends \Base\FormModel {
 			self::$arrTransactions = array_merge(self::$arrTransactions, $arrTransactions);
 	}
 
+	static function AC_GetSuggestions($term) {
+		if ($term) {
+			$Items = T\DB::GetField("SELECT GROUP_CONCAT(`WorkField` ORDER BY `IsOfficial` DESC, `WorkField` SEPARATOR ',')"
+							. " FROM `_workfields`"
+							. " WHERE `WorkField` LIKE CONCAT(:term, '%') ESCAPE '" . T\DB::LikeEscapeChar . "'"
+							, array(':term' => T\DB::EscapeLikeWildCards(mb_convert_encoding($term, 'UTF8', 'UTF8'))));
+			return $Items ? json_encode(explode(',', $Items)) : '';
+		}
+	}
+
 }

@@ -48,22 +48,7 @@ class Experiences extends \CAction {
 			$Model->Delete();
 		else {//company name autocomplete
 			\Output::AddIn_AjaxOutput(function() {
-				$term = \GPCS::GET('term')? : \GPCS::POST('term');
-				if ($term) {
-					$dt = T\DB::GetTable("SELECT `Title`, `URL`, `ID`"
-									. " FROM `_company_info`"
-									. " WHERE `Title` LIKE CONCAT(" . T\DB::MySQLConvert(':term', 2) . ", '%') ESCAPE '" . T\DB::LikeEscapeChar . "'"
-									, array(':term' => T\DB::EscapeLikeWildCards($term)));
-					if ($dt) {
-						foreach ($dt as $idx => $dr) {
-							$item = array(
-								'label' => "<div rel='" . json_encode(array('ID' => $dr['ID'], 'URL' => $dr['URL'])) . "'>{$dr['Title']}" . ($dr['URL'] ? " ({$dr['URL']})" : '') . "</div>"
-								, 'value' => $dr['Title']);
-							$dt[$idx] = $item;
-						}
-						echo json_encode($dt);
-					}
-				}
+				echo \Site\models\Profile\Experiences::AC_Comp_GetSuggestions(\GPCS::GET('term')? : \GPCS::POST('term'));
 			}, 'AutoComplete_UserExperiences_txtCompanyTitle');
 		}
 

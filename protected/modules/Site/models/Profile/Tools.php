@@ -45,7 +45,7 @@ class Tools extends \Base\FormModel {
 	public function settxtTools($val) {
 		$this->_txtTools = $val;
 	}
-	
+
 	public function getMaxItems() {
 		return T\Settings::GetInstance()->MaxResumeTagItemsPerCase;
 	}
@@ -200,6 +200,16 @@ class Tools extends \Base\FormModel {
 			$arrTransactions = $this->getTransactions();
 		if ($arrTransactions)
 			self::$arrTransactions = array_merge(self::$arrTransactions, $arrTransactions);
+	}
+
+	static function AC_GetSuggestions($term) {
+		if ($term) {
+			$Items = T\DB::GetField("SELECT GROUP_CONCAT(`Tool` ORDER BY `IsOfficial` DESC, `Tool` SEPARATOR ',')"
+							. " FROM `_tools`"
+							. " WHERE `Tool` LIKE CONCAT(:term, '%') ESCAPE '" . T\DB::LikeEscapeChar . "'"
+							, array(':term' => T\DB::EscapeLikeWildCards(mb_convert_encoding($term, 'UTF8', 'UTF8'))));
+			return $Items ? json_encode(explode(',', $Items)) : '';
+		}
 	}
 
 }

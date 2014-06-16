@@ -39,7 +39,8 @@ if ($form = $this->beginWidget('Widgets\ActiveForm', array(
 				?>
 				<?=
 				html::FieldContainer(
-						\html::activeComboBox($Model, $form, 'ddlGender', $Model->arrGenders, array('prompt' => ''))
+						\html::activeComboBox($Model, $form, 'ddlGender', $Model->arrGenders
+								, array('prompt' => '', 'rel' => \html::Combobox_NoSearchRel))
 						, $form->labelEx($Model, 'ddlGender')
 						, $form->error($Model, 'ddlGender'))
 				?>
@@ -56,15 +57,17 @@ if ($form = $this->beginWidget('Widgets\ActiveForm', array(
 						, $form->error($Model, 'txtBirthday'))
 				?>
 				<script>
-					$("#<?= $Model->PostName ?>_txtBirthday").datepicker({
-						showOn: "both",
-						dateFormat: 'yy-mm-dd',
-						buttonText: '<span class="ui-icon ui-icon-calendar"></span>',
-						maxDate: "+0D",
-						changeMonth: true,
-						changeYear: true,
-						yearRange: '<?= date('Y') - Site\models\Profile\Info_User::OldestYearLimitation ?>:<?= date('Y') ?>'
-							});
+					_t.RunScriptAfterLoad(['jqUI/jquery.ui.widget.min', 'jqUI/jquery.ui.datepicker.min'], function() {
+						$("#<?= $Model->PostName ?>_txtBirthday").datepicker({
+							showOn: "both",
+							dateFormat: 'yy-mm-dd',
+							buttonText: '<span class="ui-icon ui-icon-calendar"></span>',
+							maxDate: "+0D",
+							changeMonth: true,
+							changeYear: true,
+							yearRange: '<?= date('Y') - Site\models\Profile\Info_User::OldestYearLimitation ?>:<?= date('Y') ?>'
+									});
+								})
 				</script>
 				<?=
 				html::FieldContainer(

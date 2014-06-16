@@ -32,7 +32,8 @@ class Projects extends \Base\FormModel {
 	//----- attrs
 	public $hdnID;
 	#
-	public $txtTitle = 'Untitled project';
+//	public $txtTitle = 'Untitled project';
+	public $txtTitle;
 	public $txtSmallDesc;
 	public $chkIsReel = 0;
 	public $chkPaidTutorial = 0;

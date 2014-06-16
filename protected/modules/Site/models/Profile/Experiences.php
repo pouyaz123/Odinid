@@ -230,15 +230,15 @@ class Experiences extends \Base\FormModel {
 							, array('{attribute}' => $this->getAttributeLabel('txtToDate'), '{value}' => $this->txtToDate)));
 		}
 		#domain uniqueness
-		$Domain=  $this->CompDomain;
+		$Domain = $this->CompDomain;
 		if ($this->txtCompanyTitle && T\DB::GetField("SELECT COUNT(*) FROM `_company_info` WHERE `Title`!=:ttl AND (
 				`Domain` <=> :dom
 				OR `Domain` LIKE CONCAT('%', :dom_likeescaped) ESCAPE '='
 				OR :dom LIKE CONCAT('%', `Domain`) ESCAPE '='
 			)", array(
-				':ttl' => $this->txtCompanyTitle? : null,
-				':dom' => $Domain? : null,
-				':dom_likeescaped' => $Domain ? T\DB::EscapeLikeWildCards($Domain) : null,
+					':ttl' => $this->txtCompanyTitle? : null,
+					':dom' => $Domain? : null,
+					':dom_likeescaped' => $Domain ? T\DB::EscapeLikeWildCards($Domain) : null,
 				)))
 			$this->addError('txtCompanyURL', \t2::site_site('This domain has been claimed by another company.'));
 	}
@@ -482,6 +482,24 @@ class Experiences extends \Base\FormModel {
 				'txtDescription' => $dr['Description'],
 			);
 			$this->attributes = $arrAttrs;
+		}
+	}
+
+	static function AC_Comp_GetSuggestions($term) {
+		if ($term) {
+			$dt = T\DB::GetTable("SELECT `Title`, `URL`, `ID`"
+							. " FROM `_company_info`"
+							. " WHERE `Title` LIKE CONCAT(" . T\DB::MySQLConvert(':term', 2) . ", '%') ESCAPE '" . T\DB::LikeEscapeChar . "'"
+							, array(':term' => T\DB::EscapeLikeWildCards($term)));
+			if ($dt) {
+				foreach ($dt as $idx => $dr) {
+					$item = array(
+						'label' => "<div rel='" . json_encode(array('ID' => $dr['ID'], 'URL' => $dr['URL'])) . "'>{$dr['Title']}" . ($dr['URL'] ? " ({$dr['URL']})" : '') . "</div>"
+						, 'value' => $dr['Title']);
+					$dt[$idx] = $item;
+				}
+				return json_encode($dt);
+			}
 		}
 	}
 

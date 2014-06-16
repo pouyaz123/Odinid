@@ -48,22 +48,7 @@ class Certificates extends \CAction {
 			$Model->Delete();
 		else {//institution name autocomplete
 			\Output::AddIn_AjaxOutput(function() {
-				$term = \GPCS::GET('term')? : \GPCS::POST('term');
-				if ($term) {
-					$dt = T\DB::GetTable("SELECT `Title`, `URL`, `ID`"
-									. " FROM `_institutions`"
-									. " WHERE `Title` LIKE CONCAT(" . T\DB::MySQLConvert(':term', 2) . ", '%') ESCAPE '" . T\DB::LikeEscapeChar . "'"
-									, array(':term' => T\DB::EscapeLikeWildCards($term)));
-					if ($dt) {
-						foreach ($dt as $idx => $dr) {
-							$item = array(
-								'label' => "<div rel='" . json_encode(array('ID' => $dr['ID'], 'URL' => $dr['URL'])) . "'>{$dr['Title']}" . ($dr['URL'] ? " ({$dr['URL']})" : '') . "</div>"
-								, 'value' => $dr['Title']);
-							$dt[$idx] = $item;
-						}
-						echo json_encode($dt);
-					}
-				}
+				echo \Site\models\Profile\Certificates::AC_Insts_GetSuggestions(\GPCS::GET('term')? : \GPCS::POST('term'));
 			}, 'AutoComplete_UserCertificates_txtInstitutionTitle');
 		}
 

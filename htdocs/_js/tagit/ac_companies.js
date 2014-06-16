@@ -7,27 +7,27 @@ function tagit_ac_companies(txtMain_JQS, hdnIDs_JQS, txtURL_JQS, ajaxURL, tagLim
 	var $obj = $(txtMain_JQS)
 	function pushShiftID(pushID, wipeIdx) {
 		var IDs = $hdnIDs.attr('value')
-		if (!IDs)
-			IDs = '';
-		IDs = IDs.split(',')
-		if (pushID)
+		IDs = IDs ? IDs.split(',') : [];
+		if (pushID !== null)
 			IDs.push(pushID)
-		else if (wipeIdx)
+		else if (wipeIdx!=null)
 			IDs = $.merge($.merge([], IDs.slice(0, wipeIdx)), IDs.slice(wipeIdx + 1))
 		$hdnIDs.attr('value', IDs.join(','))
+	}
+	var LastDR;
+	function wipeLastDR(){
+		LastDR=null
 	}
 	var ACOpts = MyAutoComplete(
 			$obj, {
 				source: ajaxURL
-				, select: function(e, ui) {
-					if (ui.item.label) {
-						var dr = $.parseJSON($(ui.item.label).attr('rel'))
-						if (dr['ID'])
-							pushShiftID(dr['ID'])
-						if (txtURL_JQS && dr['URL'])
-							$(txtURL_JQS).tagit('createTag', dr['URL'])
-					}
+				, focus: function(e, ui) {
+					if (ui.item.label)
+						LastDR = $.parseJSON($(ui.item.label).attr('rel'))
 				}
+				, search: wipeLastDR
+				, close: function(){setTimeout(wipeLastDR, 100)}
+				, open: wipeLastDR
 			}, 0, 1, 1, 1)
 
 	$obj.tagit({
@@ -36,12 +36,19 @@ function tagit_ac_companies(txtMain_JQS, hdnIDs_JQS, txtURL_JQS, ajaxURL, tagLim
 		, tagLimit: tagLimit
 		, afterTagAdded: function(e, ui) {
 			XLinks_AjaxEx($(this))
-			pushShiftID(0)
+			if (LastDR) {
+				if (LastDR['ID'])
+					pushShiftID(LastDR['ID'])
+				if (txtURL_JQS && LastDR['URL'])
+					$(txtURL_JQS).tagit('createTag', LastDR['URL'])
+
+			} else
+				pushShiftID(0)
 		}
-		, afterTagRemoved: function() {
+		, beforeTagRemoved: function(e, ui) {
 			if (txtURL_JQS)
 				$(txtURL_JQS).tagit('removeAll')
-			$hdnIDs.attr('value', '')
+			pushShiftID(null, $(ui.tag).parent().find('li').index(ui.tag))
 		}
 	})
 	XLinks_AjaxEx($obj)

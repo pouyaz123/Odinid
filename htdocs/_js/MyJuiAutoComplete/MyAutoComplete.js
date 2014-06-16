@@ -1,46 +1,48 @@
 /** By Abbas Ali Hashemian<tondarweb@gmail.com> - webdesignir.com*/
 /**
- * @param options is like to to autocomplete but simpler
- * {
- *	source:'ajax url or a valid jui autocomplete source',
- *	appendTo:'jQuery selector of the container of the autocomplete list'
- * }
+ * @param options is same as the autocomplete
  */
-function MyAutoComplete(jqObj, options, isMulti, isAjax, intMinLen, ReturnACOptsOnly) {
+function MyAutoComplete($obj, options, isMulti, isAjax, minLen, returnACOptsOnly) {
 	function split(val) {
 		return val.split(/,\s*/);
 	}
 	function extractLast(term) {
 		return split(term).pop();
 	}
-	var opt = {
+	var opts = {
 		open: function(event, ui) {
+			if (options.open)
+				options.open(event, ui)
 			var $this = $(this), $uac = $('.ui-autocomplete')
 			if ($this.hasClass('ltr'))
 				$uac.addClass('ltr')
 			if ($this.hasClass('rtl'))
 				$uac.addClass('rtl')
 		},
-		close: function() {
+		close: function(event, ui) {
+			if (options.close)
+				options.close(event, ui)
 			$('.ui-autocomplete').removeClass('ltr rtl')
 		},
-		source: options.source,
-		minLength: intMinLen && intMinLen.toString().length ? intMinLen : 1,
-		delay: 750
+		minLength: minLen && minLen.toString().length ? minLen : (options.minLength ? options.minLength : 1),
+		delay: options.delay ? options.delay : 750
 	}
-	if (options.appendTo)
-		opt.appendTo = options.appendTo
-	if (options.select)
-		opt.select = options.select
+	var opt
+	for (opt in options) {
+		if (opt !== 'open' && opt !== 'close' && opt !== 'minLength')
+			opts[opt] = options[opt]
+	}
 	if (isMulti) {
-		jqObj.keydown(function(event) {
+		$obj.keydown(function(event) {
 			if (event.keyCode === $.ui.keyCode.TAB && $(this).data("autocomplete").menu.active)
 				event.preventDefault();
 		})
-		opt.focus = function() {
+		opts.focus = function(event, ui) {
+			if (options.focus)
+				options.focus(event, ui)
 			return false;
 		}
-		opt.select = function(event, ui) {
+		opts.select = function(event, ui) {
 			if (options.select && options.select(event, ui) === false)
 				return
 			var terms = split(this.value);
@@ -50,12 +52,12 @@ function MyAutoComplete(jqObj, options, isMulti, isAjax, intMinLen, ReturnACOpts
 			this.value = terms.join(", ");
 			return false;
 		}
-		opt.source = function(request, response) {
+		opts.source = function(request, response) {
 			response($.ui.autocomplete.filter(options.source, extractLast(request.term)));
 		}
 	}
 	if (isAjax) {
-		opt.source = function(request, response) {
+		opts.source = function(request, response) {
 			function myResp(r) {
 				response(r)
 				var $uiac = $('.ui-autocomplete')
@@ -82,15 +84,17 @@ function MyAutoComplete(jqObj, options, isMulti, isAjax, intMinLen, ReturnACOpts
 				term: extractLast(request.term)
 			}, myResp);
 		}
-		opt.search = function() {
-			if (extractLast(this.value).length < intMinLen)
+		opts.search = function(event, ui) {
+			if (options.search)
+				options.search(event, ui)
+			if (extractLast(this.value).length < minLen)
 				return false;
 		}
 	}
-	if (ReturnACOptsOnly)
-		return opt;
+	if (returnACOptsOnly)
+		return opts;
 	else
-		jqObj.autocomplete(opt)
+		$obj.autocomplete(opts)
 }
 function MyAutoComplete_Construct() {
 	function Construct() {
@@ -107,7 +111,7 @@ function MyAutoComplete_Construct() {
 		PostBack.AddInHTMLAjaxComplete('MyAutoComplete', Construct)
 		Construct()
 	}
-	if (typeof (PostBack) != 'undefined')
+	if (typeof (PostBack) !== 'undefined')
 		Run()
 	else
 		PBDocComplete.push(Run)
