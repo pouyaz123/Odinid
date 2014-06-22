@@ -10,10 +10,10 @@
 			, CHtml::activeLabelEx($Model, 'fileThumb')
 			, CHtml::error($Model, 'fileThumb'))
 	?>
-	<? if ($Model->scenario=='Edit'): ?>
+	<? if ($Model->hdnID): ?>
 			<?=
 			html::ButtonContainer(
-					CHtml::submitButton(\t2::site_site('Upload')
+					CHtml::button(\t2::site_site('Upload')
 							, array(
 						'name' => 'btnUpload',
 						'rel' => \html::AjaxElement('#divThumbPanel', NULL, 'ID='.$Model->hdnID) . ' ' . html::OnceClick
@@ -25,25 +25,25 @@
 					<?= Tools\Cloudinary\Cloudinary::ThumbnailImageTag($Model->ThumbID, array('id' => 'imgPrjThumb')) ?>
 				</div>
 				<?= \CHtml::activeHiddenField($Model, 'hdnThumbCrop') ?>
-	<script>
-	_t.RunScriptAfterLoad('jcrop/jquery.Jcrop.min', function() {
-		$('#imgPrjThumb').Jcrop({
-				aspectRatio: 0
-				, onSelect: function(c) {
-					$('#<?= $Model->PostName ?>_hdnThumbCrop').attr('value', c.x + ',' + c.y + ',' + c.x2 + ',' + c.y2)
-				}
-				, onRelease: function(c) {
-					$('#<?= $Model->PostName ?>_hdnThumbCrop').attr('value', '')
-				}
+<script>
+_t.RunScriptAfterLoad('jcrop/jquery.Jcrop.min', function() {
+	$('#imgPrjThumb').Jcrop({
+			aspectRatio: 0
+			, onSelect: function(c) {
+				$('#<?= $Model->PostName ?>_hdnThumbCrop').attr('value', c.x + ',' + c.y + ',' + c.x2 + ',' + c.y2)
 			}
-		<? if ($Model->drProject_Edit['ThumbnailCrop']): ?>
-			, function() {
-				this.animateTo([<?= $Model->drProject_Edit['ThumbnailCrop'] ?>])
+			, onRelease: function(c) {
+				$('#<?= $Model->PostName ?>_hdnThumbCrop').attr('value', '')
 			}
-		<? endif; ?>
-		)
-	})
-	</script>
+		}
+	<? if ($Model->drProject_Edit['ThumbnailCrop']): ?>
+		, function() {
+			this.animateTo([<?= $Model->drProject_Edit['ThumbnailCrop'] ?>])
+		}
+	<? endif; ?>
+	)
+})
+</script>
 				<?=
 				html::ButtonContainer(
 						CHtml::button(\t2::site_site('Crop')

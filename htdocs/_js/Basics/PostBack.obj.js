@@ -295,14 +295,14 @@ var PostBack = new function()
 				+ ', select' + AjaxElmJQSlct + jqAjaxNotExempt
 				+ ', textarea' + AjaxElmJQSlct + jqAjaxNotExempt
 				, {
-			change: function(e) {
-				var $this = $(this)
-						, URL = GetAsyncURL($this)
-						, Params = {}
-				Params[$this.attr('name')] = $this.val()
-				Post($this, null, URL, Params, 'REPLACE')
-			}
-		}
+					change: function(e) {
+						var $this = $(this)
+								, URL = GetAsyncURL($this)
+								, Params = {}
+						Params[$this.attr('name')] = $this.val()
+						Post($this, null, URL, Params, 'REPLACE')
+					}
+				}
 		)
 	}
 
@@ -353,8 +353,8 @@ var PostBack = new function()
 
 			$Target.append($LoadingCover
 					.append($LoadingRing.css({
-				opacity: AjaxLoadingCover_Opacity
-			}))
+						opacity: AjaxLoadingCover_Opacity
+					}))
 					.append($CloseBtn)
 					)
 
@@ -386,8 +386,8 @@ var PostBack = new function()
 			RelPostParams = ThisRel.find2find_substr(AjaxPostParamsPrefix + ':', ' ')
 		}
 		PanelAsSimpleTarget = PanelAsSimpleTarget ||
-				(ThisRel && ThisRel.indexOf('SimpleAjaxPanel')>-1) ||
-				(PanelRel && PanelRel.indexOf('SimpleAjaxPanel')>-1)
+				(ThisRel && ThisRel.indexOf('SimpleAjaxPanel') > -1) ||
+				(PanelRel && PanelRel.indexOf('SimpleAjaxPanel') > -1)
 		if (PanelRel && !PanelAsSimpleTarget) {
 			if (!TargetSelector)
 				TargetSelector = PanelRel.find2find_substr(AjaxPnlPrefix + ':', ' ')
@@ -550,15 +550,18 @@ var PostBack = new function()
 		return false;
 	}
 	this.Post = Post
-	function TriggerClick($this, e) {
+	function TriggerClick($this, e, $Panel, URL, arrNewParams, InsertMode, PanelAsSimpleTarget) {
 		setTimeout(function() {
 			if (e.which > 1 || e.button > 1)
 				return true
+			$this=$($this)
 			if ($this[0].ClickCanceled)
 				return false;
-			var $Panel = $this.parents(AjaxPnlJQSlct + ':first')
-					, URL
-					, Params = {}
+			if (!$Panel)
+				$Panel = $this.parents(AjaxPnlJQSlct + ':first')
+			else
+				$Panel=$($Panel)
+			var Params = {}
 			//Hyperlinks
 			if ($this.is('input')) {
 				var name = $this.attr('name')
@@ -566,8 +569,11 @@ var PostBack = new function()
 				if (name && value)
 					Params[name] = value
 			}
-			URL = GetAsyncURL($this, $Panel)
-			return Post($this, $Panel, URL, Params)
+			if (!URL)
+				URL = GetAsyncURL($this, $Panel)
+			if(arrNewParams)
+				$.merge(Params, arrNewParams)
+			return Post($this, $Panel, URL, Params, InsertMode, PanelAsSimpleTarget)
 		}, ClickDelay)
 		return false
 	}

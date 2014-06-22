@@ -44,7 +44,7 @@ final class Regexp {
 	const SimpleWords = '/^[\w\s\-\,\.\'\`\(\)]+$/';
 	const ASCIIChars_Simple = '/^[\w\s\-\,\.\:\"\'\`\~\?\/\\\(\)\[\]\{\}\=\+\*\!\@\#\$\%\^\&\<\>]+$/';
 	const CropDims='/^(\d+\,){3}\d+$/';
-	const HdnFieldIntIDs='/^\d+(\,\d+)*$/';
+	const HdnFieldIntIDs='/^\d+(\_\d+)?(\,\d+(\_\d+)?)*$/';
 	#
 //	const Number = '/^(\-?\d+(\.\d+)?)?$/';
 //	const Integer = '/^(\-\d)?\d*$/';

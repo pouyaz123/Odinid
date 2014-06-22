@@ -189,5 +189,6 @@ return array_merge(
 //	'Edit Project' => 'Edit Project',
 //	'Edit Blog' => 'Edit Blog',
 //	'Edit Tutorial' => 'Edit Tutorial',
+//	'Choose categories' => 'Choose categories',
 		)
 );

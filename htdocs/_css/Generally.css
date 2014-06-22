@@ -189,7 +189,7 @@ td.SubLIsInDG .KASPBluLnks a.Btn, td.SubLIsInDG .KASPBluLnks a.Btn span{display:
 .ui-pg-table.navtable{border-collapse: separate}
 .ui-jqdialog-content .FormData textarea{width: 90%}
 
-/*--------- jQuery UI Alix autocomplete ---------*/
+/*--------- jQuery UI ---------*/
 ul.ui-autocomplete{padding: 2px; z-index: 101}
 .ui-autocomplete-loading {background: white url('/_img/general/loading16.gif') no-repeat !important; background-color: #ffb !important}
 .ltr .ui-autocomplete-loading {background-position: right center !important}
@@ -198,6 +198,7 @@ ul.ui-autocomplete{padding: 2px; z-index: 101}
 .rtl.ui-autocomplete-loading {background-position: left center !important}
 ul.ui-autocomplete.ltr li a span{direction: ltr; display: inline-block}
 .ui-autocomplete .__uiausep{color:#aaa;font-style:italic;text-align:center}
+.fm-button, .ui-jqdialog-titlebar, .ui-dialog-titlebar, .ui-button {line-height: 12px}
 
 .PathContainer{margin-bottom: 5px}
 .PathContainer, .PathContainer div, .PathContainer a{display: inline-block; min-height: 16px; line-height: 16px; vertical-align: middle}

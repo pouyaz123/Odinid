@@ -24,23 +24,23 @@ if ($form = $this->beginWidget('Widgets\ActiveForm', array(
 					</div>
 					<?= $form->hiddenField($Model, 'hdnCropDims') ?>
 <script>
-	_t.RunScriptAfterLoad('jcrop/jquery.Jcrop.min', function() {
-		$('#imgAvatar').Jcrop({
-			aspectRatio: 0
-			, onSelect: function(c) {
-				$('#<?= $Model->PostName ?>_hdnCropDims').attr('value', c.x + ',' + c.y + ',' + c.x2 + ',' + c.y2)
-			}
-			, onRelease: function(c) {
-				$('#<?= $Model->PostName ?>_hdnCropDims').attr('value', '')
-			}
+_t.RunScriptAfterLoad('jcrop/jquery.Jcrop.min', function() {
+	$('#imgAvatar').Jcrop({
+		aspectRatio: 0
+		, onSelect: function(c) {
+			$('#<?= $Model->PostName ?>_hdnCropDims').attr('value', c.x + ',' + c.y + ',' + c.x2 + ',' + c.y2)
 		}
-	<? if ($Model->drAvatar['PictureCrop']): ?>
-		, function() {
-			this.animateTo([<?= $Model->drAvatar['PictureCrop'] ?>])
+		, onRelease: function(c) {
+			$('#<?= $Model->PostName ?>_hdnCropDims').attr('value', '')
 		}
-	<? endif; ?>
-		)
-	})
+	}
+<? if ($Model->drAvatar['PictureCrop']): ?>
+	, function() {
+		this.animateTo([<?= $Model->drAvatar['PictureCrop'] ?>])
+	}
+<? endif; ?>
+	)
+})
 </script>
 					<?=
 					html::ButtonContainer(

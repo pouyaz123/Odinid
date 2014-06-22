@@ -14,6 +14,16 @@ use \Consts as C;
  */
 class GPCS {
 
+	private static function ResolveJSName($Name, $ToSetCooki = false) {
+		$Name = explode('.', str_replace(array('][', '['), '.', trim($Name, '] ')));
+		if ($ToSetCooki) {
+			$Name = trim($Name[0] . '[' . implode("][", array_slice($Name, 1)), '[');
+			$Name .= (strpos($Name, '[') !== false ? ']' : '');
+		} else
+			$Name = implode("']['", $Name);
+		return $Name;
+	}
+
 	static function GET($ParamName) {
 		if (!$ParamName)
 			return null;
@@ -24,12 +34,13 @@ class GPCS {
 	static function POST($ParamName) {
 		if (!$ParamName)
 			return null;
+		$ParamName = self::ResolveJSName($ParamName);
 		/* it doesn't check result POST value returned by F3 because of this line:
 		 * $Status = trim(\GPCS::POST('Status'))
 		 * in the Admins\Lists.php
 		 * if you change it to $Result ? $Result : NULL it will fail
 		 */
-		return isset($_POST[$ParamName]) ? $_POST[$ParamName] : NULL;
+		return eval("return (isset(\$_POST['$ParamName']) ? \$_POST['$ParamName'] : NULL);");
 	}
 
 	static function REQUEST($ParamName) {
@@ -46,7 +57,6 @@ class GPCS {
 	}
 
 	/**
-	 * 
 	 * @param str $Name javascript format is enabled : cookiename.subkey is same as cookiename[subkey]<br/>
 	 * this js format idea comes from F3 and namedin
 	 * @param type $Value
@@ -60,16 +70,18 @@ class GPCS {
 	static function COOKIE($Name, $Value = null, $Expire = 0, $Path = null, $Domain = null, $Secure = false, $httponly = false) {
 		if (!$Name)
 			return null;
-		$Name = explode('.', str_replace(array('][', '['), '.', trim($Name, ']')));
+//		$Name = explode('.', str_replace(array('][', '['), '.', trim($Name, '] ')));
 		if (func_num_args() > 1) {
-			$Name = trim($Name[0] . '[' . implode("][", array_slice($Name, 1)), '[');
-			$Name .= (strpos($Name, '[') !== false ? ']' : '');
+//			$Name = trim($Name[0] . '[' . implode("][", array_slice($Name, 1)), '[');
+//			$Name .= (strpos($Name, '[') !== false ? ']' : '');
+			$Name = self::ResolveJSName($Name, true);
 			if ($Value === NULL)
 				return setcookie($Name, 'EXPIRED', time() - (365 * 24 * 3600), $Path, $Domain, $Secure, $httponly);
 			else
 				return setcookie($Name, $Value, $Expire, $Path, $Domain, $Secure, $httponly);
 		} else {
-			$Name = implode("']['", $Name);
+//			$Name = implode("']['", $Name);
+			$Name = self::ResolveJSName($Name, false);
 			return eval("return (isset(\$_COOKIE['$Name']) ? \$_COOKIE['$Name'] : NULL);");
 		}
 	}
@@ -91,10 +103,9 @@ class GPCS {
 		if (func_num_args() > 1) {
 			if ($Value === NULL && isset($_SESSION[$Name]))
 				unset($_SESSION[$Name]);
-			elseif($Value !== NULL)
+			elseif ($Value !== NULL)
 				$_SESSION[$Name] = $Value;
-		}
-		else
+		} else
 			return isset($_SESSION[$Name]) ? $_SESSION[$Name] : NULL;
 	}
 
@@ -178,4 +189,3 @@ class GPCS {
 	}
 
 }
-

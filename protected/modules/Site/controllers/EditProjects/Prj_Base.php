@@ -13,7 +13,7 @@ class Prj_Base extends \CAction {
 	protected $Type = Projects::Type_Project;
 
 	public function run() {
-		$ID = \GPCS::GET('id')? : \GPCS::POST('ID');
+		$ID = \GPCS::GET('id');
 		#title
 		switch ($this->Type) {
 			case Projects::Type_Project:
@@ -31,6 +31,8 @@ class Prj_Base extends \CAction {
 		\html::TagIt_AC_Lib_Load();
 		\html::TagIt_AC_Companies_Load();
 		\html::jqUI_AutoComplete_Load();
+		\html::MyDialog_Load();
+		\html::jCrop_Load();
 
 		$Model = new Projects('Add');
 		$Model->UserID = Login::GetSessionDR('ID');
@@ -51,18 +53,24 @@ class Prj_Base extends \CAction {
 			$Model->scenario = 'Edit';
 
 		if ($btnAdd || $btnSaveEdit) {
-			$Model->attributes = \GPCS::POST('Prj');
-			$Model->Save();
+			$Model->attributes = \GPCS::POST($Model->PostName);
+			$Result = $Model->Save();
+			if ($btnAdd && $Result) {
+				\html::PushStateScript("?id={$Model->hdnID}");
+			}
 		} elseif ($btnUpload)
 			$Model->UploadThumb();
-		elseif ($btnCrop)
+		elseif ($btnCrop) {
+			$Model->hdnThumbCrop = \GPCS::POST($Model->PostName . '.hdnThumbCrop');
 			$Model->CropThumb();
-		elseif ($btnDeleteThumb)
+		} elseif ($btnDeleteThumb)
 			$Model->DeleteThumb();
-		elseif ($btnDelete)
-			$Model->Delete();
-		elseif ($ID)
+		elseif ($btnDelete) {
+			if ($Model->Delete())
+				\html::PushStateScript("?id=");
+		} elseif ($ID)
 			$Model->SetForm();
+
 		\Output::AddIn_AjaxOutput(function() {
 			echo \Site\models\Profile\WorkFields::AC_GetSuggestions(\GPCS::GET('term')? : \GPCS::POST('term'));
 		}, 'AutoComplete_Prj_txtWorkFields');
@@ -81,14 +89,17 @@ class Prj_Base extends \CAction {
 		\Output::AddIn_AjaxOutput(function() {
 			echo \Site\models\Profile\Experiences::AC_Comp_GetSuggestions(\GPCS::GET('term')? : \GPCS::POST('term'));
 		}, 'AutoComplete_Prj_txtCompanies');
-		/* 		, '<?= HTTP::URL_InsertAjaxKW("AutoComplete_Prj_txtWorkFields") ?>')
-		  , '<?= HTTP::URL_InsertAjaxKW("AutoComplete_Prj_txtTools") ?>')
-		  , '<?= HTTP::URL_InsertAjaxKW("AutoComplete_Prj_txtTags") ?>')
-		  , '<?= HTTP::URL_InsertAjaxKW("AutoComplete_Prj_txtSkills") ?>')
-		  '<?= Tools\HTTP::URL_InsertAjaxKW("AutoComplete_Prj_txtSchools") ?>', <?= Settings::GetInstance()->MaxProjectSchools ?>)
-		  '<?= Tools\HTTP::URL_InsertAjaxKW("AutoComplete_Prj_txtCompanies") ?>', <?= Settings::GetInstance()->MaxProjectCompanies ?>)
-		 */
-		\Output::Render($this->controller, '/editprojects/prj_form'
+
+		$ctrl = $this->controller;
+		\Output::AddIn_AjaxOutput(function()use($ctrl, $Model) {
+			$TargetJQS = \GPCS::GET('targetjqs');
+			if (!$TargetJQS)
+				throw new \CHttpException(404);
+			/* @var $ctrl \CController */
+			echo $ctrl->renderPartial('/editprojects/prj_form_catspop', array('Model' => $Model, 'TargetJQS' => $TargetJQS));
+		}, 'catspop');
+
+		\Output::Render($this->controller, $btnCrop || $btnDeleteThumb || $btnUpload ? '/editprojects/prj_form_thumb' : '/editprojects/prj_form'
 				, array(
 			'Model' => $Model,
 				)

@@ -45,6 +45,19 @@ if ($form = $this->beginWidget('Widgets\ActiveForm', array(
 						, $form->labelEx($Model, 'txtSmallDesc')
 						, $form->error($Model, 'txtSmallDesc'))
 				?>
+				<?= $form->hiddenField($Model, 'hdnCatIDs') ?>
+				<?=
+				\CHtml::link(
+						t2::site_site('Choose categories')
+						, Tools\HTTP::URL_InsertAjaxKW('catspop', NULL, "targetjqs={$Model->PostName}_hdnCatIDs")
+						, array('rel' => html::AjaxExcept . html::MyDialog))
+				?>
+				<?=
+				html::FieldContainer(
+						$form->checkBox($Model, 'chkShowInHome')
+						, $form->labelEx($Model, 'chkShowInHome')
+						, $form->error($Model, 'chkShowInHome'))
+				?>
 				<?=
 				html::FieldContainer(
 						$form->textField($Model, 'txtWorkFields')
@@ -143,13 +156,6 @@ if ($form = $this->beginWidget('Widgets\ActiveForm', array(
 						, $form->labelEx($Model, 'chkVisibility')
 						, $form->error($Model, 'chkVisibility'))
 				?>
-				<?= $form->hiddenField($Model, 'hdnCatIDs') ?>
-				<?=
-				html::FieldContainer(
-						$form->checkBox($Model, 'chkShowInHome')
-						, $form->labelEx($Model, 'chkShowInHome')
-						, $form->error($Model, 'chkShowInHome'))
-				?>
 				<?=
 				html::FieldContainer(
 						$form->checkBox($Model, 'chkAdult')
@@ -175,33 +181,6 @@ if ($form = $this->beginWidget('Widgets\ActiveForm', array(
 						, $form->labelEx($Model, 'txtContentSpacing')
 						, $form->error($Model, 'txtContentSpacing'))
 				?>
-				<? /* 	hdnID;
-				  #
-				  txtTitle = 'Untitled project';
-				  txtSmallDesc;
-				  chkIsReel = 0;
-				  chkPaidTutorial = 0;
-				  ddlStatus;
-				  fileThumb;
-				  hdnThumbCrop;
-				  chkVisibility = 1;
-				  hdnCatIDs;
-				  chkShowInHome = 1;
-				  chkAdult = 0;
-				  txtPassword;
-				  ddlDividerLineType;
-				  txtContentSpacing;
-				  #
-				  txtWorkFields;
-				  txtTools;
-				  txtTags;
-				  txtSkills;
-				  #
-				  hdnSchoolIDs;
-				  txtSchools;
-				  #
-				  hdnCompanyIDs;
-				  txtCompanies; */ ?>
 
 				<?=
 				html::ButtonContainer(

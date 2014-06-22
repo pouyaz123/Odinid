@@ -167,10 +167,10 @@ class HTTP {
 	 * @param string $URL	defaults to $_SERVER['REQUEST_URI']
 	 * @return string
 	 */
-	public static function URL_InsertAjaxKW($AjaxKW, $URL = NULL) {
+	public static function URL_InsertAjaxKW($AjaxKW, $URL = NULL, $MoreParams = NULL) {
 		if (!$URL)
 			$URL = $_SERVER['REQUEST_URI'];
-		return self::URL_InsertGetParams($URL, \Output::AjaxKeyword_PostParamName . "=$AjaxKW");
+		return self::URL_InsertGetParams($URL, \Output::AjaxKeyword_PostParamName . "=$AjaxKW" . ($MoreParams ? "&$MoreParams" : ""));
 	}
 
 	#----------------- Headers -----------------#

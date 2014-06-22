@@ -14,6 +14,10 @@ use \Tools as T;
  * @property-read array $dtProjects
  * @property-read array $dtFreshProjects
  * @property-read array $drProject_Edit
+ * 
+ * @property-read array $dtCategories
+ * @property-read array $arrCategories
+ * 
  * @property-read array $arrStatuses
  * @property-read array $arrDividerLineTypes
  * @property-read string|integer $ThumbID
@@ -120,8 +124,8 @@ class Projects extends \Base\FormModel {
 				'range' => array_keys($this->arrDividerLineTypes),
 				'on' => 'Add, Edit'),
 			#
-			array_merge(array('fileThumb', 'file',
-				'on' => 'Add, Edit, Upload'), $vl->ProjectThumb),
+//			array_merge(array('fileThumb', 'file',
+//				'on' => 'Add, Edit, Upload'), $vl->ProjectThumb),
 			array('hdnThumbCrop', 'match',
 				'pattern' => C\Regexp::CropDims,
 				'on' => 'Add, Edit, Crop'),
@@ -170,7 +174,7 @@ class Projects extends \Base\FormModel {
 				$Items = $_this->$MassField;
 				if ($Items) {
 					$vld = new \CStringValidator();
-					$vld->on = array('Add', 'Edit');
+//					$vld->on = array('Add', 'Edit');
 					$vld->attributes = array($vldField);
 					T\Basics::ConfigureObject($vld, $arrVldConf);
 
@@ -183,12 +187,12 @@ class Projects extends \Base\FormModel {
 						$_this->$vldField = $Items[$Idx];
 						if (!$_this->validate($vldField))
 							$_this->addError($MassField
-									, \Yii::t('yii', '{attribute} is invalid.', $_this->getAttributeLabel($MassField)));
+									, \Yii::t('yii', '{attribute} is invalid.', array('{attribute}' => $_this->getAttributeLabel($MassField))));
 					}
 				}
 			};
 			$v = \ValidationLimits\User::GetInstance();
-			$stg=  T\Settings::GetInstance();
+			$stg = T\Settings::GetInstance();
 			$fncMassLenVld('txtWorkFields', 'vldWorkField', $v->LongTitle, $stg->MaxProjectWorkfields);
 			$fncMassLenVld('txtTools', 'vldTool', $v->LongTitle, $stg->MaxProjectTools);
 			$fncMassLenVld('txtTags', 'vldTag', $v->LongTitle, $stg->MaxProjectTags);
@@ -222,8 +226,6 @@ class Projects extends \Base\FormModel {
 	}
 
 	public function Save() {
-		$Snrio = &$this->scenario;
-		$Snrio = $this->hdnID ? 'Edit' : 'Add';
 		if (!$this->validate())
 			return false;
 		$ID = $this->hdnID? : T\DB::GetNewID_Combined(
@@ -236,9 +238,13 @@ class Projects extends \Base\FormModel {
 					'PrefixQuery' => "CONCAT(:uid, '_')",
 						)
 		);
-		$PicUnqID = $this->_UploadThumb();
-		if (!$PicUnqID)
-			$PicUnqID = $this->ThumbID;
+		$PicUnqID = null;
+		if ($this->scenario == 'Add' || $this->scenario == 'Edit' || $this->scenario == 'Upload') {
+			if (!$this->_UploadThumb($PicUnqID)) {
+				$PicUnqID = $this->drProject_Edit;
+				$PicUnqID = $PicUnqID ? $PicUnqID['Thumbnail'] : null;
+			}
+		}
 		$Qries = array();
 		$CommonParams = array(
 			':id' => $ID,
@@ -248,31 +254,31 @@ class Projects extends \Base\FormModel {
 			!$this->hdnID ?
 					"INSERT INTO `_projects`("
 					. "`ID`, `UID`, `Type`"
-					. ($Snrio == 'Add' ?
+					. ($this->scenario == 'Add' ?
 							", `Title`, `SmallDesc`"
 							. ", `IsReel`, `PaidTutorial`, `Status`"
 							. ", `Visibility`, `ShowInHomePage`, `Adult`"
 							. ", `Password`, `DividerLineType`, `ContentSpacing`"
 							. ", `Thumbnail`" : "")
-//					. ($Snrio == 'Upload' ? " `Thumbnail`" : "")
+//					. ($this->scenario == 'Upload' ? " `Thumbnail`" : "")
 					. ") VALUES("
-					. ($Snrio == 'Add' ? " :id, :uid, :type"
+					. ($this->scenario == 'Add' ? " :id, :uid, :type"
 							. ", :ttl, :smldsc"
 							. ", :reel, :paidtut, :status"
 							. ", :vsblty, :home, :adult"
 							. ", :pwd, :dvdr, :cntspc"
 							. ", :thumb_unqid" : "")
-//					. ($Snrio == 'Upload' ? " :thumb_unqid" : "")
+//					. ($this->scenario == 'Upload' ? " :thumb_unqid" : "")
 					. ")" :
 					"UPDATE `_projects` SET "
-					. ($Snrio == 'Edit' ?
+					. ($this->scenario == 'Edit' ?
 							" `Title`=:ttl, `SmallDesc`=:smldsc"
 							. ", `IsReel`=:reel, `PaidTutorial`=:paidtut, `Status`=:status"
 							. ", `Visibility`=:vsblty, `ShowInHomePage`=:home, `Adult`=:adult"
 							. ", `Password`=:pwd, `DividerLineType`=:dvdr, `ContentSpacing`=:cntspc"
 							. ", `Thumbnail`=:thumb_unqid, `ThumbnailCrop`=:thumbcrop" : "")//keep this additional comma
-					. ($Snrio == 'Upload' ? " `Thumbnail`=:thumb_unqid" : "")
-					. ($Snrio == 'Crop' ? " `ThumbnailCrop`=:thumbcrop" : "")
+					. ($this->scenario == 'Upload' ? " `Thumbnail`=:thumb_unqid" : "")
+					. ($this->scenario == 'Crop' ? " `ThumbnailCrop`=:thumbcrop" : "")
 					. " WHERE `ID`=:id AND `UID`=:uid AND `Type`=:type"
 			, array(
 				':type' => $this->Type,
@@ -291,7 +297,7 @@ class Projects extends \Base\FormModel {
 				':cntspc' => $this->txtContentSpacing? : null,
 			)
 		);
-		if ($Snrio == 'Add' || $Snrio == 'Edit') {
+		if ($this->scenario == 'Add' || $this->scenario == 'Edit') {
 			$this->GetSaveTransQuery_CatIDs($Qries, $ID);
 			$this->GetSaveTransQuery_Tags($Qries, $ID, 'txtWorkFields'
 					, '_project_workfields', 'WorkFieldID'
@@ -325,8 +331,8 @@ class Projects extends \Base\FormModel {
 					, 'Profile', 'hdnCompanyIDs');
 		}
 		$Result = T\DB::Transaction($Qries, $CommonParams);
-		if ($Result && !$this->hdnID && $Snrio == "Add") {
-			$Snrio = 'Edit';
+		if ($Result && !$this->hdnID && $this->scenario == "Add") {
+			$this->scenario = 'Edit';
 			$this->hdnID = $ID;
 		}
 		return $Result ? true : false;
@@ -354,7 +360,7 @@ class Projects extends \Base\FormModel {
 		if ($this->scenario == 'Edit' && $this->hdnID) {
 			$Qries[] = array(
 				"DELETE FROM `_project_cat_cnn` WHERE `ItemID`=:itemid"
-				. ($CatIDPrms ? implode(" AND `CatID`!=", array_keys($CatIDPrms)) : "")
+				. ($CatIDPrms ? " AND `CatID`!=" . implode(" AND `CatID`!=", array_keys($CatIDPrms)) : "")
 				, $Prms);
 		}
 	}
@@ -436,11 +442,85 @@ class Projects extends \Base\FormModel {
 	}
 
 	public function getdtCategories() {
-		return T\DB::GetTable("SELECT `ID`, `Title`"
-						. " FROM `_project_cats`"
-						. " WHERE `UID`=:uid AND `Type`=:type"
-						. " ORDER BY `OrderNumber`"
-						, array(':uid' => $this->UserID, ':type' => $this->Type));
+		static $dt = null;
+		if (!$dt) {
+			$dt = T\DB::GetTable("SELECT `ID`, `Title`"
+							. " FROM `_project_cats`"
+							. " WHERE `UID`=:uid AND `Type`=:type"
+							. " ORDER BY `OrderNumber`"
+							, array(':uid' => $this->UserID, ':type' => $this->Type));
+		}
+		return $dt;
+	}
+
+	public function getarrCategories() {
+		static $arr = array();
+		if (!count($arr) && ($dt = $this->getdtCategories())) {
+			foreach ($dt as $row) {
+				$arr[$row['ID']] = $row['Title'];
+			}
+		}
+		return $arr;
+	}
+
+	private function _getdtProjects($Scenario = null, $ID = NULL, $refresh = false, \Base\DataGridParams $DGP = NULL) {
+		$StaticIndex = $ID;
+		if (!$StaticIndex)
+			$StaticIndex = "ALL";
+		static $arrDTs = array();
+		if (!isset($arrDTs[$StaticIndex]) || $refresh) {
+			if ($DGP) {
+				$AllCount = T\DB::GetField('SELECT COUNT(*) FROM `_projects` WHERE `UID`=:uid'
+								, array(':uid' => $this->UserID));
+				$Limit = $DGP->QueryLimitParams($AllCount, $ref_LimitIdx, $ref_LimitLen);
+			}
+			$arrDTs[$StaticIndex] = T\DB::GetTable(
+							"SELECT prj.*"
+							. ($Scenario == 'Edit' ?
+									", GROUP_CONCAT(DISTINCT pcnn.CatID SEPARATOR ',') AS CatIDs"
+									. ", GROUP_CONCAT(DISTINCT wf.WorkField ORDER BY wf.WorkField ASC SEPARATOR ',') AS WorkFields"
+									. ", GROUP_CONCAT(DISTINCT tl.Tool ORDER BY tl.Tool ASC SEPARATOR ',') AS Tools"
+									. ", GROUP_CONCAT(DISTINCT tg.Tag ORDER BY tg.Tag ASC SEPARATOR ',') AS Tags"
+									. ", GROUP_CONCAT(DISTINCT skl.Skill ORDER BY skl.Skill ASC SEPARATOR ',') AS Skills"
+									. ", GROUP_CONCAT(DISTINCT comp.Title ORDER BY comp.Title ASC SEPARATOR ',') AS Companies"
+									. ", GROUP_CONCAT(DISTINCT comp.ID SEPARATOR ',') AS CompanyIDs"
+									. ", GROUP_CONCAT(DISTINCT scl.Title ORDER BY scl.Title ASC SEPARATOR ',') AS Schools"
+									. ", GROUP_CONCAT(DISTINCT scl.ID SEPARATOR ',') AS SchoolIDs" : "")
+							. " FROM `_projects` AS prj"
+							. " INNER JOIN (SELECT 1) AS tmp ON " . ($ID ? " prj.`ID`=:id AND " : '') . " prj.UID=:uid"
+							. ($Scenario == 'Edit' ?
+									" LEFT JOIN `_project_cat_cnn` AS pcnn ON pcnn.ItemID=prj.ID"
+									#
+									. " LEFT JOIN `_project_workfields` AS wfcnn ON wfcnn.ItemID=prj.ID"
+									. " LEFT JOIN `_workfields` AS wf ON wf.ID=wfcnn.WorkFieldID"
+									. " LEFT JOIN `_project_tools` AS tlcnn ON tlcnn.ItemID=prj.ID"
+									. " LEFT JOIN `_tools` AS tl ON tl.ID=tlcnn.ToolID"
+									. " LEFT JOIN `_project_tags` AS tgcnn ON tgcnn.ItemID=prj.ID"
+									. " LEFT JOIN `_simpletags` AS tg ON tg.ID=tgcnn.TagID"
+									. " LEFT JOIN `_project_skills` AS sklcnn ON sklcnn.ItemID=prj.ID"
+									. " LEFT JOIN `_skills` AS skl ON skl.ID=sklcnn.SkillID"
+									#
+									. " LEFT JOIN `_project_companies` AS compcnn ON compcnn.ItemID=prj.ID"
+									. " LEFT JOIN `_company_info` AS comp ON comp.ID=compcnn.CompanyID"
+									. " LEFT JOIN `_project_schools` AS sclcnn ON sclcnn.ItemID=prj.ID"
+									. " LEFT JOIN `_school_info` AS scl ON scl.ID=sclcnn.SchoolID" : "")
+							. ($DGP ? " WHERE AND {$DGP->SQLWhereClause}" : "")
+							. " GROUP BY prj.ID"
+							. ($DGP ?
+									" ORDER BY {$DGP->Sort}"
+									. " LIMIT $Limit" : "")
+							, array(
+						':uid' => $this->UserID,
+						':id' => $ID,
+							)
+			);
+		}
+		return $arrDTs[$StaticIndex]? : array();
+	}
+
+	public function getdrProject_Edit($refresh = false, \Base\DataGridParams $DGP = NULL) {
+		$dt = $this->_getdtProjects('Edit', $this->hdnID, $refresh, $DGP);
+		return $dt ? $dt[0] : array();
 	}
 
 	public function getdtProjects($ID = NULL, $refresh = false, \Base\DataGridParams $DGP = NULL) {
@@ -459,74 +539,9 @@ class Projects extends \Base\FormModel {
 		return $R;
 	}
 
-	public function getdrProject_Edit($refresh = false, \Base\DataGridParams $DGP = NULL) {
-		return $this->_getdtProjects('Edit', $this->hdnID, $refresh, $DGP);
-	}
-
-	private function _getdtProjects($Scenario = null, $ID = NULL, $refresh = false, \Base\DataGridParams $DGP = NULL) {
-		$StaticIndex = $ID;
-		if (!$StaticIndex)
-			$StaticIndex = "ALL";
-		static $arrDTs = array();
-		if (!isset($arrDTs[$StaticIndex]) || $refresh) {
-			if ($DGP) {
-				$AllCount = T\DB::GetField('SELECT COUNT(*) FROM `_projects` WHERE `UID`=:uid'
-								, array(':uid' => $this->UserID));
-				$Limit = $DGP->QueryLimitParams($AllCount, $ref_LimitIdx, $ref_LimitLen);
-			}
-			$arrDTs[$StaticIndex] = T\DB::GetTable(
-							"SELECT prj.*"
-							. ($Scenario == 'Edit' ?
-									", GROUP_CONCAT(DISTINCT pcnn.ID SEPARATOR ',') AS CatIDs"
-									. ", GROUP_CONCAT(DISTINCT wf.WorkField ORDER BY wf.WorkField ASC SEPARATOR ',') AS WorkFields"
-									. ", GROUP_CONCAT(DISTINCT tl.Tool ORDER BY tl.Tool ASC SEPARATOR ',') AS Tools"
-									. ", GROUP_CONCAT(DISTINCT tg.Tag ORDER BY tg.Tag ASC SEPARATOR ',') AS Tags"
-									. ", GROUP_CONCAT(DISTINCT skl.Skill ORDER BY skl.Skill ASC SEPARATOR ',') AS Skills"
-									. ", GROUP_CONCAT(DISTINCT comp.Title ORDER BY comp.Title ASC SEPARATOR ',') AS Companies"
-									. ", GROUP_CONCAT(DISTINCT comp.Title SEPARATOR ',') AS CompanyIDs"
-									. ", GROUP_CONCAT(DISTINCT scl.Title ORDER BY scl.Title ASC SEPARATOR ',') AS Schools"
-									. ", GROUP_CONCAT(DISTINCT scl.Title SEPARATOR ',') AS SchoolIDs" : "")
-							. " FROM `_projects` AS prj"
-							. " INNER JOIN (SELECT 1) AS tmp ON " . ($ID ? " prj.`ID`=:id AND " : '') . " prj.UID=:uid"
-							. ($Scenario == 'Edit' ?
-									" LEFT JOIN `_project_cat_cnn` AS pcnn ON pcnn.ItemID=prj.ID"
-									#
-									. " LEFT JOIN `_project_workfields` AS wfcnn ON wfcnn.ItemID=prj.ID"
-									. " LEFT JOIN `_workfields` AS wf ON wf.ID=wfcnn.WorkFieldID"
-									. " LEFT JOIN `_project_tools` AS tlcnn ON tlcnn.ItemID=prj.ID"
-									. " LEFT JOIN `_tools` AS tl ON tl.ID=tlcnn.ToolID"
-									. " LEFT JOIN `_project_tags` AS tgcnn ON tgcnn.ItemID=prj.ID"
-									. " LEFT JOIN `_tags` AS tg ON tg.ID=tgcnn.TagID"
-									. " LEFT JOIN `_project_skills` AS sklcnn ON sklcnn.ItemID=prj.ID"
-									. " LEFT JOIN `_skills` AS skl ON skl.ID=sklcnn.SkillID"
-									#
-									. " LEFT JOIN `_project_skills` AS sklcnn ON sklcnn.ItemID=prj.ID"
-									. " LEFT JOIN `_skills` AS skl ON skl.ID=sklcnn.SkillID"
-									. " LEFT JOIN `_project_skills` AS sklcnn ON sklcnn.ItemID=prj.ID"
-									. " LEFT JOIN `_skills` AS skl ON skl.ID=sklcnn.SkillID"
-									#
-									. " LEFT JOIN `_project_companies` AS compcnn ON compcnn.ItemID=prj.ID"
-									. " LEFT JOIN `_company_info` AS comp ON comp.ID=compcnn.CompanyID"
-									. " LEFT JOIN `_project_schools` AS sclcnn ON sclcnn.ItemID=prj.ID"
-									. " LEFT JOIN `_school_info` AS scl ON scl.ID=scl.SchoolID" : "")
-							. ($DGP ? " WHERE AND {$DGP->SQLWhereClause}" : "")
-							. " GROUP BY prj.ID"
-							. ($DGP ?
-									" ORDER BY {$DGP->Sort}"
-									. " LIMIT $Limit" : "")
-							, array(
-						':uid' => $this->UserID,
-						':id' => $ID,
-							)
-			);
-		}
-		return $arrDTs[$StaticIndex]? : array();
-	}
-
 	public function SetForm() {
-		$dr = $this->getdtProjects($this->hdnID);
+		$dr = $this->getdrProject_Edit();
 		if ($dr) {
-			$dr = $dr[0];
 			$arrAttrs = array(
 				'hdnID' => $dr['ID'],
 				'txtTitle' => $dr['Title'],
@@ -534,10 +549,10 @@ class Projects extends \Base\FormModel {
 				'chkIsReel' => $dr['IsReel'],
 				'chkPaidTutorial' => $dr['PaidTutorial'],
 				'ddlStatus' => $dr['Status'],
-				'hdnThumbCrop' => $dr['ThumbCrop'],
-				'chkVisibility' => $dr['SmallDesc'],
+				'hdnThumbCrop' => $dr['ThumbnailCrop'],
+				'chkVisibility' => $dr['Visibility'],
 				'hdnCatIDs' => $dr['CatIDs'],
-				'chkShowInHome' => $dr['ShowInHome'],
+				'chkShowInHome' => $dr['ShowInHomePage'],
 				'chkAdult' => $dr['Adult'],
 				'ddlDividerLineType' => $dr['DividerLineType'],
 				'txtContentSpacing' => $dr['ContentSpacing'],
@@ -566,11 +581,11 @@ class Projects extends \Base\FormModel {
 			if ($GenerateNewOne)
 				$UniqueKey = uniqid(); //reference
 			else {
-				$dr = $this->getdtProjects($this->hdnID, $Refresh);
-				if (!$dr || !$dr['Thumbnail'])
+				$dt = $this->getdtProjects($this->hdnID, $Refresh);
+				if (!$dt || !$dt[0]['Thumbnail'])
 					return null;
 			}
-			$ID = self::UploadPath . $this->UserID . '_' . ($GenerateNewOne ? $UniqueKey : $dr['Thumbnail']);
+			$ID = self::UploadPath . $this->hdnID . '_' . ($GenerateNewOne ? $UniqueKey : $dt[0]['Thumbnail']);
 		}
 		return $ID;
 	}
@@ -589,8 +604,8 @@ class Projects extends \Base\FormModel {
 		$this->Save();
 	}
 
-	private function _UploadThumb(&$CldR = null) {
-		if ($this->fileThumb) {
+	private function _UploadThumb(&$PicUnqID = null, &$CldR = null) {
+		if (isset($_FILES[$this->PostName]['tmp_name']['fileThumb'])) {
 			if ($this->ThumbID)
 				$this->_DeleteThumb();
 			$CldR = T\Cloudinary\Cloudinary::Uplaod($_FILES[$this->PostName]['tmp_name']['fileThumb']
@@ -599,7 +614,7 @@ class Projects extends \Base\FormModel {
 							)
 			);
 			if ($CldR && $CldR['public_id'])
-				return $PicUnqID;
+				return true;
 			else {
 				\Err::TraceMsg_Method(__METHOD__, "Cloudinary upload failed!", $CldR);
 				$this->addError('fileThumb', \t2::site_site('Failed!'));
@@ -620,12 +635,15 @@ class Projects extends \Base\FormModel {
 	}
 
 	private function _DeleteThumb() {
-		$CldR = T\Cloudinary\Cloudinary::Destroy($this->ThumbID, array('invalidate' => true));
-		if (!$CldR) {
-			\Err::TraceMsg_Method(__METHOD__, "Cloudinary delete failed!", $CldR);
-			$this->addError('fileThumb', \t2::site_site('Failed!'));
+		if ($ThumbID = $this->ThumbID) {
+			$CldR = T\Cloudinary\Cloudinary::Destroy($ThumbID, array('invalidate' => true));
+			if (!$CldR) {
+				\Err::TraceMsg_Method(__METHOD__, "Cloudinary delete failed!", $CldR);
+				$this->addError('fileThumb', \t2::site_site('Failed!'));
+			}
+			return $CldR;
 		}
-		return $CldR;
+		return true;
 	}
 
 }

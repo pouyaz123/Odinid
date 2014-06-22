@@ -31,6 +31,7 @@ return array(
 	'Inline edit' => 'Inline edit (Double click)',
 //	'Delete' => 'Delete',
 //	'Save' => 'Save',
+//	'Ok' => 'Ok',
 //	'Cancel' => 'Cancel',
 //	'Save all editing items' => 'Save all editing items',
 

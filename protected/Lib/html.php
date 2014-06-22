@@ -268,6 +268,7 @@ final class html {
 				$ActiveForm->textField($model, $attribute, $htmlOptions) :
 				\CHtml::activeTextField($model, $attribute, $htmlOptions);
 	}
+
 //
 //	/**
 //	 * same as \CHtml::activeHiddenField but if you provide the $form with a valid CActiveForm object you will patch the field to the form(client validator and ...)
@@ -927,7 +928,6 @@ $.superbox.settings = {
 	}
 
 	static function DataGrid_Load($Theme = \Conf::jQTheme) {
-		$Theme = $Theme ? $Theme : \Conf::jQTheme;
 		\html::LoadCSS("*/_js/jqUI/themes/$Theme/jquery-ui.custom.css");
 		\html::LoadCSS('*/_js/jqGrid/ui.jqgrid.css');
 		\html::LoadJS('jqGrid/myOptimize.jqGrid');
@@ -1001,12 +1001,12 @@ $.superbox.settings = {
 		\html::LoadJS('tagit/MyTagIt');
 //		\html::LoadJS('tagit/tag-it.min');
 	}
-	
+
 	static function TagIt_AC_Companies_Load() {
 		self::TagIt_Load();
 		\html::LoadJS('tagit/ac_companies');
 	}
-	
+
 	static function TagIt_AC_Lib_Load() {
 		self::TagIt_Load();
 		\html::LoadJS('tagit/ac_lib');
@@ -1033,6 +1033,13 @@ $.superbox.settings = {
 		self::LoadJS('jqUI/jquery.ui.widget.min');
 		self::LoadJS('jqUI/jquery.ui.datepicker.min');
 	}
+
+	static function MyDialog_Load($Theme = \Conf::jQTheme) {
+		self::LoadCSS("*/_js/jqUI/themes/$Theme/jquery-ui.custom.css");
+		self::LoadJS('MyJuiDialog/MyDialog');
+	}
+
+	const MyDialog = ' MyJuiDialog ';
 
 //	static function DatePicker_InlineScript() {
 //		
